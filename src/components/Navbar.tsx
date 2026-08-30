@@ -18,7 +18,7 @@ export default function Navbar() {
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent2 text-lg">⚡</span>
-          <span className="font-black text-lg">اسپارک</span>
+          <span className="font-black text-lg">«توسعه‌کاران ستایش</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm text-[#C4C7ED]">
