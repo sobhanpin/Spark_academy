@@ -265,3 +265,46 @@ function MessagesTab() {
     </div>
   )
                              }
+function AnnouncementTab() {
+  const [text, setText] = useState('')
+  const send = async () => {
+    if (!text) return
+    await supabase.from('announcements').insert({ text })
+    setText('')
+    alert('اطلاعیه ارسال شد.')
+  }
+  return (
+    <div className="card space-y-2">
+      <textarea className="input resize-none" rows={3} placeholder="متن اطلاعیه برای همه دانشجویان" value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={send} className="btn-primary w-full">ارسال اطلاعیه</button>
+    </div>
+  )
+}
+
+function SettingsTab() {
+  const [settings, setSettings] = useState<Record<string, string>>({})
+  useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
+
+  const save = async () => {
+    const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key))
+    await Promise.all(updates)
+    alert('تنظیمات ذخیره شد.')
+  }
+
+  const fields: [string, string][] = [
+    ['site_name', 'اسم سایت'], ['tagline', 'شعار'], ['hero_title', 'تیتر اصلی صفحه اول'], ['hero_subtitle', 'زیرتیتر صفحه اول'],
+    ['phone', 'شماره تماس'], ['address', 'آدرس'], ['instagram', 'اینستاگرام'], ['telegram', 'تلگرام'],
+  ]
+
+  return (
+    <div className="card space-y-3">
+      {fields.map(([key, label]) => (
+        <div key={key}>
+          <label className="block text-xs text-[#7B7FB5] mb-1">{label}</label>
+          <input className="input" value={settings[key] || ''} onChange={(e) => setSettings({ ...settings, [key]: e.target.value })} />
+        </div>
+      ))}
+      <button onClick={save} className="btn-primary w-full">ذخیره تنظیمات</button>
+    </div>
+  )
+                  }
