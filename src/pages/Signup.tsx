@@ -20,7 +20,7 @@ export default function Signup() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: { data: { name }, emailRedirectTo: 'https://sobhanpin.github.io/Spark_academy/' },
     })
     setLoading(false)
     if (error) { setError(error.message.includes('already') ? 'این ایمیل قبلاً ثبت شده است.' : 'خطا در ثبت‌نام. دوباره تلاش کنید.'); return }
@@ -71,4 +71,4 @@ export default function Signup() {
       </form>
     </div>
   )
-      }
+        }
