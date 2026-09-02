@@ -200,3 +200,78 @@ function TestimonialsTab() {
     </div>
   )
 }
+function NewsTab() {
+  const [items, setItems] = useState<NewsItem[]>([])
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const load = () => supabase.from('news').select('*').order('published_at', { ascending: false }).then(({ data }) => setItems(data || []))
+  useEffect(() => { load() }, [])
+  const add = async () => {
+    if (!title || !content) return
+    await supabase.from('news').insert({ title, content })
+    setTitle(''); setContent(''); load()
+  }
+  const remove = async (id: string) => { await supabase.from('news').delete().eq('id', id); load() }
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <input className="input" placeholder="عنوان خبر" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea className="input resize-none" rows={3} placeholder="متن خبر" value={content} onChange={(e) => setContent(e.target.value)} />
+        <button onClick={add} className="btn-primary w-full">انتشار خبر</button>
+      </div>
+      {items.map((n) => (
+        <div key={n.id} className="card !py-3">
+          <div className="font-bold text-sm">{n.title}</div>
+          <p className="text-xs text-[#8B8FC0] mt-1">{n.content}</p>
+          <button onClick={() => remove(n.id)} className="text-[#FB7185] text-xs mt-2">حذف</button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function FaqTab() {
+  const [items, setItems] = useState<FaqItem[]>([])
+  const [q, setQ] = useState('')
+  const [a, setA] = useState('')
+  const load = () => supabase.from('faq').select('*').order('sort_order').then(({ data }) => setItems(data || []))
+  useEffect(() => { load() }, [])
+  const add = async () => {
+    if (!q || !a) return
+    await supabase.from('faq').insert({ question: q, answer: a, sort_order: items.length })
+    setQ(''); setA(''); load()
+  }
+  const remove = async (id: string) => { await supabase.from('faq').delete().eq('id', id); load() }
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <input className="input" placeholder="سؤال" value={q} onChange={(e) => setQ(e.target.value)} />
+        <textarea className="input resize-none" rows={2} placeholder="پاسخ" value={a} onChange={(e) => setA(e.target.value)} />
+        <button onClick={add} className="btn-primary w-full">افزودن سؤال</button>
+      </div>
+      {items.map((f) => (
+        <div key={f.id} className="card !py-3">
+          <div className="font-bold text-sm">{f.question}</div>
+          <p className="text-xs text-[#8B8FC0] mt-1">{f.answer}</p>
+          <button onClick={() => remove(f.id)} className="text-[#FB7185] text-xs mt-2">حذف</button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function MessagesTab() {
+  const [items, setItems] = useState<any[]>([])
+  useEffect(() => { supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).then(({ data }) => setItems(data || [])) }, [])
+  return (
+    <div className="space-y-2">
+      {items.map((m) => (
+        <div key={m.id} className="card !py-3">
+          <div className="flex justify-between text-sm font-bold"><span>{m.name}</span><span className="text-[#7B7FB5] text-xs">{m.phone}</span></div>
+          <p className="text-xs text-[#8B8FC0] mt-1">{m.message}</p>
+        </div>
+      ))}
+      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">پیامی وجود ندارد.</div>}
+    </div>
+  )
+}
