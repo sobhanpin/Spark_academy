@@ -117,7 +117,7 @@ function CoursesTab() {
       ))}
     </div>
   )
-    }
+      }
 function StudentsTab() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
 
@@ -199,7 +199,6 @@ function TestimonialsTab() {
       ))}
     </div>
   )
-}
 function NewsTab() {
   const [items, setItems] = useState<NewsItem[]>([])
   const [title, setTitle] = useState('')
@@ -274,8 +273,8 @@ function MessagesTab() {
       {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">پیامی وجود ندارد.</div>}
     </div>
   )
-}
-function AnnouncementTab() {
+    }
+  function AnnouncementTab() {
   const [text, setText] = useState('')
   const send = async () => {
     if (!text) return
@@ -368,7 +367,7 @@ function TeachersTab() {
       {teachers.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز مدرسی ثبت نشده.</div>}
     </div>
   )
-      }
+    }
 function MaterialsTab() {
   const [items, setItems] = useState<CourseMaterial[]>([])
   const [courses, setCourses] = useState<Course[]>([])
@@ -458,4 +457,4 @@ function SettingsTab() {
       <button onClick={save} className="btn-primary w-full">ذخیره تنظیمات</button>
     </div>
   )
-      }
+          }  
