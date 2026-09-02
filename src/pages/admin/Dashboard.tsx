@@ -275,3 +275,97 @@ function MessagesTab() {
     </div>
   )
     }
+function AnnouncementTab() {
+  const [text, setText] = useState('')
+  const send = async () => {
+    if (!text) return
+    await supabase.from('announcements').insert({ text })
+    setText('')
+    alert('اطلاعیه ارسال شد.')
+  }
+  return (
+    <div className="card space-y-2">
+      <textarea className="input resize-none" rows={3} placeholder="متن اطلاعیه برای همه دانشجویان" value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={send} className="btn-primary w-full">ارسال اطلاعیه</button>
+    </div>
+  )
+}
+
+function DocumentsTab() {
+  const [items, setItems] = useState<AcademyDocument[]>([])
+  const [title, setTitle] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
+  const load = () => supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false }).then(({ data }) => setItems(data || []))
+  useEffect(() => { load() }, [])
+  const upload = async () => {
+    if (!title || !file) { alert('عنوان و فایل رو انتخاب کن'); return }
+    setBusy(true)
+    const path = `${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('documents').upload(path, file)
+    if (!error) {
+      await supabase.from('academy_documents').insert({ title, file_path: path })
+      setTitle(''); setFile(null); load()
+    }
+    setBusy(false)
+  }
+  const remove = async (doc: AcademyDocument) => {
+    await supabase.storage.from('documents').remove([doc.file_path])
+    await supabase.from('academy_documents').delete().eq('id', doc.id)
+    load()
+  }
+  const getUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <input className="input" placeholder="عنوان مدرک" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input type="file" accept="image/*,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input" />
+        <button onClick={upload} disabled={busy} className="btn-primary w-full">{busy ? 'در حال آپلود...' : 'آپلود مدرک'}</button>
+      </div>
+      {items.map((d) => (
+        <div key={d.id} className="card !py-3 flex items-center justify-between">
+          <a href={getUrl(d.file_path)} target="_blank" rel="noreferrer" className="text-sm text-accent">{d.title}</a>
+          <button onClick={() => remove(d)} className="text-[#FB7185] text-xs">حذف</button>
+        </div>
+      ))}
+      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز مدرکی آپلود نشده.</div>}
+    </div>
+  )
+}
+
+function TeachersTab() {
+  const [teachers, setTeachers] = useState<Profile[]>([])
+  const [email, setEmail] = useState('')
+  const load = () => supabase.from('profiles').select('*').eq('role', 'teacher').then(({ data }) => setTeachers(data || []))
+  useEffect(() => { load() }, [])
+  const addTeacher = async () => {
+    if (!email) return
+    const { data, error } = await supabase.from('profiles').update({ role: 'teacher' }).eq('email', email).select()
+    if (error || !data || data.length === 0) { alert('کاربری با این ایمیل پیدا نشد. اول باید تو سایت ثبت‌نام کرده باشد.'); return }
+    setEmail('')
+    load()
+  }
+  const removeTeacher = async (id: string) => {
+    await supabase.from('profiles').update({ role: 'student' }).eq('id', id)
+    load()
+  }
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <label className="block text-xs text-[#7B7FB5]">ایمیل کاربری که می‌خوای مدرس بشه (باید قبلاً تو سایت ثبت‌نام کرده باشد)</label>
+        <input className="input" placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <button onClick={addTeacher} className="btn-primary w-full">افزودن به‌عنوان مدرس</button>
+      </div>
+      {teachers.map((t) => (
+        <div key={t.id} className="card !py-3 flex items-center justify-between">
+          <div>
+            <div className="font-bold text-sm">{t.name}</div>
+            <div className="text-xs text-[#7B7FB5]">{t.email}</div>
+          </div>
+          <button onClick={() => removeTeacher(t.id)} className="text-[#FB7185] text-xs">حذف نقش مدرس</button>
+        </div>
+      ))}
+      {teachers.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز مدرسی ثبت نشده.</div>}
+    </div>
+  )
+          }
