@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -11,6 +11,8 @@ export default function Enroll() {
   const [classMode, setClassMode] = useState<'in_person' | 'online'>('in_person')
   const [done, setDone] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [docFile, setDocFile] = useState<File | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (id) supabase.from('courses').select('*').eq('id', id).single().then(({ data }) => setCourse(data))
@@ -19,12 +21,33 @@ export default function Enroll() {
   const submit = async () => {
     if (!session) { navigate('/login'); return }
     setLoading(true)
-    await supabase.from('enrollments').insert({
-      user_id: session.user.id,
-      course_id: id,
-      class_mode: classMode,
-      payment_status: 'pending',
-    })
+
+    const { data: enrollment, error } = await supabase
+      .from('enrollments')
+      .insert({
+        user_id: session.user.id,
+        course_id: id,
+        class_mode: classMode,
+        payment_status: 'pending',
+      })
+      .select()
+      .single()
+
+    if (!error && docFile && enrollment) {
+      const path = `${session.user.id}/${Date.now()}_${docFile.name}`
+      const { error: upErr } = await supabase.storage.from('uploads').upload(path, docFile)
+      if (!upErr) {
+        await supabase.from('uploads').insert({
+          user_id: session.user.id,
+          course_id: id,
+          file_name: docFile.name,
+          file_path: path,
+          file_type: docFile.type,
+          size_kb: Math.round(docFile.size / 1024),
+        })
+      }
+    }
+
     setLoading(false)
     setDone(true)
   }
@@ -78,6 +101,18 @@ export default function Enroll() {
           </div>
         </div>
 
+        <div>
+          <label className="block text-xs text-[#7B7FB5] mb-2">مدرک شناسایی (کارت ملی/شناسنامه) — اختیاری</label>
+          <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setDocFile(e.target.files?.[0] || null)} />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="w-full border-2 border-dashed border-white/15 rounded-xl py-4 text-sm text-[#A8ACD9] text-center"
+          >
+            {docFile ? `📎 ${docFile.name}` : '📎 آپلود مدرک (اختیاری)'}
+          </button>
+        </div>
+
         <div className="bg-violet/10 border border-violet/30 rounded-xl p-3 text-sm text-[#D8D7FF]">
           💳 پرداخت شهریه به‌صورت <b>حضوری در آموزشگاه</b> (نقدی یا کارت‌خوان) انجام می‌شود. بعد از ثبت‌نام، وضعیتت «در انتظار پرداخت» می‌شود.
         </div>
@@ -93,4 +128,4 @@ export default function Enroll() {
       </div>
     </div>
   )
-                                                    }
+      }
