@@ -81,6 +81,12 @@ export default function Enroll() {
       <h1 className="text-xl font-black mb-1">ثبت‌نام در دوره</h1>
       <p className="text-[#8B8FC0] mb-6">{course.title}</p>
 
+      {course.required_documents && (
+        <div className="bg-accent/10 border border-accent/30 rounded-xl p-3 text-sm text-accent mb-4">
+          📄 مدارک موردنیاز: {course.required_documents}
+        </div>
+      )}
+
       <div className="card space-y-4">
         <div>
           <label className="block text-xs text-[#7B7FB5] mb-2">نوع کلاس</label>
@@ -102,14 +108,14 @@ export default function Enroll() {
         </div>
 
         <div>
-          <label className="block text-xs text-[#7B7FB5] mb-2">مدرک شناسایی (کارت ملی/شناسنامه) — اختیاری</label>
+          <label className="block text-xs text-[#7B7FB5] mb-2">آپلود مدرک</label>
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setDocFile(e.target.files?.[0] || null)} />
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
             className="w-full border-2 border-dashed border-white/15 rounded-xl py-4 text-sm text-[#A8ACD9] text-center"
           >
-            {docFile ? `📎 ${docFile.name}` : '📎 آپلود مدرک (اختیاری)'}
+            {docFile ? `📎 ${docFile.name}` : '📎 آپلود مدرک'}
           </button>
         </div>
 
@@ -128,4 +134,4 @@ export default function Enroll() {
       </div>
     </div>
   )
-      }
+    }
