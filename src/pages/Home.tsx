@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase, Course, Testimonial, NewsItem, FaqItem } from '../lib/supabase'
+import { supabase, Course, Testimonial, NewsItem, FaqItem, AcademyDocument } from '../lib/supabase'
 
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([])
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [news, setNews] = useState<NewsItem[]>([])
   const [faqs, setFaqs] = useState<FaqItem[]>([])
+  const [documents, setDocuments] = useState<AcademyDocument[]>([])
   const [settings, setSettings] = useState<Record<string, string>>({})
   const [openFaq, setOpenFaq] = useState<string | null>(null)
 
@@ -15,10 +16,13 @@ export default function Home() {
     supabase.from('testimonials').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6).then(({ data }) => setTestimonials(data || []))
     supabase.from('news').select('*').order('published_at', { ascending: false }).limit(3).then(({ data }) => setNews(data || []))
     supabase.from('faq').select('*').order('sort_order').then(({ data }) => setFaqs(data || []))
+    supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false }).then(({ data }) => setDocuments(data || []))
     supabase.from('site_settings').select('key,value').then(({ data }) => {
       if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value])))
     })
   }, [])
+
+  const docUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
 
   return (
     <div>
@@ -88,6 +92,20 @@ export default function Home() {
         </section>
       )}
 
+      {documents.length > 0 && (
+        <section className="max-w-5xl mx-auto px-4 py-14">
+          <h2 className="text-2xl font-black mb-6">مجوزها و مدارک آموزشگاه</h2>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {documents.map((d) => (
+              <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="card hover:border-accent/40 transition-all block text-center">
+                <div className="text-3xl mb-2">📄</div>
+                <div className="text-sm font-bold">{d.title}</div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       {faqs.length > 0 && (
         <section id="faq" className="max-w-5xl mx-auto px-4 py-14">
           <h2 className="text-2xl font-black mb-6">سؤالات متداول</h2>
@@ -109,4 +127,4 @@ export default function Home() {
       )}
     </div>
   )
-                  }
+}
