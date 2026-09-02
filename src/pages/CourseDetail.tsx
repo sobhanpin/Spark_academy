@@ -25,6 +25,12 @@ export default function CourseDetail() {
             <p className="text-sm text-[#8B8FC0]">{course.workshop_details}</p>
           </div>
         )}
+        {course.required_documents && (
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <div className="text-sm font-bold text-accent mb-1">📄 مدارک موردنیاز</div>
+            <p className="text-sm text-[#8B8FC0]">{course.required_documents}</p>
+          </div>
+        )}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3 mb-6">
