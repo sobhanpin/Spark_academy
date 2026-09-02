@@ -260,3 +260,95 @@ function MessagesTab() {
       {items.map((m) => (
         <div key={m.id} className="card !py-3">
           <div className="flex justify-between text-sm font-bold"><span>{m.name}</span><span className="text-
+function AnnouncementTab() {
+  const [text, setText] = useState('')
+  const send = async () => {
+    if (!text) return
+    await supabase.from('announcements').insert({ text })
+    setText('')
+    alert('اطلاعیه ارسال شد.')
+  }
+  return (
+    <div className="card space-y-2">
+      <textarea className="input resize-none" rows={3} placeholder="متن اطلاعیه برای همه دانشجویان" value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={send} className="btn-primary w-full">ارسال اطلاعیه</button>
+    </div>
+  )
+}
+
+function DocumentsTab() {
+  const [items, setItems] = useState<AcademyDocument[]>([])
+  const [title, setTitle] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const load = () => supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false }).then(({ data }) => setItems(data || []))
+  useEffect(() => { load() }, [])
+
+  const upload = async () => {
+    if (!title || !file) { alert('عنوان و فایل رو انتخاب کن'); return }
+    setBusy(true)
+    const path = `${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('documents').upload(path, file)
+    if (!error) {
+      await supabase.from('academy_documents').insert({ title, file_path: path })
+      setTitle('')
+      setFile(null)
+      load()
+    }
+    setBusy(false)
+  }
+
+  const remove = async (doc: AcademyDocument) => {
+    await supabase.storage.from('documents').remove([doc.file_path])
+    await supabase.from('academy_documents').delete().eq('id', doc.id)
+    load()
+  }
+
+  const getUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
+
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <input className="input" placeholder="عنوان مدرک (مثلاً: مجوز رسمی آموزشگاه)" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input type="file" accept="image/*,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input" />
+        <button onClick={upload} disabled={busy} className="btn-primary w-full">{busy ? 'در حال آپلود...' : 'آپلود مدرک'}</button>
+      </div>
+      {items.map((d) => (
+        <div key={d.id} className="card !py-3 flex items-center justify-between">
+          <a href={getUrl(d.file_path)} target="_blank" rel="noreferrer" className="text-sm text-accent">{d.title}</a>
+          <button onClick={() => remove(d)} className="text-[#FB7185] text-xs">حذف</button>
+        </div>
+      ))}
+      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز مدرکی آپلود نشده.</div>}
+    </div>
+  )
+}
+
+function SettingsTab() {
+  const [settings, setSettings] = useState<Record<string, string>>({})
+  useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
+
+  const save = async () => {
+    const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key))
+    await Promise.all(updates)
+    alert('تنظیمات ذخیره شد.')
+  }
+
+  const fields: [string, string][] = [
+    ['site_name', 'اسم سایت'], ['tagline', 'شعار'], ['hero_title', 'تیتر اصلی صفحه اول'], ['hero_subtitle', 'زیرتیتر صفحه اول'],
+    ['phone', 'شماره تماس'], ['address', 'آدرس'], ['instagram', 'اینستاگرام'], ['telegram', 'تلگرام'],
+  ]
+
+  return (
+    <div className="card space-y-3">
+      {fields.map(([key, label]) => (
+        <div key={key}>
+          <label className="block text-xs text-[#7B7FB5] mb-1">{label}</label>
+          <input className="input" value={settings[key] || ''} onChange={(e) => setSettings({ ...settings, [key]: e.target.value })} />
+        </div>
+      ))}
+      <button onClick={save} className="btn-primary w-full">ذخیره تنظیمات</button>
+    </div>
+  )
+                                                   }
