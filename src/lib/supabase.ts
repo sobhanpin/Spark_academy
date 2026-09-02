@@ -26,6 +26,7 @@ export type Course = {
   capacity: number | null
   duration: string | null
   prerequisite: string | null
+  required_documents: string | null
   image_url: string | null
   video_url: string | null
   is_active: boolean
@@ -50,40 +51,4 @@ export type Upload = {
   id: string
   user_id: string
   course_id: string | null
-  file_name: string
-  file_path: string
-  file_type: string | null
-  size_kb: number | null
-  uploaded_at: string
-}
-
-export type Announcement = {
-  id: string
-  author_id: string | null
-  course_id: string | null
-  text: string
-  created_at: string
-}
-
-export type Testimonial = {
-  id: string
-  student_name: string
-  text: string
-  approved: boolean
-  created_at: string
-}
-
-export type NewsItem = {
-  id: string
-  title: string
-  content: string
-  image_url: string | null
-  published_at: string
-}
-
-export type FaqItem = {
-  id: string
-  question: string
-  answer: string
-  sort_order: number
-  }
+  file_name: s
