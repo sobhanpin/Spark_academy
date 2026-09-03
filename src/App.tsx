@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute'
+import { ProtectedRoute, AdminRoute, TeacherRoute } from './components/ProtectedRoute'
 
 import Home from './pages/Home'
 import Courses from './pages/Courses'
@@ -14,6 +14,7 @@ import Contact from './pages/Contact'
 import Enroll from './pages/Enroll'
 import StudentDashboard from './pages/student/Dashboard'
 import AdminDashboard from './pages/admin/Dashboard'
+import TeacherDashboard from './pages/teacher/Dashboard'
 
 export default function App() {
   return (
@@ -39,6 +40,14 @@ export default function App() {
             }
           />
           <Route
+            path="/teacher"
+            element={
+              <TeacherRoute>
+                <TeacherDashboard />
+              </TeacherRoute>
+            }
+          />
+          <Route
             path="/admin"
             element={
               <AdminRoute>
@@ -51,4 +60,4 @@ export default function App() {
       <Footer />
     </div>
   )
-            }
+                }
