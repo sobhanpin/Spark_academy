@@ -13,12 +13,15 @@ export default function Navbar() {
     navigate('/')
   }
 
+  const panelPath = profile?.role === 'admin' ? '/admin' : profile?.role === 'teacher' ? '/teacher' : '/dashboard'
+  const panelLabel = profile?.role === 'admin' ? 'پنل مدیریت' : profile?.role === 'teacher' ? 'پنل مدرس' : 'پنل من'
+
   return (
     <header className="sticky top-0 z-30 bg-bgsoft/90 backdrop-blur border-b border-white/10">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent2 text-lg">⚡</span>
-          <span className="font-black text-lg">«توسعه‌کاران ستایش</span>
+          <span className="font-black text-lg">توسعه‌کاران ستایش</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm text-[#C4C7ED]">
@@ -31,11 +34,8 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {session ? (
             <>
-              <Link
-                to={profile?.role === 'admin' ? '/admin' : '/dashboard'}
-                className="text-sm bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-lg transition-colors"
-              >
-                {profile?.role === 'admin' ? 'پنل مدیریت' : 'پنل من'}
+              <Link to={panelPath} className="text-sm bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-lg transition-colors">
+                {panelLabel}
               </Link>
               <button onClick={logout} className="text-sm text-[#A8ACD9] hover:text-accent px-2 py-2 transition-colors">
                 خروج
@@ -60,4 +60,4 @@ export default function Navbar() {
       )}
     </header>
   )
-                }
+      }
