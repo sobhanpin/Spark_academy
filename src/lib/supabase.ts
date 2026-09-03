@@ -9,6 +9,7 @@ export type Profile = {
   id: string
   name: string
   phone: string | null
+  email: string | null
   role: 'student' | 'admin' | 'teacher'
   avatar_url: string | null
   created_at: string
