@@ -29,6 +29,7 @@ export type Course = {
   prerequisite: string | null
   required_documents: string | null
   teacher_id: string | null
+  online_link: string | null
   image_url: string | null
   video_url: string | null
   is_active: boolean
@@ -108,4 +109,12 @@ export type CourseMaterial = {
   uploaded_at: string
   courses?: Course
   profiles?: Profile
+}
+
+export type StudentDocument = {
+  id: string
+  user_id: string
+  title: string
+  file_path: string
+  uploaded_at: string
   }
