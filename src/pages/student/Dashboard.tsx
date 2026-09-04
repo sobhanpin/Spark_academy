@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument } from '../../lib/supabase'
 
-const TABS = ['دوره‌های من', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'پروفایل'] as const
+type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
+
+const TABS = ['دوره‌های من', 'چت با مدرس', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'پروفایل'] as const
 
 export default function StudentDashboard() {
   const { session, profile, refreshProfile } = useAuth()
@@ -14,6 +16,7 @@ export default function StudentDashboard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [selectedCourse, setSelectedCourse] = useState('')
   const [busy, setBusy] = useState(false)
+  const [activeChat, setActiveChat] = useState<Enrollment | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const load = async () => {
@@ -67,6 +70,15 @@ export default function StudentDashboard() {
     alert('پروفایل به‌روزرسانی شد.')
   }
 
+  if (activeChat) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <button onClick={() => setActiveChat(null)} className="text-sm text-accent mb-4">← برگشت</button>
+        <ChatBox enrollmentId={activeChat.id} title={activeChat.courses?.title || ''} />
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-xl font-black mb-4">سلام {profile?.name} 👋</h1>
@@ -97,6 +109,18 @@ export default function StudentDashboard() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {tab === 'چت با مدرس' && (
+        <div className="space-y-2">
+          {enrollments.map((e) => (
+            <button key={e.id} onClick={() => setActiveChat(e)} className="card !py-3 w-full text-right flex items-center justify-between">
+              <span className="text-sm font-medium">{e.courses?.title}</span>
+              <span className="text-accent text-xs">گفتگو ←</span>
+            </button>
+          ))}
+          {enrollments.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز در دوره‌ای ثبت‌نام نکرده‌ای.</div>}
         </div>
       )}
 
@@ -169,4 +193,32 @@ export default function StudentDashboard() {
       )}
     </div>
   )
-      }
+}
+
+function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string }) {
+  const { session } = useAuth()
+  const [messages, setMessages] = useState<ChatMsg[]>([])
+  const [text, setText] = useState('')
+  const load = () => { supabase.from('chat_messages').select('*').eq('enrollment_id', enrollmentId).order('created_at').then(({ data }) => setMessages(data || [])) }
+  useEffect(() => { load() }, [enrollmentId])
+  const send = async () => {
+    if (!text.trim() || !session) return
+    await supabase.from('chat_messages').insert({ enrollment_id: enrollmentId, sender_id: session.user.id, message: text.trim() })
+    setText(''); load()
+  }
+  return (
+    <div className="card">
+      <div className="font-bold text-sm mb-3">{title}</div>
+      <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+        {messages.map((m) => (
+          <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+        ))}
+        {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پیام..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+        <button onClick={send} className="btn-primary !px-4">ارسال</button>
+      </div>
+    </div>
+  )
+    }
