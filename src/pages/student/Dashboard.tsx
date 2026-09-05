@@ -4,7 +4,7 @@ import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocu
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
 
-const TABS = ['دوره‌های من', 'چت با مدرس', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'پروفایل'] as const
+const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'پروفایل'] as const
 
 export default function StudentDashboard() {
   const { session, profile, refreshProfile } = useAuth()
@@ -123,7 +123,7 @@ export default function StudentDashboard() {
           {enrollments.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز در دوره‌ای ثبت‌نام نکرده‌ای.</div>}
         </div>
       )}
-
+{tab === 'پشتیبانی' && <SupportChat />}
       {tab === 'جزوات کلاس' && (
         <div className="space-y-2">
           {materials.map((m) => (
@@ -222,3 +222,33 @@ function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string 
     </div>
   )
     }
+function SupportChat() {
+  const { session } = useAuth()
+  const [messages, setMessages] = useState<ChatMsg[]>([])
+  const [text, setText] = useState('')
+  const load = () => {
+    if (!session) return
+    supabase.from('support_messages').select('*').eq('user_id', session.user.id).order('created_at').then(({ data }) => setMessages((data as any) || []))
+  }
+  useEffect(() => { load() }, [session])
+  const send = async () => {
+    if (!text.trim() || !session) return
+    await supabase.from('support_messages').insert({ user_id: session.user.id, sender_id: session.user.id, message: text.trim() })
+    setText(''); load()
+  }
+  return (
+    <div className="card">
+      <div className="font-bold text-sm mb-3">پشتیبانی آموزشگاه</div>
+      <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+        {messages.map((m: any) => (
+          <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+        ))}
+        {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">برای شروع، پیامت رو بفرست.</div>}
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پیام به پشتیبانی..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+        <button onClick={send} className="btn-primary !px-4">ارسال</button>
+      </div>
+    </div>
+  )
+        }
