@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial } from '../../lib/supabase'
-
-const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'جزوات دوره', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
+import { useAuth } from '../../contexts/AuthContext'
+const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'جزوات دوره', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌ها')
@@ -21,6 +21,7 @@ export default function AdminDashboard() {
       {tab === 'دانشجویان' && <StudentsTab />}
       {tab === 'مدرسین' && <TeachersTab />}
       {tab === 'جزوات دوره' && <MaterialsTab />}
+      {tab === 'پشتیبانی' && <AdminSupportTab />}
       {tab === 'نظرات' && <TestimonialsTab />}
       {tab === 'اخبار' && <NewsTab />}
       {tab === 'FAQ' && <FaqTab />}
@@ -480,3 +481,57 @@ function SettingsTab() {
     </div>
   )
                                                                                                                            }
+function AdminSupportTab() {
+  const { session } = useAuth()
+  const [students, setStudents] = useState<Profile[]>([])
+  const [selected, setSelected] = useState<Profile | null>(null)
+  const [messages, setMessages] = useState<any[]>([])
+  const [text, setText] = useState('')
+
+  useEffect(() => {
+    supabase.from('profiles').select('*').neq('role', 'admin').then(({ data }) => setStudents(data || []))
+  }, [])
+
+  const load = (userId: string) => {
+    supabase.from('support_messages').select('*').eq('user_id', userId).order('created_at').then(({ data }) => setMessages(data || []))
+  }
+
+  const send = async () => {
+    if (!text.trim() || !session || !selected) return
+    await supabase.from('support_messages').insert({ user_id: selected.id, sender_id: session.user.id, message: text.trim() })
+    setText(''); load(selected.id)
+  }
+
+  if (selected) {
+    return (
+      <div className="card">
+        <button onClick={() => setSelected(null)} className="text-xs text-accent mb-3">← برگشت</button>
+        <div className="font-bold text-sm mb-3">{selected.name}</div>
+        <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+          {messages.map((m) => (
+            <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+          ))}
+          {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
+        </div>
+        <div className="flex gap-2">
+          <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پاسخ..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+          <button onClick={send} className="btn-primary !px-4">ارسال</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      {students.map((s) => (
+        <button key={s.id} onClick={() => { setSelected(s); load(s.id) }} className="card !py-3 w-full text-right flex items-center justify-between">
+          <div>
+            <div className="font-bold text-sm">{s.name}</div>
+            <div className="text-xs text-[#7B7FB5]">{s.role === 'teacher' ? 'مدرس' : 'دانشجو'}</div>
+          </div>
+          <span className="text-accent text-xs">گفتگو ←</span>
+        </button>
+      ))}
+    </div>
+  )
+}
