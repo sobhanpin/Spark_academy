@@ -459,6 +459,18 @@ function MaterialsTab() {
 
 function SettingsTab() {
   const [settings, setSettings] = useState<Record<string, string>>({})
+ const [logoBusy, setLogoBusy] = useState(false)
+  const uploadLogo = async (file: File) => {
+    setLogoBusy(true)
+    const path = `logo/${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('documents').upload(path, file)
+    if (!error) {
+      const url = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
+      await supabase.from('site_settings').upsert({ key: 'logo_url', value: url })
+      setSettings((s) => ({ ...s, logo_url: url }))
+    }
+    setLogoBusy(false)
+  }
   useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
   const save = async () => {
     const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key))
@@ -471,6 +483,11 @@ function SettingsTab() {
   ]
   return (
     <div className="card space-y-3">
+   <div>
+        <label className="block text-xs text-[#7B7FB5] mb-1">لوگوی آموزشگاه</label>
+        {settings.logo_url && <img src={settings.logo_url} alt="لوگو" className="h-16 mb-2 rounded-lg" />}
+        <input type="file" accept="image/*" disabled={logoBusy} onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} className="input" />
+      </div>
       {fields.map(([key, label]) => (
         <div key={key}>
           <label className="block text-xs text-[#7B7FB5] mb-1">{label}</label>
