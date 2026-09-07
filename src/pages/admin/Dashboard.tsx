@@ -420,3 +420,154 @@ function TeachersTab() {
     </div>
   )
     }
+function MaterialsTab() {
+  const [items, setItems] = useState<CourseMaterial[]>([])
+  const [courses, setCourses] = useState<Course[]>([])
+  const [courseId, setCourseId] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
+  const load = () => {
+    supabase.from('course_materials').select('*, courses(*), profiles(*)').order('uploaded_at', { ascending: false }).then(({ data }) => setItems((data as CourseMaterial[]) || []))
+    supabase.from('courses').select('*').then(({ data }) => setCourses(data || []))
+  }
+  useEffect(() => { load() }, [])
+  const upload = async () => {
+    if (!courseId || !file) { alert('دوره و فایل رو انتخاب کن'); return }
+    setBusy(true)
+    const { data: userData } = await supabase.auth.getUser()
+    const path = `${courseId}/${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('materials').upload(path, file)
+    if (!error && userData.user) {
+      await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: userData.user.id, file_name: file.name, file_path: path })
+      setFile(null); load()
+    }
+    setBusy(false)
+  }
+  const remove = async (m: CourseMaterial) => {
+    await supabase.storage.from('materials').remove([m.file_path])
+    await supabase.from('course_materials').delete().eq('id', m.id)
+    load()
+  }
+  const openFile = async (path: string) => {
+    const { data } = await supabase.storage.from('materials').createSignedUrl(path, 60)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+  }
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <select className="input" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+          <option value="">انتخاب دوره</option>
+          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input" />
+        <button onClick={upload} disabled={busy} className="btn-primary w-full">{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
+      </div>
+      {items.map((m) => (
+        <div key={m.id} className="card !py-3 flex items-center justify-between">
+          <button onClick={() => openFile(m.file_path)} className="text-right flex-1 truncate">
+            <div className="text-sm font-medium truncate">{m.file_name}</div>
+            <div className="text-xs text-[#7B7FB5]">{m.courses?.title} · {m.profiles?.name}</div>
+          </button>
+          <button onClick={() => remove(m)} className="text-[#FB7185] text-xs px-2">حذف</button>
+        </div>
+      ))}
+      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز جزوه‌ای آپلود نشده.</div>}
+    </div>
+  )
+}
+
+function SettingsTab() {
+  const [settings, setSettings] = useState<Record<string, string>>({})
+  const [logoBusy, setLogoBusy] = useState(false)
+  const uploadLogo = async (file: File) => {
+    setLogoBusy(true)
+    const path = `logo/${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('documents').upload(path, file)
+    if (!error) {
+      const url = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
+      await supabase.from('site_settings').upsert({ key: 'logo_url', value: url })
+      setSettings((s) => ({ ...s, logo_url: url }))
+    }
+    setLogoBusy(false)
+  }
+  useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
+  const save = async () => {
+    const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key))
+    await Promise.all(updates)
+    alert('تنظیمات ذخیره شد.')
+  }
+  const fields: [string, string][] = [
+    ['site_name', 'اسم سایت'], ['tagline', 'شعار'], ['hero_title', 'تیتر اصلی صفحه اول'], ['hero_subtitle', 'زیرتیتر صفحه اول'],
+    ['phone', 'شماره تماس'], ['address', 'آدرس'], ['instagram', 'اینستاگرام'], ['telegram', 'تلگرام'],
+  ]
+  return (
+    <div className="card space-y-3">
+      <div>
+        <label className="block text-xs text-[#7B7FB5] mb-1">لوگوی آموزشگاه</label>
+        {settings.logo_url && <img src={settings.logo_url} alt="لوگو" className="h-16 mb-2 rounded-lg" />}
+        <input type="file" accept="image/*" disabled={logoBusy} onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} className="input" />
+      </div>
+      {fields.map(([key, label]) => (
+        <div key={key}>
+          <label className="block text-xs text-[#7B7FB5] mb-1">{label}</label>
+          <input className="input" value={settings[key] || ''} onChange={(e) => setSettings({ ...settings, [key]: e.target.value })} />
+        </div>
+      ))}
+      <button onClick={save} className="btn-primary w-full">ذخیره تنظیمات</button>
+    </div>
+  )
+}
+function AdminSupportTab() {
+  const { session } = useAuth()
+  const [students, setStudents] = useState<Profile[]>([])
+  const [selected, setSelected] = useState<Profile | null>(null)
+  const [messages, setMessages] = useState<any[]>([])
+  const [text, setText] = useState('')
+
+  useEffect(() => {
+    supabase.from('profiles').select('*').neq('role', 'admin').then(({ data }) => setStudents(data || []))
+  }, [])
+
+  const load = (userId: string) => {
+    supabase.from('support_messages').select('*').eq('user_id', userId).order('created_at').then(({ data }) => setMessages(data || []))
+  }
+
+  const send = async () => {
+    if (!text.trim() || !session || !selected) return
+    await supabase.from('support_messages').insert({ user_id: selected.id, sender_id: session.user.id, message: text.trim() })
+    setText(''); load(selected.id)
+  }
+
+  if (selected) {
+    return (
+      <div className="card">
+        <button onClick={() => setSelected(null)} className="text-xs text-accent mb-3">← برگشت</button>
+        <div className="font-bold text-sm mb-3">{selected.name}</div>
+        <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+          {messages.map((m) => (
+            <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+          ))}
+          {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
+        </div>
+        <div className="flex gap-2">
+          <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پاسخ..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+          <button onClick={send} className="btn-primary !px-4">ارسال</button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      {students.map((s) => (
+        <button key={s.id} onClick={() => { setSelected(s); load(s.id) }} className="card !py-3 w-full text-right flex items-center justify-between">
+          <div>
+            <div className="font-bold text-sm">{s.name}</div>
+            <div className="text-xs text-[#7B7FB5]">{s.role === 'teacher' ? 'مدرس' : 'دانشجو'}</div>
+          </div>
+          <span className="text-accent text-xs">گفتگو ←</span>
+        </button>
+      ))}
+    </div>
+  )
+    }
