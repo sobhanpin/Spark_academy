@@ -117,6 +117,7 @@ export default function Enroll() {
           >
             {docFile ? `📎 ${docFile.name}` : '📎 آپلود مدرک'}
           </button>
+          <p className="text-xs text-[#5C5F8A] mt-1.5">آپلود اینجا اختیاریه — می‌تونی مدرک رو حضوری هم در آموزشگاه تحویل بدی.</p>
         </div>
 
         <div className="bg-violet/10 border border-violet/30 rounded-xl p-3 text-sm text-[#D8D7FF]">
