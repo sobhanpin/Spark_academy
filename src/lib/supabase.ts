@@ -117,4 +117,5 @@ export type StudentDocument = {
   title: string
   file_path: string
   uploaded_at: string
-  }
+  seen: boolean
+}
