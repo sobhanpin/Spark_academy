@@ -13,9 +13,16 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error || !data.user) {
+      setLoading(false)
+      setError('ایمیل یا رمز عبور اشتباه است.')
+      return
+    }
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
     setLoading(false)
-    if (error) setError('ایمیل یا رمز عبور اشتباه است.')
+    if (profile?.role === 'admin') navigate('/admin')
+    else if (profile?.role === 'teacher') navigate('/teacher')
     else navigate('/dashboard')
   }
 
