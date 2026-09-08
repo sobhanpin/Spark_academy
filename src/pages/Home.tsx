@@ -93,3 +93,58 @@ export default function Home() {
                 <div className="text-xs text-accent font-bold">{t.student_name}</div>
               </div>
             ))}
+))}
+          </div>
+        </section>
+      )}
+
+      {news.length > 0 && (
+        <section id="news" className="max-w-5xl mx-auto px-4 py-14">
+          <h2 className="text-2xl font-black mb-6">اخبار</h2>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {news.map((n) => (
+              <div key={n.id} className="card">
+                <h3 className="font-bold mb-2">{n.title}</h3>
+                <p className="text-sm text-[#8B8FC0] line-clamp-3">{n.content}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {documents.length > 0 && (
+        <section className="max-w-5xl mx-auto px-4 py-14">
+          <h2 className="text-2xl font-black mb-6">مجوزها و مدارک آموزشگاه</h2>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {documents.map((d) => (
+              <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="card hover:border-accent/40 transition-all block text-center">
+                <div className="text-3xl mb-2">📄</div>
+                <div className="text-sm font-bold">{d.title}</div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {faqs.length > 0 && (
+        <section id="faq" className="max-w-5xl mx-auto px-4 py-14">
+          <h2 className="text-2xl font-black mb-6">سؤالات متداول</h2>
+          <div className="space-y-2">
+            {faqs.map((f) => (
+              <div key={f.id} className="card !py-3">
+                <button
+                  className="w-full text-right flex justify-between items-center font-bold"
+                  onClick={() => setOpenFaq(openFaq === f.id ? null : f.id)}
+                >
+                  {f.question}
+                  <span className="text-accent">{openFaq === f.id ? '−' : '+'}</span>
+                </button>
+                {openFaq === f.id && <p className="text-sm text-[#8B8FC0] mt-3">{f.answer}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
