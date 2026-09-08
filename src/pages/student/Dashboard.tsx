@@ -228,3 +228,86 @@ function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
     setText('')
     setSent(true)
           }
+if (sent) {
+    return (
+      <div className="card text-center py-8">
+        <div className="text-2xl mb-2">🙏</div>
+        <div className="text-sm text-[#C4C7ED]">نظرت ثبت شد و بعد از تأیید آموزشگاه روی سایت نمایش داده می‌شود.</div>
+        <button onClick={() => setSent(false)} className="text-accent text-xs mt-4">ثبت نظر دیگر</button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card space-y-3">
+      <div className="text-sm font-bold">نظرت رو با ما در میون بذار</div>
+      <div>
+        <label className="block text-xs text-[#7B7FB5] mb-1">نام</label>
+        <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+      <div>
+        <label className="block text-xs text-[#7B7FB5] mb-1">متن نظر</label>
+        <textarea className="input resize-none" rows={4} placeholder="تجربه‌ت از دوره چطور بود؟" value={text} onChange={(e) => setText(e.target.value)} />
+      </div>
+      <button onClick={submit} disabled={busy} className="btn-primary w-full">{busy ? 'در حال ارسال...' : 'ارسال نظر'}</button>
+    </div>
+  )
+}
+
+function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string }) {
+  const { session } = useAuth()
+  const [messages, setMessages] = useState<ChatMsg[]>([])
+  const [text, setText] = useState('')
+  const load = () => { supabase.from('chat_messages').select('*').eq('enrollment_id', enrollmentId).order('created_at').then(({ data }) => setMessages(data || [])) }
+  useEffect(() => { load() }, [enrollmentId])
+  const send = async () => {
+    if (!text.trim() || !session) return
+    await supabase.from('chat_messages').insert({ enrollment_id: enrollmentId, sender_id: session.user.id, message: text.trim() })
+    setText(''); load()
+  }
+  return (
+    <div className="card">
+      <div className="font-bold text-sm mb-3">{title}</div>
+      <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+        {messages.map((m) => (
+          <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+        ))}
+        {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پیام..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+        <button onClick={send} className="btn-primary !px-4">ارسال</button>
+      </div>
+    </div>
+  )
+}
+function SupportChat() {
+  const { session } = useAuth()
+  const [messages, setMessages] = useState<ChatMsg[]>([])
+  const [text, setText] = useState('')
+  const load = () => {
+    if (!session) return
+    supabase.from('support_messages').select('*').eq('user_id', session.user.id).order('created_at').then(({ data }) => setMessages((data as any) || []))
+  }
+  useEffect(() => { load() }, [session])
+  const send = async () => {
+    if (!text.trim() || !session) return
+    await supabase.from('support_messages').insert({ user_id: session.user.id, sender_id: session.user.id, message: text.trim() })
+    setText(''); load()
+  }
+  return (
+    <div className="card">
+      <div className="font-bold text-sm mb-3">پشتیبانی آموزشگاه</div>
+      <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+        {messages.map((m: any) => (
+          <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+        ))}
+        {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">برای شروع، پیامت رو بفرست.</div>}
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پیام به پشتیبانی..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+        <button onClick={send} className="btn-primary !px-4">ارسال</button>
+      </div>
+    </div>
+  )
+      }
