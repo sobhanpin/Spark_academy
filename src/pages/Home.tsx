@@ -27,8 +27,27 @@ export default function Home() {
   return (
     <div>
       <section className="relative overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-violet/20 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-accent/10 blur-3xl" />
+        <svg className="absolute inset-0 w-full h-full opacity-70" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 500">
+          <defs>
+            <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="glowB" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#FFB84D" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFB84D" />
+              <stop offset="100%" stopColor="#8B5CF6" />
+            </linearGradient>
+          </defs>
+          <circle cx="150" cy="150" r="260" fill="url(#glowA)" />
+          <circle cx="650" cy="380" r="280" fill="url(#glowB)" />
+          <circle cx="550" cy="100" r="180" fill="url(#glowA)" />
+          <path d="M80 80 Q180 220 120 320 T280 460" fill="none" stroke="url(#lineGrad)" strokeWidth="1.5" strokeOpacity="0.4" strokeLinecap="round" />
+          <path d="M620 60 Q520 150 600 260 T440 400" fill="none" stroke="url(#lineGrad)" strokeWidth="1.2" strokeOpacity="0.3" strokeLinecap="round" />
+        </svg>
         <div className="max-w-5xl mx-auto px-4 py-20 text-center relative animate-fade-up">
           <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-4">
             {settings.hero_title || 'اسپارک باش، مسیرتو روشن کن'}
@@ -74,57 +93,3 @@ export default function Home() {
                 <div className="text-xs text-accent font-bold">{t.student_name}</div>
               </div>
             ))}
-          </div>
-        </section>
-      )}
-
-      {news.length > 0 && (
-        <section id="news" className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">اخبار</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {news.map((n) => (
-              <div key={n.id} className="card">
-                <h3 className="font-bold mb-2">{n.title}</h3>
-                <p className="text-sm text-[#8B8FC0] line-clamp-3">{n.content}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {documents.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">مجوزها و مدارک آموزشگاه</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {documents.map((d) => (
-              <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="card hover:border-accent/40 transition-all block text-center">
-                <div className="text-3xl mb-2">📄</div>
-                <div className="text-sm font-bold">{d.title}</div>
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {faqs.length > 0 && (
-        <section id="faq" className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">سؤالات متداول</h2>
-          <div className="space-y-2">
-            {faqs.map((f) => (
-              <div key={f.id} className="card !py-3">
-                <button
-                  className="w-full text-right flex justify-between items-center font-bold"
-                  onClick={() => setOpenFaq(openFaq === f.id ? null : f.id)}
-                >
-                  {f.question}
-                  <span className="text-accent">{openFaq === f.id ? '−' : '+'}</span>
-                </button>
-                {openFaq === f.id && <p className="text-sm text-[#8B8FC0] mt-3">{f.answer}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  )
-}
