@@ -127,3 +127,90 @@ function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () =>
     </div>
   )
               }
+function TeacherMaterials({ courses }: { courses: Course[] }) {
+  const { session } = useAuth()
+  const [items, setItems] = useState<CourseMaterial[]>([])
+  const [courseId, setCourseId] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const load = () => {
+    if (!session) return
+    supabase.from('course_materials').select('*, courses(*)').eq('teacher_id', session.user.id).order('uploaded_at', { ascending: false }).then(({ data }) => setItems((data as CourseMaterial[]) || []))
+  }
+  useEffect(() => { load() }, [session])
+
+  const upload = async () => {
+    if (!courseId || !file || !session) { alert('دوره و فایل رو انتخاب کن'); return }
+    setBusy(true)
+    const path = `${courseId}/${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('materials').upload(path, file)
+    if (!error) {
+      await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: session.user.id, file_name: file.name, file_path: path })
+      setFile(null); load()
+    }
+    setBusy(false)
+  }
+
+  const remove = async (m: CourseMaterial) => {
+    await supabase.storage.from('materials').remove([m.file_path])
+    await supabase.from('course_materials').delete().eq('id', m.id)
+    load()
+  }
+
+  const openFile = async (path: string) => {
+    const { data } = await supabase.storage.from('materials').createSignedUrl(path, 60)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="card space-y-2">
+        <select className="input" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+          <option value="">انتخاب دوره</option>
+          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input" />
+        <button onClick={upload} disabled={busy} className="btn-primary w-full">{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
+      </div>
+      {items.map((m) => (
+        <div key={m.id} className="card !py-3 flex items-center justify-between">
+          <button onClick={() => openFile(m.file_path)} className="text-right flex-1 truncate">
+            <div className="text-sm font-medium truncate">{m.file_name}</div>
+            <div className="text-xs text-[#7B7FB5]">{m.courses?.title}</div>
+          </button>
+          <button onClick={() => remove(m)} className="text-[#FB7185] text-xs px-2">حذف</button>
+        </div>
+      ))}
+      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز جزوه‌ای آپلود نکردی.</div>}
+    </div>
+  )
+}
+
+function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string }) {
+  const { session } = useAuth()
+  const [messages, setMessages] = useState<ChatMsg[]>([])
+  const [text, setText] = useState('')
+  const load = () => { supabase.from('chat_messages').select('*').eq('enrollment_id', enrollmentId).order('created_at').then(({ data }) => setMessages(data || [])) }
+  useEffect(() => { load() }, [enrollmentId])
+  const send = async () => {
+    if (!text.trim() || !session) return
+    await supabase.from('chat_messages').insert({ enrollment_id: enrollmentId, sender_id: session.user.id, message: text.trim() })
+    setText(''); load()
+  }
+  return (
+    <div className="card">
+      <div className="font-bold text-sm mb-3">{title}</div>
+      <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+        {messages.map((m) => (
+          <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+        ))}
+        {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
+      </div>
+      <div className="flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پیام..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+        <button onClick={send} className="btn-primary !px-4">ارسال</button>
+      </div>
+    </div>
+  )
+      }
