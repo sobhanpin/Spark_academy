@@ -4,11 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#0F1130',
-        bgsoft: '#171A47',
-        accent: '#FFC24B',
-        accent2: '#FF9D2E',
-        violet: '#6C63FF',
+        bg: '#0B0E2A',
+        bgsoft: '#141A3D',
+        accent: '#22D3AE',
+        accent2: '#FF6584',
+        violet: '#7C6FFF',
       },
       fontFamily: {
         vazir: ['Vazirmatn', 'sans-serif'],
