@@ -13,9 +13,14 @@ export default function TeacherDashboard() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [activeEnrollment, setActiveEnrollment] = useState<Enrollment | null>(null)
 
-  useEffect(() => {
+  const loadCourses = () => {
     if (!session) return
     supabase.from('courses').select('*').eq('teacher_id', session.user.id).then(({ data }) => setCourses(data || []))
+  }
+
+  useEffect(() => {
+    if (!session) return
+    loadCourses()
     supabase.from('enrollments').select('*, courses(*), profiles(*)').then(({ data }) => {
       const mine = (data as Enrollment[] || []).filter((e) => e.courses?.teacher_id === session.user.id)
       setEnrollments(mine)
@@ -43,11 +48,7 @@ export default function TeacherDashboard() {
       {tab === 'دوره‌های من' && (
         <div className="space-y-2">
           {courses.map((c) => (
-            <div key={c.id} className="card !py-3">
-              <div className="font-bold text-sm">{c.title}</div>
-              <div className="text-xs text-[#7B7FB5] mt-1">{c.mode === 'both' ? 'حضوری و آنلاین' : c.mode === 'in_person' ? 'حضوری' : 'آنلاین'} · {c.category}</div>
-              {c.online_link && <a href={c.online_link} target="_blank" rel="noreferrer" className="text-xs text-accent">🔗 لینک کلاس</a>}
-            </div>
+            <TeacherCourseCard key={c.id} course={c} onSaved={loadCourses} />
           ))}
           {courses.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز دوره‌ای به تو اختصاص داده نشده.</div>}
         </div>
@@ -77,90 +78,52 @@ export default function TeacherDashboard() {
   )
 }
 
-function TeacherMaterials({ courses }: { courses: Course[] }) {
-  const { session } = useAuth()
-  const [items, setItems] = useState<CourseMaterial[]>([])
-  const [courseId, setCourseId] = useState('')
-  const [file, setFile] = useState<File | null>(null)
+function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () => void }) {
+  const [editingLink, setEditingLink] = useState(false)
+  const [link, setLink] = useState(course.online_link || '')
   const [busy, setBusy] = useState(false)
 
-  const load = () => {
-    if (!session) return
-    supabase.from('course_materials').select('*, courses(*)').eq('teacher_id', session.user.id).order('uploaded_at', { ascending: false }).then(({ data }) => setItems((data as CourseMaterial[]) || []))
-  }
-  useEffect(() => { load() }, [session])
+  const canHaveOnlineLink = course.mode !== 'in_person'
 
-  const upload = async () => {
-    if (!courseId || !file || !session) { alert('دوره و فایل رو انتخاب کن'); return }
+  const save = async () => {
     setBusy(true)
-    const path = `${courseId}/${Date.now()}_${file.name}`
-    const { error } = await supabase.storage.from('materials').upload(path, file)
-    if (!error) {
-      await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: session.user.id, file_name: file.name, file_path: path })
-      setFile(null); load()
-    }
+    const { error } = await supabase.from('courses').update({ online_link: link.trim() || null }).eq('id', course.id)
     setBusy(false)
-  }
-
-  const remove = async (m: CourseMaterial) => {
-    await supabase.storage.from('materials').remove([m.file_path])
-    await supabase.from('course_materials').delete().eq('id', m.id)
-    load()
-  }
-
-  const openFile = async (path: string) => {
-    const { data } = await supabase.storage.from('materials').createSignedUrl(path, 60)
-    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+    if (error) { alert('خطا در ذخیره لینک: ' + error.message); return }
+    setEditingLink(false)
+    onSaved()
   }
 
   return (
-    <div className="space-y-3">
-      <div className="card space-y-2">
-        <select className="input" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
-          <option value="">انتخاب دوره</option>
-          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
-        </select>
-        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input" />
-        <button onClick={upload} disabled={busy} className="btn-primary w-full">{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
-      </div>
-      {items.map((m) => (
-        <div key={m.id} className="card !py-3 flex items-center justify-between">
-          <button onClick={() => openFile(m.file_path)} className="text-right flex-1 truncate">
-            <div className="text-sm font-medium truncate">{m.file_name}</div>
-            <div className="text-xs text-[#7B7FB5]">{m.courses?.title}</div>
-          </button>
-          <button onClick={() => remove(m)} className="text-[#FB7185] text-xs px-2">حذف</button>
+    <div className="card !py-3">
+      <div className="font-bold text-sm">{course.title}</div>
+      <div className="text-xs text-[#7B7FB5] mt-1">{course.mode === 'both' ? 'حضوری و آنلاین' : course.mode === 'in_person' ? 'حضوری' : 'آنلاین'} · {course.category}</div>
+
+      {canHaveOnlineLink && (
+        <div className="mt-2">
+          {editingLink ? (
+            <div className="flex gap-2 items-center">
+              <input
+                className="input !py-1.5 text-xs flex-1"
+                placeholder="لینک کلاس آنلاین (اسکای‌روم/گوگل‌میت و غیره)"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+              />
+              <button onClick={save} disabled={busy} className="text-xs bg-accent text-bg font-bold px-3 py-1.5 rounded-lg shrink-0">{busy ? '...' : 'ذخیره'}</button>
+              <button onClick={() => { setEditingLink(false); setLink(course.online_link || '') }} className="text-xs text-[#7B7FB5] shrink-0">انصراف</button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              {course.online_link ? (
+                <a href={course.online_link} target="_blank" rel="noreferrer" className="text-xs text-accent">🔗 لینک کلاس</a>
+              ) : (
+                <span className="text-xs text-[#5C5F8A]">لینک کلاس ثبت نشده</span>
+              )}
+              <button onClick={() => setEditingLink(true)} className="text-xs text-[#A8ACD9] underline">ویرایش لینک</button>
+            </div>
+          )}
         </div>
-      ))}
-      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز جزوه‌ای آپلود نکردی.</div>}
+      )}
     </div>
   )
-}
-
-function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string }) {
-  const { session } = useAuth()
-  const [messages, setMessages] = useState<ChatMsg[]>([])
-  const [text, setText] = useState('')
-  const load = () => { supabase.from('chat_messages').select('*').eq('enrollment_id', enrollmentId).order('created_at').then(({ data }) => setMessages(data || [])) }
-  useEffect(() => { load() }, [enrollmentId])
-  const send = async () => {
-    if (!text.trim() || !session) return
-    await supabase.from('chat_messages').insert({ enrollment_id: enrollmentId, sender_id: session.user.id, message: text.trim() })
-    setText(''); load()
-  }
-  return (
-    <div className="card">
-      <div className="font-bold text-sm mb-3">{title}</div>
-      <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
-        {messages.map((m) => (
-          <div key={m.id} className={`text-sm px-3 py-2 rounded-xl max-w-[80%] ${m.sender_id === session?.user.id ? 'bg-accent text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
-        ))}
-        {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
-      </div>
-      <div className="flex gap-2">
-        <input value={text} onChange={(e) => setText(e.target.value)} className="input flex-1" placeholder="پیام..." onKeyDown={(e) => e.key === 'Enter' && send()} />
-        <button onClick={send} className="btn-primary !px-4">ارسال</button>
-      </div>
-    </div>
-  )
-    }
+              }
