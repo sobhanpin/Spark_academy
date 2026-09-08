@@ -87,7 +87,7 @@ function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () =>
 
   const save = async () => {
     setBusy(true)
-    const { error } = await supabase.from('courses').update({ online_link: link.trim() || null }).eq('id', course.id)
+    const { error } = await supabase.rpc('update_course_online_link', { course_id: course.id, new_link: link.trim() || null })
     setBusy(false)
     if (error) { alert('خطا در ذخیره لینک: ' + error.message); return }
     setEditingLink(false)
