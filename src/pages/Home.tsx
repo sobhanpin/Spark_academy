@@ -93,7 +93,6 @@ export default function Home() {
                 <div className="text-xs text-accent font-bold">{t.student_name}</div>
               </div>
             ))}
-))}
           </div>
         </section>
       )}
@@ -147,4 +146,4 @@ export default function Home() {
       )}
     </div>
   )
-}
+    }
