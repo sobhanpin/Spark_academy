@@ -27,26 +27,25 @@ export default function Home() {
   return (
     <div>
       <section className="relative overflow-hidden">
-        <svg className="absolute inset-0 w-full h-full opacity-70" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 500">
+        <svg className="absolute inset-0 w-full h-full opacity-80" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 500">
           <defs>
-            <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id="glowB" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#FFB84D" stopOpacity="0" />
-            </radialGradient>
-            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFB84D" />
-              <stop offset="100%" stopColor="#8B5CF6" />
+            <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.1" />
             </linearGradient>
+            <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#FFB84D" stopOpacity="0.08" />
+            </linearGradient>
+            <radialGradient id="softGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FF7A3D" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#FF7A3D" stopOpacity="0" />
+            </radialGradient>
           </defs>
-          <circle cx="150" cy="150" r="260" fill="url(#glowA)" />
-          <circle cx="650" cy="380" r="280" fill="url(#glowB)" />
-          <circle cx="550" cy="100" r="180" fill="url(#glowA)" />
-          <path d="M80 80 Q180 220 120 320 T280 460" fill="none" stroke="url(#lineGrad)" strokeWidth="1.5" strokeOpacity="0.4" strokeLinecap="round" />
-          <path d="M620 60 Q520 150 600 260 T440 400" fill="none" stroke="url(#lineGrad)" strokeWidth="1.2" strokeOpacity="0.3" strokeLinecap="round" />
+          <circle cx="170" cy="140" r="240" fill="url(#softGlow)" />
+          <path d="M-40 200 Q210 80 400 220 T840 190 V-40 H-40 Z" fill="url(#wave1)" opacity="0.65" />
+          <path d="M-40 440 Q230 300 420 420 T840 380 V640 H-40 Z" fill="url(#wave2)" opacity="0.6" />
+          <path d="M-40 340 Q250 500 420 340 T840 400" fill="none" stroke="#FFB84D" strokeWidth="1.5" strokeOpacity="0.4" />
         </svg>
         <div className="max-w-5xl mx-auto px-4 py-20 text-center relative animate-fade-up">
           <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-4">
@@ -146,4 +145,4 @@ export default function Home() {
       )}
     </div>
   )
-    }
+      }
