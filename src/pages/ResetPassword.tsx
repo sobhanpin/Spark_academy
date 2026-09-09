@@ -12,9 +12,16 @@ export default function ResetPassword() {
     e.preventDefault()
     if (password.length < 6) { setError('رمز عبور باید حداقل ۶ کاراکتر باشد.'); return }
     setLoading(true)
-    const { error } = await supabase.auth.updateUser({ password })
+    const { data, error } = await supabase.auth.updateUser({ password })
+    if (error || !data.user) {
+      setLoading(false)
+      setError('لینک منقضی شده. دوباره درخواست بازیابی رمز بده.')
+      return
+    }
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
     setLoading(false)
-    if (error) setError('لینک منقضی شده. دوباره درخواست بازیابی رمز بده.')
+    if (profile?.role === 'admin') navigate('/admin')
+    else if (profile?.role === 'teacher') navigate('/teacher')
     else navigate('/dashboard')
   }
 
