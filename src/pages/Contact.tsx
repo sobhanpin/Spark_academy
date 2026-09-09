@@ -7,12 +7,15 @@ export default function Contact() {
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setLoading(true)
-    await supabase.from('contact_messages').insert({ name, phone, message })
+    const { error } = await supabase.from('contact_messages').insert({ name, phone, message })
     setLoading(false)
+    if (error) { setError('خطا در ارسال پیام. دوباره تلاش کن.'); return }
     setSent(true)
   }
 
@@ -23,6 +26,7 @@ export default function Contact() {
         <div className="card text-center text-sm text-[#8B8FC0]">پیامت ارسال شد. به‌زودی باهات تماس می‌گیریم.</div>
       ) : (
         <form onSubmit={submit} className="card space-y-3">
+          {error && <div className="bg-[#FB7185]/15 text-[#FB7185] text-sm rounded-lg px-3 py-2">{error}</div>}
           <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="نام و نام خانوادگی" />
           <input value={phone} onChange={(e) => setPhone(e.target.value)} className="input" placeholder="شماره تماس" />
           <textarea required value={message} onChange={(e) => setMessage(e.target.value)} rows={4} className="input resize-none" placeholder="پیام شما" />
@@ -31,4 +35,4 @@ export default function Contact() {
       )}
     </div>
   )
-}
+          }
