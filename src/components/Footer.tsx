@@ -18,13 +18,14 @@ export default function Footer() {
           <span className="font-black text-white">{settings.site_name || 'توسعه‌کاران ستایش'}</span>
           <span className="text-[#5C5F8A]">| {settings.tagline || 'جرقه‌ی شروع یادگیری'}</span>
         </div>
-        <div className="grid sm:grid-cols-3 gap-2">
+        <div className="grid sm:grid-cols-4 gap-2">
           {settings.address && <div>📍 {settings.address}</div>}
           {settings.phone && <div>📞 {settings.phone}</div>}
           {settings.instagram && <div>📷 {settings.instagram}</div>}
+          {settings.telegram && <div>✈️ {settings.telegram}</div>}
         </div>
-        <div className="mt-6 text-[#5C5F8A]">© تمامی حقوق برای آموزشگاه توسعه‌کاران ستایش محفوظ است.</div>
+        <div className="mt-6 text-[#5C5F8A]">{settings.copyright_text || '© تمامی حقوق برای آموزشگاه توسعه‌کاران ستایش محفوظ است.'}</div>
       </div>
     </footer>
   )
-}
+          }
