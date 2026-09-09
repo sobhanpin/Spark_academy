@@ -68,12 +68,19 @@ export default function Home() {
             <Link
               key={c.id}
               to={`/courses/${c.id}`}
-              className="card hover:border-accent/40 hover:-translate-y-1 transition-all block"
+              className="card hover:border-accent/40 hover:-translate-y-1 transition-all block overflow-hidden !p-0"
             >
-              <span className="text-xs text-accent font-bold">{c.category}</span>
-              <h3 className="font-bold mt-1 mb-2">{c.title}</h3>
-              <p className="text-sm text-[#8B8FC0] line-clamp-2">{c.description}</p>
-              <div className="mt-3 text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</div>
+              {c.image_url ? (
+                <img src={c.image_url} alt={c.title} className="w-full h-36 object-cover" />
+              ) : (
+                <div className="w-full h-36 bg-gradient-to-br from-violet/30 to-accent/20" />
+              )}
+              <div className="p-4">
+                <span className="text-xs text-accent font-bold">{c.category}</span>
+                <h3 className="font-bold mt-1 mb-2">{c.title}</h3>
+                <p className="text-sm text-[#8B8FC0] line-clamp-2">{c.description}</p>
+                <div className="mt-3 text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</div>
+              </div>
             </Link>
           ))}
         </div>
@@ -81,68 +88,3 @@ export default function Home() {
           <Link to="/courses" className="text-accent hover:underline text-sm font-bold">مشاهده همه دوره‌ها ←</Link>
         </div>
       </section>
-
-      {testimonials.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">نظرات دانش‌آموزان</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {testimonials.map((t) => (
-              <div key={t.id} className="card">
-                <p className="text-sm text-[#C4C7ED] mb-3">«{t.text}»</p>
-                <div className="text-xs text-accent font-bold">{t.student_name}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {news.length > 0 && (
-        <section id="news" className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">اخبار</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {news.map((n) => (
-              <div key={n.id} className="card">
-                <h3 className="font-bold mb-2">{n.title}</h3>
-                <p className="text-sm text-[#8B8FC0] line-clamp-3">{n.content}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {documents.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">مجوزها و مدارک آموزشگاه</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {documents.map((d) => (
-              <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="card hover:border-accent/40 transition-all block text-center">
-                <div className="text-3xl mb-2">📄</div>
-                <div className="text-sm font-bold">{d.title}</div>
-              </a>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {faqs.length > 0 && (
-        <section id="faq" className="max-w-5xl mx-auto px-4 py-14">
-          <h2 className="text-2xl font-black mb-6">سؤالات متداول</h2>
-          <div className="space-y-2">
-            {faqs.map((f) => (
-              <div key={f.id} className="card !py-3">
-                <button
-                  className="w-full text-right flex justify-between items-center font-bold"
-                  onClick={() => setOpenFaq(openFaq === f.id ? null : f.id)}
-                >
-                  {f.question}
-                  <span className="text-accent">{openFaq === f.id ? '−' : '+'}</span>
-                </button>
-                {openFaq === f.id && <p className="text-sm text-[#8B8FC0] mt-3">{f.answer}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  )
-      }
