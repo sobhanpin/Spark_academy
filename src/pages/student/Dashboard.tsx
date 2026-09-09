@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial } from '../../lib/supabase'
+import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
 
@@ -8,6 +9,7 @@ const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی'
 
 export default function StudentDashboard() {
   const { session, profile, refreshProfile } = useAuth()
+  const { showToast } = useToast()
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌های من')
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [materials, setMaterials] = useState<CourseMaterial[]>([])
@@ -50,13 +52,16 @@ export default function StudentDashboard() {
 
   const uploadFile = async (file: File) => {
     if (!session || !file) return
-    if (file.size > 10 * 1024 * 1024) { alert('حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.'); return }
+    if (file.size > 10 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.', 'error'); return }
     setBusy(true)
     const path = `${session.user.id}/${Date.now()}_${file.name}`
     const { error: upErr } = await supabase.storage.from('uploads').upload(path, file)
     if (!upErr) {
       await supabase.from('uploads').insert({ user_id: session.user.id, course_id: selectedCourse || null, file_name: file.name, file_path: path, file_type: file.type, size_kb: Math.round(file.size / 1024) })
       await load()
+      showToast('فایل آپلود شد.')
+    } else {
+      showToast('خطا در آپلود: ' + upErr.message, 'error')
     }
     setBusy(false)
     if (fileRef.current) fileRef.current.value = ''
@@ -77,7 +82,7 @@ export default function StudentDashboard() {
     if (!session) return
     await supabase.from('profiles').update({ name: form.get('name') as string, phone: form.get('phone') as string }).eq('id', session.user.id)
     await refreshProfile()
-    alert('پروفایل به‌روزرسانی شد.')
+    showToast('پروفایل به‌روزرسانی شد.')
   }
 
   if (activeChat) {
@@ -108,7 +113,7 @@ export default function StudentDashboard() {
         <div className="space-y-3">
           {enrollments.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز در دوره‌ای ثبت‌نام نکرده‌ای.</div>}
           {enrollments.map((e) => (
-<div key={e.id} className="card">
+            <div key={e.id} className="card">
               <div className="flex justify-between items-start mb-1">
                 <h3 className="font-bold">{e.courses?.title}</h3>
                 <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${e.payment_status === 'paid' ? 'bg-[#34D399]/15 text-[#34D399]' : 'bg-accent/15 text-accent'}`}>
@@ -214,21 +219,23 @@ export default function StudentDashboard() {
 
 function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
   const { session } = useAuth()
+  const { showToast } = useToast()
   const [name, setName] = useState(defaultName)
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
 
   const submit = async () => {
-    if (!session || !name.trim() || !text.trim()) { alert('نام و متن نظر رو پر کن'); return }
+    if (!session || !name.trim() || !text.trim()) { showToast('نام و متن نظر رو پر کن', 'error'); return }
     setBusy(true)
     const { error } = await supabase.from('testimonials').insert({ user_id: session.user.id, student_name: name.trim(), text: text.trim(), approved: false })
     setBusy(false)
-    if (error) { alert('خطا در ارسال نظر: ' + error.message); return }
+    if (error) { showToast('خطا در ارسال نظر: ' + error.message, 'error'); return }
     setText('')
     setSent(true)
-          }
-if (sent) {
+  }
+
+  if (sent) {
     return (
       <div className="card text-center py-8">
         <div className="text-2xl mb-2">🙏</div>
@@ -310,4 +317,4 @@ function SupportChat() {
       </div>
     </div>
   )
-      }
+    }
