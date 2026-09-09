@@ -499,6 +499,7 @@ function SettingsTab() {
   const fields: [string, string][] = [
     ['site_name', 'اسم سایت'], ['tagline', 'شعار'], ['hero_title', 'تیتر اصلی صفحه اول'], ['hero_subtitle', 'زیرتیتر صفحه اول'],
     ['phone', 'شماره تماس'], ['address', 'آدرس'], ['instagram', 'اینستاگرام'], ['telegram', 'تلگرام'],
+    ['copyright_text', 'متن کپی‌رایت (پایین سایت)'],
   ]
   return (
     <div className="card space-y-3">
