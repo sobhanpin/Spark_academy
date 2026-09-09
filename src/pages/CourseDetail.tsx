@@ -5,15 +5,32 @@ import { supabase, Course } from '../lib/supabase'
 export default function CourseDetail() {
   const { id } = useParams()
   const [course, setCourse] = useState<Course | null>(null)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    if (id) supabase.from('courses').select('*').eq('id', id).single().then(({ data }) => setCourse(data))
+    if (!id) return
+    supabase.from('courses').select('*').eq('id', id).single().then(({ data, error }) => {
+      if (error || !data) setNotFound(true)
+      else setCourse(data)
+    })
   }, [id])
+
+  if (notFound) {
+    return (
+      <div className="max-w-sm mx-auto px-4 py-24 text-center">
+        <p className="text-[#8B8FC0] mb-4">این دوره پیدا نشد یا دیگر فعال نیست.</p>
+        <Link to="/courses" className="btn-primary">مشاهده دوره‌های دیگر</Link>
+      </div>
+    )
+  }
 
   if (!course) return <div className="text-center py-24 text-[#8B8FC0]">در حال بارگذاری...</div>
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
+      {course.image_url && (
+        <img src={course.image_url} alt={course.title} className="w-full h-56 object-cover rounded-2xl mb-4" />
+      )}
       <span className="text-xs text-accent font-bold">{course.category}</span>
       <h1 className="text-3xl font-black mt-1 mb-4">{course.title}</h1>
 
@@ -43,4 +60,4 @@ export default function CourseDetail() {
       <Link to={`/courses/${course.id}/enroll`} className="btn-primary block text-center">ثبت‌نام در این دوره</Link>
     </div>
   )
-        }
+}
