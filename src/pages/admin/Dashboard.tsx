@@ -8,7 +8,7 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌ها')
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-xl font-black mb-4">پنل مدیریت</h1>
       <div className="flex flex-wrap gap-1 bg-bgsoft p-1 rounded-xl border border-white/5 mb-5 text-xs">
         {TABS.map((t) => (
