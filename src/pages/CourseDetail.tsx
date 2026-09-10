@@ -61,4 +61,4 @@ export default function CourseDetail() {
       <Link to={`/courses/${course.id}/enroll`} className="btn-primary block text-center">ثبت‌نام در این دوره</Link>
     </div>
   )
-        }
+            }
