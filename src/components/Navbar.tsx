@@ -18,7 +18,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 bg-bgsoft/90 backdrop-blur border-b border-white/10">
-      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent2 text-lg">⚡</span>
           <span className="font-black text-lg">توسعه‌کاران ستایش</span>
@@ -60,4 +60,4 @@ export default function Navbar() {
       )}
     </header>
   )
-      }
+            }
