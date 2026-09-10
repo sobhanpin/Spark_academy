@@ -47,7 +47,7 @@ export default function Home() {
           <path d="M-40 440 Q230 300 420 420 T840 380 V640 H-40 Z" fill="url(#wave2)" opacity="0.6" />
           <path d="M-40 340 Q250 500 420 340 T840 400" fill="none" stroke="#FFB84D" strokeWidth="1.5" strokeOpacity="0.4" />
         </svg>
-        <div className="max-w-5xl mx-auto px-4 py-20 text-center relative animate-fade-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative animate-fade-up">
           <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-4">
             {settings.hero_title || 'اسپارک باش، مسیرتو روشن کن'}
           </h1>
@@ -61,9 +61,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 py-14">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <h2 className="text-2xl font-black mb-6">دوره‌های ما</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {courses.map((c) => (
             <Link
               key={c.id}
@@ -88,10 +88,11 @@ export default function Home() {
           <Link to="/courses" className="text-accent hover:underline text-sm font-bold">مشاهده همه دوره‌ها ←</Link>
         </div>
       </section>
-{testimonials.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 py-14">
+
+      {testimonials.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <h2 className="text-2xl font-black mb-6">نظرات دانش‌آموزان</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {testimonials.map((t) => (
               <div key={t.id} className="card">
                 <p className="text-sm text-[#C4C7ED] mb-3">«{t.text}»</p>
@@ -103,9 +104,9 @@ export default function Home() {
       )}
 
       {news.length > 0 && (
-        <section id="news" className="max-w-5xl mx-auto px-4 py-14">
+        <section id="news" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <h2 className="text-2xl font-black mb-6">اخبار</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-3 xl:grid-cols-4 gap-4">
             {news.map((n) => (
               <div key={n.id} className="card">
                 <h3 className="font-bold mb-2">{n.title}</h3>
@@ -117,9 +118,9 @@ export default function Home() {
       )}
 
       {documents.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 py-14">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <h2 className="text-2xl font-black mb-6">مجوزها و مدارک آموزشگاه</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-3 xl:grid-cols-4 gap-4">
             {documents.map((d) => (
               <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="card hover:border-accent/40 transition-all block text-center">
                 <div className="text-3xl mb-2">📄</div>
@@ -131,7 +132,7 @@ export default function Home() {
       )}
 
       {faqs.length > 0 && (
-        <section id="faq" className="max-w-5xl mx-auto px-4 py-14">
+        <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <h2 className="text-2xl font-black mb-6">سؤالات متداول</h2>
           <div className="space-y-2">
             {faqs.map((f) => (
@@ -151,4 +152,4 @@ export default function Home() {
       )}
     </div>
   )
-  }
+      }
