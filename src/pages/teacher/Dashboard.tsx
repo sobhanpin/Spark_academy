@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase, Course, Enrollment, CourseMaterial } from '../../lib/supabase'
+import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
 
@@ -79,6 +80,7 @@ export default function TeacherDashboard() {
 }
 
 function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () => void }) {
+  const { showToast } = useToast()
   const [editingLink, setEditingLink] = useState(false)
   const [link, setLink] = useState(course.online_link || '')
   const [busy, setBusy] = useState(false)
@@ -89,9 +91,10 @@ function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () =>
     setBusy(true)
     const { error } = await supabase.rpc('update_course_online_link', { course_id: course.id, new_link: link.trim() || null })
     setBusy(false)
-    if (error) { alert('خطا در ذخیره لینک: ' + error.message); return }
+    if (error) { showToast('خطا در ذخیره لینک: ' + error.message, 'error'); return }
     setEditingLink(false)
     onSaved()
+    showToast('لینک کلاس ذخیره شد.')
   }
 
   return (
@@ -126,9 +129,11 @@ function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () =>
       )}
     </div>
   )
-              }
+}
+
 function TeacherMaterials({ courses }: { courses: Course[] }) {
   const { session } = useAuth()
+  const { showToast } = useToast()
   const [items, setItems] = useState<CourseMaterial[]>([])
   const [courseId, setCourseId] = useState('')
   const [file, setFile] = useState<File | null>(null)
@@ -141,13 +146,16 @@ function TeacherMaterials({ courses }: { courses: Course[] }) {
   useEffect(() => { load() }, [session])
 
   const upload = async () => {
-    if (!courseId || !file || !session) { alert('دوره و فایل رو انتخاب کن'); return }
+    if (!courseId || !file || !session) { showToast('دوره و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
     const path = `${courseId}/${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('materials').upload(path, file)
     if (!error) {
       await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: session.user.id, file_name: file.name, file_path: path })
       setFile(null); load()
+      showToast('جزوه آپلود شد.')
+    } else {
+      showToast('خطا در آپلود: ' + error.message, 'error')
     }
     setBusy(false)
   }
