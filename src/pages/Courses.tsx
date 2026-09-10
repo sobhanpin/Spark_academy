@@ -23,7 +23,7 @@ export default function Courses() {
   })
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <h1 className="text-2xl font-black mb-6">همه دوره‌ها</h1>
 
       <div className="flex flex-wrap gap-2 mb-6">
@@ -51,15 +51,22 @@ export default function Courses() {
         />
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((c) => (
-          <Link key={c.id} to={`/courses/${c.id}`} className="card hover:border-accent/40 hover:-translate-y-1 transition-all block">
-            <span className="text-xs text-accent font-bold">{c.category}</span>
-            <h3 className="font-bold mt-1 mb-2">{c.title}</h3>
-            <p className="text-sm text-[#8B8FC0] line-clamp-2">{c.description}</p>
-            <div className="mt-3 flex justify-between items-center">
-              <span className="text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</span>
-              <span className="text-[11px] text-[#7B7FB5]">{c.mode === 'both' ? 'حضوری و آنلاین' : c.mode === 'in_person' ? 'حضوری' : 'آنلاین'}</span>
+          <Link key={c.id} to={`/courses/${c.id}`} className="card hover:border-accent/40 hover:-translate-y-1 transition-all block overflow-hidden !p-0">
+            {c.image_url ? (
+              <img src={c.image_url} alt={c.title} className="w-full h-36 object-cover" />
+            ) : (
+              <div className="w-full h-36 bg-gradient-to-br from-violet/30 to-accent/20" />
+            )}
+            <div className="p-4">
+              <span className="text-xs text-accent font-bold">{c.category}</span>
+              <h3 className="font-bold mt-1 mb-2">{c.title}</h3>
+              <p className="text-sm text-[#8B8FC0] line-clamp-2">{c.description}</p>
+              <div className="mt-3 flex justify-between items-center">
+                <span className="text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</span>
+                <span className="text-[11px] text-[#7B7FB5]">{c.mode === 'both' ? 'حضوری و آنلاین' : c.mode === 'in_person' ? 'حضوری' : 'آنلاین'}</span>
+              </div>
             </div>
           </Link>
         ))}
@@ -67,4 +74,4 @@ export default function Courses() {
       </div>
     </div>
   )
-}
+        }
