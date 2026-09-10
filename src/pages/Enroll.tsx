@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import Spinner from '../components/Spinner'
 
 export default function Enroll() {
   const { id } = useParams()
@@ -52,7 +53,7 @@ export default function Enroll() {
     setDone(true)
   }
 
-  if (!course) return <div className="text-center py-24 text-[#8B8FC0]">در حال بارگذاری...</div>
+  if (!course) return <Spinner />
 
   if (done) {
     return (
@@ -135,4 +136,4 @@ export default function Enroll() {
       </div>
     </div>
   )
-    }
+        }
