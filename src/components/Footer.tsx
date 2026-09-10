@@ -12,7 +12,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-white/10 mt-16">
-      <div className="max-w-5xl mx-auto px-4 py-10 text-sm text-[#8B8FC0]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-sm text-[#8B8FC0]">
         <div className="flex items-center gap-2 mb-3">
           <span className="grid place-items-center w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accent2 text-sm">⚡</span>
           <span className="font-black text-white">{settings.site_name || 'توسعه‌کاران ستایش'}</span>
@@ -28,4 +28,4 @@ export default function Footer() {
       </div>
     </footer>
   )
-          }
+}
