@@ -28,9 +28,9 @@ export default function CourseDetail() {
   if (!course) return <Spinner />
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {course.image_url && (
-        <img src={course.image_url} alt={course.title} className="w-full h-56 object-cover rounded-2xl mb-4" />
+        <img src={course.image_url} alt={course.title} className="w-full h-56 sm:h-72 object-cover rounded-2xl mb-4" />
       )}
       <span className="text-xs text-accent font-bold">{course.category}</span>
       <h1 className="text-3xl font-black mt-1 mb-4">{course.title}</h1>
@@ -51,14 +51,14 @@ export default function CourseDetail() {
         )}
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-3 mb-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <div className="card !py-3 text-sm flex justify-between"><span className="text-[#7B7FB5]">شهریه</span><span className="font-bold text-accent">{course.price.toLocaleString('fa-IR')} تومان</span></div>
         <div className="card !py-3 text-sm flex justify-between"><span className="text-[#7B7FB5]">نوع کلاس</span><span>{course.mode === 'both' ? 'حضوری و آنلاین' : course.mode === 'in_person' ? 'حضوری' : 'آنلاین'}</span></div>
         {course.duration && <div className="card !py-3 text-sm flex justify-between"><span className="text-[#7B7FB5]">مدت دوره</span><span>{course.duration}</span></div>}
         {course.prerequisite && <div className="card !py-3 text-sm flex justify-between"><span className="text-[#7B7FB5]">پیش‌نیاز</span><span>{course.prerequisite}</span></div>}
       </div>
 
-      <Link to={`/courses/${course.id}/enroll`} className="btn-primary block text-center">ثبت‌نام در این دوره</Link>
+      <Link to={`/courses/${course.id}/enroll`} className="btn-primary block text-center sm:inline-block sm:px-10">ثبت‌نام در این دوره</Link>
     </div>
   )
-            }
+}
