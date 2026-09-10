@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
+import Spinner from '../components/Spinner'
 
 export default function CourseDetail() {
   const { id } = useParams()
@@ -24,7 +25,7 @@ export default function CourseDetail() {
     )
   }
 
-  if (!course) return <div className="text-center py-24 text-[#8B8FC0]">در حال بارگذاری...</div>
+  if (!course) return <Spinner />
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -60,4 +61,4 @@ export default function CourseDetail() {
       <Link to={`/courses/${course.id}/enroll`} className="btn-primary block text-center">ثبت‌نام در این دوره</Link>
     </div>
   )
-}
+        }
