@@ -57,13 +57,27 @@ export default function Enroll() {
 
   if (done) {
     return (
-      <div className="max-w-sm mx-auto px-4 py-16 text-center">
-        <div className="text-4xl mb-3">✅</div>
-        <h1 className="text-xl font-black mb-2">ثبت‌نام اولیه انجام شد</h1>
-        <p className="text-sm text-[#8B8FC0] mb-6">
-          برای نهایی‌شدن ثبت‌نام، شهریه‌ی <b className="text-accent">{course.price.toLocaleString('fa-IR')} تومان</b> رو حضوری در آموزشگاه پرداخت کن. بعد از پرداخت، وضعیتت در پنل به «پرداخت‌شده» تغییر می‌کنه.
-        </p>
-        <Link to="/dashboard" className="btn-primary">رفتن به پنل من</Link>
+      <div className="relative max-w-sm mx-auto px-4 py-20 text-center">
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 50% 30%, var(--glow-gold), transparent 65%)' }}
+        />
+        <div
+          className="glass-panel rounded-3xl p-8"
+          style={{ boxShadow: 'var(--shadow-glass), 0 20px 50px -20px rgba(0,0,0,0.5)' }}
+        >
+          <div className="w-14 h-14 mx-auto rounded-full bg-white/5 shadow-neumo-out grid place-items-center text-3xl mb-4">✅</div>
+          <h1 className="text-xl font-black mb-2">ثبت‌نام اولیه انجام شد</h1>
+          <p className="text-sm text-[#8B8FC0] mb-6 leading-relaxed">
+            برای نهایی‌شدن ثبت‌نام، شهریه‌ی <b className="text-accent">{course.price.toLocaleString('fa-IR')} تومان</b> رو حضوری در آموزشگاه پرداخت کن. بعد از پرداخت، وضعیتت در پنل به «پرداخت‌شده» تغییر می‌کنه.
+          </p>
+          <Link
+            to="/dashboard"
+            className="btn-primary rounded-btn shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-transform duration-300"
+          >
+            رفتن به پنل من
+          </Link>
+        </div>
       </div>
     )
   }
@@ -72,23 +86,36 @@ export default function Enroll() {
     return (
       <div className="max-w-sm mx-auto px-4 py-16 text-center">
         <p className="text-[#8B8FC0] mb-4">برای ثبت‌نام در دوره، اول باید وارد حساب بشی.</p>
-        <Link to="/login" className="btn-primary">ورود / ثبت‌نام</Link>
+        <Link
+          to="/login"
+          className="btn-primary rounded-btn shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-transform duration-300"
+        >
+          ورود / ثبت‌نام
+        </Link>
       </div>
     )
   }
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-16">
-      <h1 className="text-xl font-black mb-1">ثبت‌نام در دوره</h1>
+    <div className="relative max-w-sm mx-auto px-4 py-20">
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{ background: 'radial-gradient(circle at 50% 30%, var(--glow-violet), transparent 65%)' }}
+      />
+
+      <h1 className="text-xl sm:text-2xl font-black mb-1">ثبت‌نام در دوره</h1>
       <p className="text-[#8B8FC0] mb-6">{course.title}</p>
 
       {course.required_documents && (
-        <div className="bg-accent/10 border border-accent/30 rounded-xl p-3 text-sm text-accent mb-4">
+        <div className="bg-accent/10 border border-accent/30 rounded-btn p-3.5 text-sm text-accent mb-5 shadow-neumo-out">
           📄 مدارک موردنیاز: {course.required_documents}
         </div>
       )}
 
-      <div className="card space-y-4">
+      <div
+        className="glass-panel rounded-3xl p-6 space-y-5"
+        style={{ boxShadow: 'var(--shadow-glass), 0 20px 50px -20px rgba(0,0,0,0.5)' }}
+      >
         <div>
           <label className="block text-xs text-[#7B7FB5] mb-2">نوع کلاس</label>
           <div className="grid grid-cols-2 gap-2">
@@ -98,8 +125,10 @@ export default function Enroll() {
                 type="button"
                 onClick={() => setClassMode(m)}
                 disabled={course.mode !== 'both' && course.mode !== m}
-                className={`py-2.5 rounded-lg text-sm font-medium border transition-colors disabled:opacity-30 ${
-                  classMode === m ? 'bg-accent text-bg border-accent' : 'bg-bg border-white/10 text-[#A8ACD9]'
+                className={`py-2.5 rounded-btn text-sm font-medium border transition-all duration-300 disabled:opacity-30 ${
+                  classMode === m
+                    ? 'bg-gradient-to-l from-accent to-accent2 text-bg border-accent shadow-glow-gold'
+                    : 'bg-bg border-white/10 text-[#A8ACD9] shadow-neumo-out hover:-translate-y-0.5'
                 }`}
               >
                 {m === 'in_person' ? 'حضوری' : 'آنلاین'}
@@ -114,14 +143,14 @@ export default function Enroll() {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="w-full border-2 border-dashed border-white/15 rounded-xl py-4 text-sm text-[#A8ACD9] text-center"
+            className="w-full border-2 border-dashed border-white/15 rounded-btn py-4 text-sm text-[#A8ACD9] text-center shadow-neumo-in hover:border-accent/40 transition-colors duration-300"
           >
             {docFile ? `📎 ${docFile.name}` : '📎 آپلود مدرک'}
           </button>
           <p className="text-xs text-[#5C5F8A] mt-1.5">آپلود اینجا اختیاریه — می‌تونی مدرک رو حضوری هم در آموزشگاه تحویل بدی.</p>
         </div>
 
-        <div className="bg-violet/10 border border-violet/30 rounded-xl p-3 text-sm text-[#D8D7FF]">
+        <div className="bg-violet/10 border border-violet/30 rounded-btn p-3.5 text-sm text-[#D8D7FF] shadow-neumo-out">
           💳 پرداخت شهریه به‌صورت <b>حضوری در آموزشگاه</b> (نقدی یا کارت‌خوان) انجام می‌شود. بعد از ثبت‌نام، وضعیتت «در انتظار پرداخت» می‌شود.
         </div>
 
@@ -130,10 +159,14 @@ export default function Enroll() {
           <span className="font-bold text-accent">{course.price.toLocaleString('fa-IR')} تومان</span>
         </div>
 
-        <button onClick={submit} disabled={loading} className="btn-primary w-full">
+        <button
+          onClick={submit}
+          disabled={loading}
+          className="btn-primary w-full rounded-btn shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-transform duration-300 disabled:opacity-60 disabled:pointer-events-none disabled:translate-y-0"
+        >
           {loading ? 'در حال ثبت...' : 'تأیید و ثبت‌نام'}
         </button>
       </div>
     </div>
   )
-             }
+        }
