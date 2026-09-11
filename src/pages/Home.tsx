@@ -27,36 +27,64 @@ export default function Home() {
   return (
     <div>
       <section className="relative overflow-hidden">
-        <svg className="absolute inset-0 w-full h-full opacity-80" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 500">
+        <svg className="absolute inset-0 w-full h-full opacity-70" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 500">
           <defs>
             <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.1" />
+              <stop offset="0%" stopColor="#FFB84D" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.08" />
             </linearGradient>
             <linearGradient id="wave2" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#FFB84D" stopOpacity="0.08" />
+              <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#FFB84D" stopOpacity="0.06" />
             </linearGradient>
             <radialGradient id="softGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FF7A3D" stopOpacity="0.35" />
+              <stop offset="0%" stopColor="#FF7A3D" stopOpacity="0.3" />
               <stop offset="100%" stopColor="#FF7A3D" stopOpacity="0" />
             </radialGradient>
           </defs>
           <circle cx="170" cy="140" r="240" fill="url(#softGlow)" />
-          <path d="M-40 200 Q210 80 400 220 T840 190 V-40 H-40 Z" fill="url(#wave1)" opacity="0.65" />
-          <path d="M-40 440 Q230 300 420 420 T840 380 V640 H-40 Z" fill="url(#wave2)" opacity="0.6" />
-          <path d="M-40 340 Q250 500 420 340 T840 400" fill="none" stroke="#FFB84D" strokeWidth="1.5" strokeOpacity="0.4" />
+          <path d="M-40 200 Q210 80 400 220 T840 190 V-40 H-40 Z" fill="url(#wave1)" opacity="0.6" />
+          <path d="M-40 440 Q230 300 420 420 T840 380 V640 H-40 Z" fill="url(#wave2)" opacity="0.55" />
+          <path d="M-40 340 Q250 500 420 340 T840 400" fill="none" stroke="#FFB84D" strokeWidth="1.5" strokeOpacity="0.35" />
         </svg>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative animate-fade-up">
-          <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-4">
-            {settings.hero_title || 'اسپارک باش، مسیرتو روشن کن'}
-          </h1>
-          <p className="text-[#A8ACD9] max-w-xl mx-auto mb-8">
-            {settings.hero_subtitle || 'زبان، کنکور، مهارت‌های فنی — هر مسیری که انتخاب کنی، ما همراهتیم. حضوری یا آنلاین، انتخاب با توئه.'}
-          </p>
-          <div className="flex justify-center gap-3">
-            <Link to="/courses" className="btn-primary">مشاهده دوره‌ها</Link>
-            <Link to="/contact" className="bg-white/5 hover:bg-white/10 px-6 py-3 rounded-xl font-bold transition-colors">تماس با ما</Link>
+
+        {/* Decorative 3D floating panels — CSS only, no JS, no animation loop */}
+        <div className="hidden sm:block absolute top-10 right-[8%] w-16 h-16 rounded-2xl glass-panel rotate-[12deg] opacity-70 pointer-events-none" />
+        <div className="hidden sm:block absolute bottom-8 left-[10%] w-12 h-12 rounded-xl glass-panel -rotate-[10deg] opacity-60 pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
+          <div className="max-w-3xl mx-auto perspective-1000">
+            <div
+              className="glass-panel rounded-3xl px-6 sm:px-12 py-10 sm:py-14 text-center animate-fade-up transition-transform duration-500 ease-smooth-3d hover:-translate-y-1"
+              style={{ boxShadow: 'var(--shadow-glass), 0 20px 60px -20px rgba(0,0,0,0.5)' }}
+            >
+              <span className="inline-block text-xs font-bold text-accent tracking-wide bg-white/5 rounded-pill px-3 py-1 mb-5 shadow-neumo-out">
+                آموزشگاه توسعه‌کاران ستایش
+              </span>
+
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight mb-4">
+                {settings.hero_title || 'اسپارک باش، مسیرتو روشن کن'}
+              </h1>
+
+              <p className="text-[#A8ACD9] text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+                {settings.hero_subtitle || 'زبان، کنکور، مهارت‌های فنی — هر مسیری که انتخاب کنی، ما همراهتیم. حضوری یا آنلاین، انتخاب با توئه.'}
+              </p>
+
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <Link
+                  to="/courses"
+                  className="btn-primary shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-transform duration-300"
+                >
+                  مشاهده دوره‌ها
+                </Link>
+                <Link
+                  to="/contact"
+                  className="bg-white/5 hover:bg-white/10 px-6 py-3 rounded-btn font-bold shadow-neumo-out hover:-translate-y-0.5 active:translate-y-0 active:shadow-neumo-in transition-all duration-300"
+                >
+                  تماس با ما
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -152,4 +180,4 @@ export default function Home() {
       )}
     </div>
   )
-      }
+                }
