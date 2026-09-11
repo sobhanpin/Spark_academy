@@ -102,7 +102,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm text-[#A8ACD9] hover:text-accent px-2 py-2 transition-colors duration-300">ورود</Link>
+              <Link to="/login" className="hidden sm:inline-block text-sm text-[#A8ACD9] hover:text-accent px-2 py-2 transition-colors duration-300">ورود</Link>
               <Link
                 to="/signup"
                 className="btn-primary text-sm !py-2 !px-4 shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-300"
@@ -143,4 +143,4 @@ export default function Navbar() {
       )}
     </header>
   )
-              }
+}
