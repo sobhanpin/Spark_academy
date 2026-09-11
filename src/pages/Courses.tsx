@@ -24,21 +24,25 @@ export default function Courses() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl font-black mb-6">همه دوره‌ها</h1>
+      <h1 className="text-2xl sm:text-3xl font-black mb-7">همه دوره‌ها</h1>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-7">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              category === cat ? 'bg-accent text-bg' : 'bg-white/5 text-[#A8ACD9]'
+            className={`px-4 py-2 rounded-btn text-sm font-medium transition-all duration-300 ${
+              category === cat ? 'bg-gradient-to-l from-accent to-accent2 text-bg font-bold shadow-glow-gold' : 'bg-white/5 text-[#A8ACD9] shadow-neumo-out hover:-translate-y-0.5'
             }`}
           >
             {cat}
           </button>
         ))}
-        <select value={mode} onChange={(e) => setMode(e.target.value)} className="input !w-auto text-sm">
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          className="input rounded-btn shadow-neumo-in focus:shadow-glow-violet transition-shadow duration-300 !w-auto text-sm"
+        >
           <option>همه</option>
           <option>حضوری</option>
           <option>آنلاین</option>
@@ -47,15 +51,26 @@ export default function Courses() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="جست‌وجوی دوره..."
-          className="input !w-auto flex-1 min-w-[160px] text-sm"
+          className="input rounded-btn shadow-neumo-in focus:shadow-glow-violet transition-shadow duration-300 !w-auto flex-1 min-w-[160px] text-sm"
         />
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
         {filtered.map((c) => (
-          <Link key={c.id} to={`/courses/${c.id}`} className="card hover:border-accent/40 hover:-translate-y-1 transition-all block overflow-hidden !p-0">
+          <Link
+            key={c.id}
+            to={`/courses/${c.id}`}
+            className="group glass-panel rounded-card overflow-hidden block transition-all duration-300 ease-smooth-3d hover:-translate-y-1.5"
+            style={{ boxShadow: 'var(--shadow-glass)' }}
+          >
             {c.image_url ? (
-              <img src={c.image_url} alt={c.title} className="w-full h-36 object-cover" />
+              <div className="overflow-hidden">
+                <img
+                  src={c.image_url}
+                  alt={c.title}
+                  className="w-full h-36 object-cover transition-transform duration-500 ease-smooth-3d group-hover:scale-105"
+                />
+              </div>
             ) : (
               <div className="w-full h-36 bg-gradient-to-br from-violet/30 to-accent/20" />
             )}
@@ -74,4 +89,4 @@ export default function Courses() {
       </div>
     </div>
   )
-        }
+                      }
