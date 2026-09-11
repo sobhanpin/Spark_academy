@@ -48,7 +48,6 @@ export default function Home() {
           <path d="M-40 340 Q250 500 420 340 T840 400" fill="none" stroke="#FFB84D" strokeWidth="1.5" strokeOpacity="0.35" />
         </svg>
 
-        {/* Decorative 3D floating panels — CSS only, no JS, no animation loop */}
         <div className="hidden sm:block absolute top-10 right-[8%] w-16 h-16 rounded-2xl glass-panel rotate-[12deg] opacity-70 pointer-events-none" />
         <div className="hidden sm:block absolute bottom-8 left-[10%] w-12 h-12 rounded-xl glass-panel -rotate-[10deg] opacity-60 pointer-events-none" />
 
@@ -89,17 +88,27 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <h2 className="text-2xl font-black mb-6">دوره‌های ما</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="flex items-end justify-between mb-7">
+          <h2 className="text-2xl sm:text-3xl font-black">دوره‌های ما</h2>
+          <span className="hidden sm:block text-xs text-muted">جدیدترین دوره‌های فعال</span>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {courses.map((c) => (
             <Link
               key={c.id}
               to={`/courses/${c.id}`}
-              className="card hover:border-accent/40 hover:-translate-y-1 transition-all block overflow-hidden !p-0"
+              className="group glass-panel rounded-card overflow-hidden block transition-all duration-300 ease-smooth-3d hover:-translate-y-1.5"
+              style={{ boxShadow: 'var(--shadow-glass)' }}
             >
               {c.image_url ? (
-                <img src={c.image_url} alt={c.title} className="w-full h-36 object-cover" />
+                <div className="overflow-hidden">
+                  <img
+                    src={c.image_url}
+                    alt={c.title}
+                    className="w-full h-36 object-cover transition-transform duration-500 ease-smooth-3d group-hover:scale-105"
+                  />
+                </div>
               ) : (
                 <div className="w-full h-36 bg-gradient-to-br from-violet/30 to-accent/20" />
               )}
@@ -107,24 +116,36 @@ export default function Home() {
                 <span className="text-xs text-accent font-bold">{c.category}</span>
                 <h3 className="font-bold mt-1 mb-2">{c.title}</h3>
                 <p className="text-sm text-[#8B8FC0] line-clamp-2">{c.description}</p>
-                <div className="mt-3 text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</div>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</span>
+                  <span className="w-7 h-7 rounded-full grid place-items-center bg-white/5 shadow-neumo-out text-xs text-accent transition-transform duration-300 group-hover:-translate-x-0.5">←</span>
+                </div>
               </div>
             </Link>
           ))}
         </div>
-        <div className="text-center mt-8">
+        <div className="text-center mt-9">
           <Link to="/courses" className="text-accent hover:underline text-sm font-bold">مشاهده همه دوره‌ها ←</Link>
         </div>
       </section>
 
       {testimonials.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <h2 className="text-2xl font-black mb-6">نظرات دانش‌آموزان</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h2 className="text-2xl sm:text-3xl font-black mb-7">نظرات دانش‌آموزان</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {testimonials.map((t) => (
-              <div key={t.id} className="card">
-                <p className="text-sm text-[#C4C7ED] mb-3">«{t.text}»</p>
-                <div className="text-xs text-accent font-bold">{t.student_name}</div>
+              <div
+                key={t.id}
+                className="glass-panel rounded-card p-5 transition-transform duration-300 ease-smooth-3d hover:-translate-y-1"
+              >
+                <div className="text-accent text-xl leading-none mb-2 opacity-50">"</div>
+                <p className="text-sm text-[#C4C7ED] leading-relaxed mb-4">{t.text}</p>
+                <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+                  <span className="w-7 h-7 rounded-full bg-gradient-to-br from-accent to-accent2 grid place-items-center text-[10px] font-bold text-bg shadow-neumo-out">
+                    {t.student_name?.charAt(0)}
+                  </span>
+                  <span className="text-xs text-accent font-bold">{t.student_name}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -132,13 +153,17 @@ export default function Home() {
       )}
 
       {news.length > 0 && (
-        <section id="news" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <h2 className="text-2xl font-black mb-6">اخبار</h2>
-          <div className="grid sm:grid-cols-3 xl:grid-cols-4 gap-4">
+        <section id="news" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h2 className="text-2xl sm:text-3xl font-black mb-7">اخبار</h2>
+          <div className="grid sm:grid-cols-3 xl:grid-cols-4 gap-5">
             {news.map((n) => (
-              <div key={n.id} className="card">
+              <div
+                key={n.id}
+                className="glass-panel rounded-card p-5 transition-transform duration-300 ease-smooth-3d hover:-translate-y-1"
+              >
+                <span className="inline-block w-8 h-8 rounded-lg bg-white/5 shadow-neumo-out grid place-items-center text-sm mb-3">📰</span>
                 <h3 className="font-bold mb-2">{n.title}</h3>
-                <p className="text-sm text-[#8B8FC0] line-clamp-3">{n.content}</p>
+                <p className="text-sm text-[#8B8FC0] line-clamp-3 leading-relaxed">{n.content}</p>
               </div>
             ))}
           </div>
@@ -146,12 +171,18 @@ export default function Home() {
       )}
 
       {documents.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <h2 className="text-2xl font-black mb-6">مجوزها و مدارک آموزشگاه</h2>
-          <div className="grid sm:grid-cols-3 xl:grid-cols-4 gap-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h2 className="text-2xl sm:text-3xl font-black mb-7">مجوزها و مدارک آموزشگاه</h2>
+          <div className="grid sm:grid-cols-3 xl:grid-cols-4 gap-5">
             {documents.map((d) => (
-              <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="card hover:border-accent/40 transition-all block text-center">
-                <div className="text-3xl mb-2">📄</div>
+              <a
+                key={d.id}
+                href={docUrl(d.file_path)}
+                target="_blank"
+                rel="noreferrer"
+                className="glass-panel rounded-card p-5 text-center block transition-all duration-300 ease-smooth-3d hover:-translate-y-1"
+              >
+                <div className="w-12 h-12 mx-auto rounded-xl bg-white/5 shadow-neumo-out grid place-items-center text-2xl mb-3">📄</div>
                 <div className="text-sm font-bold">{d.title}</div>
               </a>
             ))}
@@ -160,19 +191,29 @@ export default function Home() {
       )}
 
       {faqs.length > 0 && (
-        <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <h2 className="text-2xl font-black mb-6">سؤالات متداول</h2>
-          <div className="space-y-2">
+        <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h2 className="text-2xl sm:text-3xl font-black mb-7">سؤالات متداول</h2>
+          <div className="space-y-3">
             {faqs.map((f) => (
-              <div key={f.id} className="card !py-3">
+              <div
+                key={f.id}
+                className="glass-panel rounded-btn overflow-hidden transition-shadow duration-300"
+              >
                 <button
-                  className="w-full text-right flex justify-between items-center font-bold"
+                  className="w-full text-right flex justify-between items-center font-bold px-5 py-4"
                   onClick={() => setOpenFaq(openFaq === f.id ? null : f.id)}
                 >
-                  {f.question}
-                  <span className="text-accent">{openFaq === f.id ? '−' : '+'}</span>
+                  <span>{f.question}</span>
+                  <span
+                    className="w-7 h-7 shrink-0 rounded-full bg-white/5 shadow-neumo-out grid place-items-center text-accent text-sm transition-transform duration-300"
+                    style={{ transform: openFaq === f.id ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                  >
+                    +
+                  </span>
                 </button>
-                {openFaq === f.id && <p className="text-sm text-[#8B8FC0] mt-3">{f.answer}</p>}
+                {openFaq === f.id && (
+                  <p className="text-sm text-[#8B8FC0] leading-relaxed px-5 pb-4 animate-fade-up">{f.answer}</p>
+                )}
               </div>
             ))}
           </div>
@@ -180,4 +221,4 @@ export default function Home() {
       )}
     </div>
   )
-                }
+      }
