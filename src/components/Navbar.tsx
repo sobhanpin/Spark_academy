@@ -62,8 +62,18 @@ export default function Navbar() {
   const panelLabel = profile?.role === 'admin' ? 'پنل مدیریت' : profile?.role === 'teacher' ? 'پنل مدرس' : 'پنل من'
 
   return (
-    <header className="sticky top-0 z-30 bg-bgsoft/80 backdrop-blur-xl border-b border-white/10 shadow-soft-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 grid grid-cols-2 md:grid-cols-3 items-center gap-3">
+    <header
+      className="sticky top-0 z-30"
+      style={{
+        background: 'linear-gradient(180deg, rgba(23,20,61,0.92), rgba(13,11,38,0.92))',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        borderBottom: '1px solid rgba(180,150,255,0.12)',
+        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)',
+      }}
+    >
+      {/* Row 1 — logo / nav links / auth / hamburger */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group perspective-1000">
           <span
             className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent2 text-lg shadow-glow-gold transition-transform duration-500 ease-smooth-3d group-hover:-translate-y-0.5 group-hover:rotate-[8deg]"
@@ -73,23 +83,21 @@ export default function Navbar() {
           <span className="font-black text-lg tracking-tight">توسعه‌کاران ستایش</span>
         </Link>
 
-        <div className="hidden md:flex justify-center">
-          <LiveClock />
-        </div>
+        <nav className="hidden lg:flex items-center gap-5 text-sm text-[#C4C7ED]">
+          <Link to="/" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">خانه</Link>
+          <Link to="/courses" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">دوره‌ها</Link>
+          <Link to="/#news" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">اخبار</Link>
+          <Link to="/#faq" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">سؤالات متداول</Link>
+          <Link to="/contact" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">تماس با ما</Link>
+        </nav>
 
-        <div className="flex items-center justify-end gap-2">
-          <nav className="hidden lg:flex items-center gap-5 text-sm text-[#C4C7ED] ml-2">
-            <Link to="/courses" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">دوره‌ها</Link>
-            <Link to="/#news" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">اخبار</Link>
-            <Link to="/#faq" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">سؤالات متداول</Link>
-            <Link to="/contact" className="relative py-1 hover:text-accent transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-[2px] after:bg-accent after:transition-all after:duration-300 hover:after:w-full">تماس با ما</Link>
-          </nav>
-
+        <div className="flex items-center gap-2">
           {session ? (
             <>
               <Link
                 to={panelPath}
-                className="hidden sm:inline-block text-sm bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-btn transition-all duration-300 shadow-neumo-out hover:-translate-y-0.5 active:translate-y-0 active:shadow-neumo-in"
+                className="hidden sm:inline-block text-sm px-3.5 py-2 rounded-btn transition-all duration-300 hover:-translate-y-0.5"
+                style={{ background: 'rgba(255,255,255,0.06)', boxShadow: 'var(--shadow-neumo-out)' }}
               >
                 {panelLabel}
               </Link>
@@ -102,10 +110,14 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="hidden sm:inline-block text-sm text-[#A8ACD9] hover:text-accent px-2 py-2 transition-colors duration-300">ورود</Link>
+              <Link to="/login" className="text-sm text-[#A8ACD9] hover:text-accent px-2 py-2 transition-colors duration-300">ورود</Link>
               <Link
                 to="/signup"
-                className="btn-primary text-sm !py-2 !px-4 shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-300"
+                className="text-sm font-bold px-5 py-2 rounded-btn text-bg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]"
+                style={{
+                  background: 'linear-gradient(135deg, #FFC168, #FF7A3D)',
+                  boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 18px -6px rgba(255,122,61,0.5), 0 0 16px -4px var(--glow-gold)',
+                }}
               >
                 ثبت‌نام
               </Link>
@@ -113,7 +125,8 @@ export default function Navbar() {
           )}
 
           <button
-            className="md:hidden w-9 h-9 grid place-items-center rounded-btn bg-white/5 shadow-neumo-out active:shadow-neumo-in transition-all duration-300"
+            className="lg:hidden w-9 h-9 grid place-items-center rounded-btn transition-all duration-300"
+            style={{ background: 'rgba(255,255,255,0.06)', boxShadow: 'var(--shadow-neumo-out)' }}
             onClick={() => setOpen(!open)}
             aria-label="باز کردن منو"
           >
@@ -122,25 +135,34 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="md:hidden flex justify-center pb-2 px-4">
-        <LiveClock compact />
+      {/* Row 2 — live date/time bar, always visible */}
+      <div className="flex justify-center pb-2.5 px-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="pt-2">
+          <LiveClock />
+        </div>
       </div>
 
       {open && (
-        <nav className="md:hidden flex flex-col gap-1.5 px-4 pb-4 text-sm text-[#C4C7ED] animate-fade-up">
+        <nav className="lg:hidden flex flex-col gap-1.5 px-4 pb-4 text-sm text-[#C4C7ED] animate-fade-up">
           {mobileLinks.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               onClick={() => setOpen(false)}
-              className="glass-panel flex items-center gap-3 rounded-btn px-4 py-2.5 hover:text-accent hover:-translate-y-0.5 transition-all duration-300"
+              className="flex items-center gap-3 rounded-btn px-4 py-2.5 hover:text-accent hover:-translate-y-0.5 transition-all duration-300"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               <span className="text-accent">{item.icon}</span>
               {item.label}
             </Link>
           ))}
+          {session && (
+            <Link to={panelPath} onClick={() => setOpen(false)} className="sm:hidden flex items-center gap-3 rounded-btn px-4 py-2.5 hover:text-accent transition-all duration-300" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              {panelLabel}
+            </Link>
+          )}
         </nav>
       )}
     </header>
   )
-}
+          }
