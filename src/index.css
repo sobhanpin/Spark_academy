@@ -288,7 +288,32 @@ body {
 .course-image-wrap { position: relative; margin: 0.5rem; border-radius: 1rem; overflow: hidden; height: 8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.35); }
 .course-image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--ease-3d); }
 .group:hover .course-image { transform: scale(1.1); }
-.course-placeholder { width: 100%; height: 100%; display: grid; place-items: center; background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(255,193,104,0.2)); color: #D8DAF4; }
+.course-placeholder {
+  position: relative;
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, rgba(139,92,246,0.35), rgba(91,50,196,0.25) 50%, rgba(255,193,104,0.2));
+  color: rgba(255,255,255,0.85);
+  overflow: hidden;
+}
+.course-placeholder::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+  opacity: 0.5;
+}
+.course-placeholder::after {
+  content: "";
+  position: absolute; top: -30%; right: -20%;
+  width: 70%; height: 70%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,193,104,0.35), transparent 70%);
+  filter: blur(20px);
+}
+.course-placeholder svg {
+  position: relative; z-index: 1;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+}
 .course-number { position: absolute; bottom: 0.5rem; right: 0.5rem; font-size: 0.65rem; font-weight: 800; background: rgba(10,9,24,0.6); color: #FFC168; padding: 0.15rem 0.5rem; border-radius: 999px; }
 .course-category { position: absolute; top: 0.5rem; left: 0.5rem; font-size: 0.65rem; font-weight: 800; background: rgba(10,9,24,0.6); color: #FFC168; padding: 0.2rem 0.6rem; border-radius: 999px; }
 .course-arrow { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,0.05); box-shadow: var(--shadow-neumo-out); color: #FFC168; transition: transform 0.3s var(--ease-3d); }
