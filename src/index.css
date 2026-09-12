@@ -126,9 +126,8 @@ body {
 }
 
 .hero-gradient-text {
-  background-image: none !important;
-  color: #00FF00 !important;
-  -webkit-text-fill-color: #00FF00 !important;
+  background-image: linear-gradient(90deg, #ffffff 0%, #FFD9A0 60%, #FFC168 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
 .hero-primary-btn, .hero-secondary-btn {
