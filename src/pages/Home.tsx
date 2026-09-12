@@ -24,13 +24,12 @@ export default function Home() {
 
   const docUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
 
-  // Shared multi-layer shadow recipes for real depth (outer dark blur + colored ambient + inner top highlight)
   const cardShadow = '0 2px 0 rgba(255,255,255,0.04) inset, 0 -12px 30px rgba(0,0,0,0.35) inset, 0 20px 45px -18px rgba(0,0,0,0.6), 0 4px 14px rgba(0,0,0,0.3)'
   const heroShadow = '0 2px 0 rgba(255,255,255,0.06) inset, 0 -20px 50px rgba(0,0,0,0.4) inset, 0 40px 90px -20px rgba(0,0,0,0.65), 0 0 60px -10px var(--glow-violet)'
 
   return (
     <div className="relative overflow-hidden">
-      {/* ===== Page-wide atmosphere: deep indigo base + layered purple/violet/gold glows ===== */}
+      {/* ===== Page-wide atmosphere ===== */}
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(91,50,196,0.25), transparent), radial-gradient(ellipse 60% 40% at 100% 30%, rgba(139,92,246,0.15), transparent)' }} />
       <div className="pointer-events-none fixed top-[-10%] right-[-10%] w-[45rem] h-[45rem] rounded-full opacity-40 blur-3xl -z-10" style={{ background: 'radial-gradient(circle, var(--glow-violet), transparent 70%)' }} aria-hidden="true" />
       <div className="pointer-events-none fixed bottom-[-15%] left-[-10%] w-[38rem] h-[38rem] rounded-full opacity-30 blur-3xl -z-10" style={{ background: 'radial-gradient(circle, var(--glow-gold), transparent 70%)' }} aria-hidden="true" />
@@ -61,7 +60,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28 relative">
           <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-6 items-center">
 
-            {/* --- Text / glass hero panel --- */}
             <div className="perspective-1000 order-2 lg:order-1">
               <div
                 className="relative glass-panel rounded-3xl px-6 sm:px-12 py-10 sm:py-14 text-center lg:text-right animate-fade-up transition-transform duration-500 ease-smooth-3d hover:-translate-y-1.5"
@@ -88,7 +86,7 @@ export default function Home() {
                     to="/courses"
                     className="relative flex items-center justify-center gap-2 font-bold px-7 py-3.5 rounded-btn text-bg transition-all duration-300 ease-smooth-3d hover:-translate-y-1 active:translate-y-0 active:scale-[0.97]"
                     style={{
-                      background: 'linear-gradient(135deg, #FFD48A 0%, var(--color-bg, #0A0918) 0%, #FFC168 15%, #FF7A3D 100%)',
+                      background: 'linear-gradient(135deg, #FFC168 0%, #FFC168 15%, #FF7A3D 100%)',
                       boxShadow: '0 1px 0 rgba(255,255,255,0.5) inset, 0 -6px 14px rgba(0,0,0,0.25) inset, 0 14px 30px -8px rgba(255,122,61,0.55), 0 0 30px -6px var(--glow-gold)',
                     }}
                   >
@@ -96,7 +94,12 @@ export default function Home() {
                   </Link>
                   <Link
                     to="/contact"
-                    className="bg-white/5 hover:bg-white/10 px-6 py-3.5 rounded-btn font-bold shadow-neumo-out hover:-translate-y-1 active:translate-y-0 active:shadow-neumo-in transition-all duration-300 ease-smooth-3d"
+                    className="relative flex items-center justify-center font-bold px-6 py-3.5 rounded-btn text-[#E4D9FF] transition-all duration-300 ease-smooth-3d hover:-translate-y-1 active:translate-y-0 active:scale-[0.97]"
+                    style={{
+                      background: 'linear-gradient(160deg, rgba(139,92,246,0.28), rgba(91,50,196,0.18))',
+                      border: '1px solid rgba(180,150,255,0.25)',
+                      boxShadow: '0 1px 0 rgba(255,255,255,0.15) inset, 0 -8px 16px rgba(0,0,0,0.2) inset, 0 10px 24px -10px rgba(139,92,246,0.5)',
+                    }}
                   >
                     تماس با ما
                   </Link>
@@ -104,12 +107,19 @@ export default function Home() {
               </div>
             </div>
 
-            {/* --- Decorative 3D educational composition (desktop-prominent, lighter on mobile) --- */}
+            {/* --- 3D educational composition --- */}
             <div className="relative order-1 lg:order-2 h-56 sm:h-72 lg:h-[26rem] perspective-1000" aria-hidden="true">
-              {/* ambient glow behind the cluster */}
               <div className="absolute inset-0 rounded-full blur-3xl opacity-50" style={{ background: 'radial-gradient(circle, var(--glow-violet), transparent 70%)' }} />
 
-              {/* floating glass card 1 (certificate) */}
+              {/* glowing orb */}
+              <div
+                className="absolute top-[4%] left-[6%] sm:left-[2%] w-10 h-10 sm:w-14 sm:h-14 rounded-full motion-safe:animate-glow-pulse"
+                style={{
+                  background: 'radial-gradient(circle at 35% 30%, #FFE3B0, #FFC168 45%, #FF7A3D 100%)',
+                  boxShadow: '0 0 25px 6px rgba(255,193,104,0.45), 0 0 50px 12px rgba(255,122,61,0.25)',
+                }}
+              />
+
               <div
                 className="absolute top-[8%] right-[8%] sm:right-[14%] w-40 sm:w-48 lg:w-56 rounded-2xl glass-panel p-4 motion-safe:animate-float"
                 style={{ boxShadow: cardShadow, transform: 'rotate(-6deg)' }}
@@ -119,7 +129,6 @@ export default function Home() {
                 <div className="h-2 w-1/2 rounded-full bg-white/10" />
               </div>
 
-              {/* floating glass card 2 (book) */}
               <div
                 className="hidden sm:block absolute bottom-[6%] left-[6%] lg:left-[10%] w-36 lg:w-44 rounded-2xl glass-panel p-4 motion-safe:animate-float"
                 style={{ boxShadow: cardShadow, transform: 'rotate(5deg)', animationDelay: '1.4s' }}
@@ -129,7 +138,6 @@ export default function Home() {
                 <div className="h-2 w-2/5 rounded-full bg-white/10" />
               </div>
 
-              {/* graduation cap — SVG, layered depth via gradient + soft shadow */}
               <div className="absolute top-[38%] left-[28%] sm:left-[34%] w-24 sm:w-32 lg:w-40 motion-safe:animate-float" style={{ animationDelay: '0.7s' }}>
                 <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_18px_30px_rgba(0,0,0,0.5)]">
                   <defs>
@@ -147,7 +155,6 @@ export default function Home() {
                 </svg>
               </div>
 
-              {/* small floating glass squares for extra depth layering */}
               <div className="hidden lg:block absolute top-[12%] left-[12%] w-9 h-9 rounded-xl glass-panel rotate-[20deg] opacity-70 motion-safe:animate-float" style={{ animationDelay: '2s' }} />
               <div className="hidden lg:block absolute bottom-[16%] right-[20%] w-7 h-7 rounded-lg glass-panel -rotate-[15deg] opacity-60 motion-safe:animate-float" style={{ animationDelay: '0.3s' }} />
             </div>
@@ -238,7 +245,10 @@ export default function Home() {
                 </div>
                 <p className="text-sm text-[#C4C7ED] leading-relaxed mb-4">{t.text}</p>
                 <div className="flex items-center gap-2 pt-3 border-t border-white/5">
-                  <span className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent2 grid place-items-center text-[11px] font-bold text-bg shadow-neumo-out">
+                  <span
+                    className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent2 grid place-items-center text-[11px] font-bold text-bg"
+                    style={{ boxShadow: 'var(--shadow-neumo-out), 0 0 0 2px rgba(255,193,104,0.25)' }}
+                  >
                     {t.student_name?.charAt(0)}
                   </span>
                   <span className="text-xs text-accent font-bold">{t.student_name}</span>
@@ -368,4 +378,4 @@ export default function Home() {
       )}
     </div>
   )
-    }
+      }
