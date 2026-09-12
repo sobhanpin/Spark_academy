@@ -228,8 +228,9 @@ body {
 }
 .cap-body { width: 60%; height: 0.9rem; margin: 0 auto; background: #7C4FE0; border-radius: 0.4rem; }
 .cap i {
-  position: absolute; right: 6%; top: 0.4rem; width: 2px; height: 1.4rem;
+  position: absolute; right: 14%; top: 0.55rem; width: 2px; height: 1.1rem;
   background: #FFC168;
+  border-radius: 999px;
 }
 .stage-platform {
   position: absolute; bottom: 28%; width: 55%; height: 0.6rem; border-radius: 50%;
