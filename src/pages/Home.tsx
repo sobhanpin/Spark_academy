@@ -14,6 +14,7 @@ const Icon = ({ name, className = 'w-5 h-5' }: { name: string; className?: strin
     wrench: <path d="M14.7 6.3a4 4 0 0 0-5.6 5.1L3 17.5V21h3.5l6.1-6.1a4 4 0 0 0 5.1-5.6l-2.6 2.6-2-2 2.6-2.6Z"/>,
     pencil: <><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></>,
   }
+
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
       {paths[name]}
@@ -28,6 +29,12 @@ const Stars = () => (
     ))}
   </div>
 )
+
+const categoryIcon = (category: string) => {
+  if (category === 'کنکور') return 'pencil'
+  if (category === 'فنی') return 'wrench'
+  return 'book'
+}
 
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -159,7 +166,6 @@ export default function Home() {
                 <div className="stage-platform" />
               </div>
 
-              {/* decorative sparkles — purely visual */}
               <div className="hero-sparkle sparkle-a">✦</div>
               <div className="hero-sparkle sparkle-b">✦</div>
               <div className="hero-sparkle sparkle-c">✧</div>
@@ -204,6 +210,12 @@ export default function Home() {
 
               <div className="p-5">
                 <h3 className="font-black text-base leading-7 mb-2">{c.title}</h3>
+                {c.duration && (
+                  <div className="course-meta">
+                    <Icon name="clock" className="w-3.5 h-3.5" />
+                    {c.duration}
+                  </div>
+                )}
                 <p className="text-xs text-[#9290B8] leading-6 line-clamp-2 min-h-12">{c.description}</p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-accent font-black text-sm">{c.price.toLocaleString('fa-IR')} تومان</span>
@@ -361,4 +373,4 @@ export default function Home() {
       </div>
     </main>
   )
-    }
+      }
