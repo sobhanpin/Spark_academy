@@ -18,7 +18,6 @@ const jalaliMonths = [
   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
 ]
 
-// Gregorian -> Jalali (standard algorithm, no external dependency)
 function toJalali(gy: number, gm: number, gd: number) {
   const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
   let jy = gy <= 1600 ? 0 : 979
@@ -70,7 +69,7 @@ function getTehranParts() {
   const weekdayEn = get('weekday')
 
   const { jy, jm, jd } = toJalali(gy, gm, gd)
-  const time = timeFmt.format(now) // "HH:MM:SS"
+  const time = timeFmt.format(now)
 
   return {
     weekday: weekdayMap[weekdayEn] ?? '',
@@ -89,9 +88,17 @@ export default function LiveClock({ compact = false }: { compact?: boolean }) {
 
   return (
     <div
-      className="glass-panel rounded-pill px-4 py-1.5 flex items-center gap-2 text-xs text-[#D8DAF4] select-none whitespace-nowrap"
-      style={{ boxShadow: 'var(--shadow-glass), 0 0 16px var(--glow-violet)' }}
+      className="relative inline-flex items-center gap-2 rounded-pill px-4 py-1.5 text-xs text-[#D8DAF4] select-none whitespace-nowrap"
+      style={{
+        background: 'linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))',
+        border: '1px solid rgba(180,150,255,0.22)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.1) inset, 0 10px 24px -10px rgba(139,92,246,0.5), 0 0 16px -4px var(--glow-violet)',
+      }}
     >
+      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-accent shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="5" width="18" height="16" rx="3" />
+        <path d="M8 3v4M16 3v4M3 10h18" strokeLinecap="round" />
+      </svg>
       {!compact && (
         <>
           <span className="font-medium">{parts.weekday}</span>
@@ -100,7 +107,7 @@ export default function LiveClock({ compact = false }: { compact?: boolean }) {
           <span className="opacity-30">|</span>
         </>
       )}
-      <span className="font-mono tabular-nums text-accent">{parts.time}</span>
+      <span className="font-mono tabular-nums text-accent font-bold">{parts.time}</span>
     </div>
   )
-}
+    }
