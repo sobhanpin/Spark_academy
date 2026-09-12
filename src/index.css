@@ -293,7 +293,10 @@ body {
 .course-category { position: absolute; top: 0.5rem; left: 0.5rem; font-size: 0.65rem; font-weight: 800; background: rgba(10,9,24,0.6); color: #FFC168; padding: 0.2rem 0.6rem; border-radius: 999px; }
 .course-arrow { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,0.05); box-shadow: var(--shadow-neumo-out); color: #FFC168; transition: transform 0.3s var(--ease-3d); }
 .group:hover .course-arrow { transform: translateX(-3px); }
-
+.course-meta {
+  display: flex; align-items: center; gap: 0.35rem;
+  font-size: 0.7rem; color: #9290B8; margin-bottom: 0.5rem;
+}
 .feature-panel {
   border-radius: 1.5rem;
   background: linear-gradient(160deg, rgba(139,92,246,0.08), rgba(255,255,255,0.02));
