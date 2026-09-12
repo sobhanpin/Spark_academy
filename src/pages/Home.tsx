@@ -195,7 +195,7 @@ export default function Home() {
                   <img src={c.image_url} alt={c.title} className="course-image" />
                 ) : (
                   <div className="course-placeholder">
-                    <Icon name="book" className="w-12 h-12" />
+                    <Icon name={categoryIcon(c.category)} className="w-12 h-12" />
                   </div>
                 )}
                 <span className="course-number">۰{index + 1}</span>
