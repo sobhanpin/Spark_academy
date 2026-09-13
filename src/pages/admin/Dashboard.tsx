@@ -9,16 +9,10 @@ export default function AdminDashboard() {
 
   return (
    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-xl sm:text-2xl font-black mb-5">پنل مدیریت</h1>
-      <div className="flex flex-wrap gap-1.5 glass-panel p-1.5 rounded-2xl mb-6 text-xs">
+      <h1 className="dash-header">پنل مدیریت</h1>
+      <div className="dash-tabs flex flex-wrap !grid-cols-none">
         {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-3.5 py-2.5 rounded-btn font-medium transition-all duration-300 ${
-              tab === t ? 'bg-gradient-to-l from-accent to-accent2 text-bg font-bold shadow-glow-gold' : 'text-[#A8ACD9] hover:bg-white/5'
-            }`}
-          >
+          <button key={t} onClick={() => setTab(t)} className={`dash-tab !px-3.5 ${tab === t ? 'active' : ''}`}>
             {t}
           </button>
         ))}
@@ -39,9 +33,6 @@ export default function AdminDashboard() {
     </div>
   )
 }
-
-const inputCls = 'input rounded-btn shadow-neumo-in focus:shadow-glow-violet transition-shadow duration-300'
-const btnCls = 'btn-primary rounded-btn shadow-glow-gold hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-transform duration-300 disabled:opacity-60 disabled:pointer-events-none disabled:translate-y-0'
 
 function CoursesTab() {
   const { showToast } = useToast()
@@ -90,48 +81,48 @@ function CoursesTab() {
 
   if (editing) {
     return (
-      <div className="glass-panel rounded-card p-5 space-y-3">
-        <input className={inputCls} placeholder="عنوان دوره" value={editing.title || ''} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
+      <div className="dash-card space-y-3">
+        <input className="input-3d" placeholder="عنوان دوره" value={editing.title || ''} onChange={(e) => setEditing({ ...editing, title: e.target.value })} />
         <div>
-          <label className="block text-xs text-[#7B7FB5] mb-1.5">عکس دوره</label>
-          {editing.image_url && <img src={editing.image_url} alt="پیش‌نمایش" className="w-full h-32 object-cover rounded-btn mb-2 shadow-neumo-out" />}
-          <input type="file" accept="image/*" disabled={imgBusy} onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])} className={inputCls} />
+          <label className="auth-label">عکس دوره</label>
+          {editing.image_url && <img src={editing.image_url} alt="پیش‌نمایش" className="w-full h-32 object-cover rounded-btn mb-2" />}
+          <input type="file" accept="image/*" disabled={imgBusy} onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])} className="input-3d" />
           {imgBusy && <div className="text-xs text-[#7B7FB5] mt-1">در حال آپلود...</div>}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select className={inputCls} value={editing.category || 'زبان'} onChange={(e) => setEditing({ ...editing, category: e.target.value as any })}>
+          <select className="input-3d" value={editing.category || 'زبان'} onChange={(e) => setEditing({ ...editing, category: e.target.value as any })}>
             <option>زبان</option><option>کنکور</option><option>فنی</option>
           </select>
-          <select className={inputCls} value={editing.mode || 'both'} onChange={(e) => setEditing({ ...editing, mode: e.target.value as any })}>
+          <select className="input-3d" value={editing.mode || 'both'} onChange={(e) => setEditing({ ...editing, mode: e.target.value as any })}>
             <option value="both">حضوری و آنلاین</option><option value="in_person">فقط حضوری</option><option value="online">فقط آنلاین</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs text-[#7B7FB5] mb-1.5">مدرس دوره</label>
-          <select className={inputCls} value={editing.teacher_id || ''} onChange={(e) => setEditing({ ...editing, teacher_id: e.target.value || null })}>
+          <label className="auth-label">مدرس دوره</label>
+          <select className="input-3d" value={editing.teacher_id || ''} onChange={(e) => setEditing({ ...editing, teacher_id: e.target.value || null })}>
             <option value="">بدون مدرس مشخص</option>
             {teachers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </div>
         {editing.mode !== 'in_person' && (
-          <input className={inputCls} placeholder="لینک کلاس آنلاین (اسکای‌روم/گوگل‌میت و غیره)" value={editing.online_link || ''} onChange={(e) => setEditing({ ...editing, online_link: e.target.value })} />
+          <input className="input-3d" placeholder="لینک کلاس آنلاین (اسکای‌روم/گوگل‌میت و غیره)" value={editing.online_link || ''} onChange={(e) => setEditing({ ...editing, online_link: e.target.value })} />
         )}
-        <textarea className={`${inputCls} resize-none`} rows={3} placeholder="توضیحات دوره" value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
-        <textarea className={`${inputCls} resize-none`} rows={2} placeholder="توضیح کارگاه عملی (اختیاری)" value={editing.workshop_details || ''} onChange={(e) => setEditing({ ...editing, workshop_details: e.target.value })} />
-        <textarea className={`${inputCls} resize-none`} rows={2} placeholder="مدارک موردنیاز" value={editing.required_documents || ''} onChange={(e) => setEditing({ ...editing, required_documents: e.target.value })} />
+        <textarea className="input-3d resize-none" rows={3} placeholder="توضیحات دوره" value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+        <textarea className="input-3d resize-none" rows={2} placeholder="توضیح کارگاه عملی (اختیاری)" value={editing.workshop_details || ''} onChange={(e) => setEditing({ ...editing, workshop_details: e.target.value })} />
+        <textarea className="input-3d resize-none" rows={2} placeholder="مدارک موردنیاز" value={editing.required_documents || ''} onChange={(e) => setEditing({ ...editing, required_documents: e.target.value })} />
         <div className="grid grid-cols-2 gap-2">
-          <input className={inputCls} type="number" placeholder="قیمت (تومان)" value={editing.price || ''} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
-          <input className={inputCls} placeholder="مدت دوره" value={editing.duration || ''} onChange={(e) => setEditing({ ...editing, duration: e.target.value })} />
+          <input className="input-3d" type="number" placeholder="قیمت (تومان)" value={editing.price || ''} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
+          <input className="input-3d" placeholder="مدت دوره" value={editing.duration || ''} onChange={(e) => setEditing({ ...editing, duration: e.target.value })} />
         </div>
-        <input className={inputCls} placeholder="زمان‌بندی کلاس‌ها" value={editing.schedule || ''} onChange={(e) => setEditing({ ...editing, schedule: e.target.value })} />
-        <input className={inputCls} placeholder="پیش‌نیاز (اختیاری)" value={editing.prerequisite || ''} onChange={(e) => setEditing({ ...editing, prerequisite: e.target.value })} />
+        <input className="input-3d" placeholder="زمان‌بندی کلاس‌ها" value={editing.schedule || ''} onChange={(e) => setEditing({ ...editing, schedule: e.target.value })} />
+        <input className="input-3d" placeholder="پیش‌نیاز (اختیاری)" value={editing.prerequisite || ''} onChange={(e) => setEditing({ ...editing, prerequisite: e.target.value })} />
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={editing.is_active ?? true} onChange={(e) => setEditing({ ...editing, is_active: e.target.checked })} />
           نمایش در سایت (فعال)
         </label>
         <div className="flex gap-2">
-          <button onClick={save} className={`${btnCls} flex-1`}>ذخیره</button>
-          <button onClick={() => setEditing(null)} className="bg-white/5 rounded-btn px-4 shadow-neumo-out hover:-translate-y-0.5 transition-transform duration-300">انصراف</button>
+          <button onClick={save} className="hero-primary-btn flex-1 justify-center">ذخیره</button>
+          <button onClick={() => setEditing(null)} className="dash-btn-mini dash-btn-ghost !px-4">انصراف</button>
         </div>
       </div>
     )
@@ -139,9 +130,9 @@ function CoursesTab() {
 
   return (
     <div className="space-y-2.5">
-      <button onClick={() => setEditing({ mode: 'both', category: 'زبان', is_active: true })} className={`${btnCls} w-full mb-2`}>+ افزودن دوره جدید</button>
+      <button onClick={() => setEditing({ mode: 'both', category: 'زبان', is_active: true })} className="hero-primary-btn w-full justify-center mb-2">+ افزودن دوره جدید</button>
       {courses.map((c) => (
-        <div key={c.id} className="glass-panel rounded-btn p-4 flex items-center justify-between">
+        <div key={c.id} className="dash-card flex items-center justify-between">
           <div>
             <div className="font-bold text-sm">{c.title} {!c.is_active && <span className="text-[10px] text-[#FB7185]">(غیرفعال)</span>}</div>
             <div className="text-xs text-[#7B7FB5]">{c.category} · {c.price.toLocaleString('fa-IR')} تومان {c.profiles && `· مدرس: ${c.profiles.name}`}</div>
@@ -196,13 +187,13 @@ function StudentsTab() {
 
   if (uploadFor) {
     return (
-      <div className="glass-panel rounded-card p-5 space-y-3">
+      <div className="dash-card space-y-3">
         <div className="text-sm font-bold">آپلود مدرک برای {uploadFor.profiles?.name}</div>
-        <input className={inputCls} placeholder="عنوان مدرک (مثلاً: گواهی پایان دوره)" value={docTitle} onChange={(e) => setDocTitle(e.target.value)} />
-        <input type="file" accept="image/*,.pdf" onChange={(e) => setDocFile(e.target.files?.[0] || null)} className={inputCls} />
+        <input className="input-3d" placeholder="عنوان مدرک (مثلاً: گواهی پایان دوره)" value={docTitle} onChange={(e) => setDocTitle(e.target.value)} />
+        <input type="file" accept="image/*,.pdf" onChange={(e) => setDocFile(e.target.files?.[0] || null)} className="input-3d" />
         <div className="flex gap-2">
-          <button onClick={uploadDoc} disabled={busy} className={`${btnCls} flex-1`}>{busy ? 'در حال آپلود...' : 'ارسال به دانشجو'}</button>
-          <button onClick={() => setUploadFor(null)} className="bg-white/5 rounded-btn px-4 shadow-neumo-out hover:-translate-y-0.5 transition-transform duration-300">انصراف</button>
+          <button onClick={uploadDoc} disabled={busy} className="hero-primary-btn flex-1 justify-center">{busy ? 'در حال آپلود...' : 'ارسال به دانشجو'}</button>
+          <button onClick={() => setUploadFor(null)} className="dash-btn-mini dash-btn-ghost !px-4">انصراف</button>
         </div>
       </div>
     )
@@ -211,28 +202,28 @@ function StudentsTab() {
   return (
     <div className="space-y-2.5">
       {enrollments.map((e) => (
-        <div key={e.id} className="glass-panel rounded-card p-4">
+        <div key={e.id} className="dash-card">
           <div className="flex justify-between items-start">
             <div>
               <div className="font-bold text-sm">{e.profiles?.name}</div>
               <div className="text-xs text-[#7B7FB5]">{e.courses?.title} · {e.class_mode === 'in_person' ? 'حضوری' : 'آنلاین'}</div>
             </div>
-            <span className={`text-[11px] px-2.5 py-1 rounded-pill font-bold shrink-0 shadow-neumo-out ${e.payment_status === 'paid' ? 'bg-[#34D399]/15 text-[#34D399]' : 'bg-accent/15 text-accent'}`}>
+            <span className={`dash-badge shrink-0 ${e.payment_status === 'paid' ? 'dash-badge-success' : 'dash-badge-pending'}`}>
               {e.payment_status === 'paid' ? 'پرداخت‌شده' : 'در انتظار'}
             </span>
           </div>
           <div className="flex gap-2 mt-3 text-xs flex-wrap">
             {e.payment_status !== 'paid' && (
-              <button onClick={() => confirmPayment(e.id)} className="bg-accent text-bg font-bold px-3.5 py-2 rounded-btn shadow-glow-gold hover:-translate-y-0.5 transition-transform duration-300">تأیید پرداخت</button>
+              <button onClick={() => confirmPayment(e.id)} className="dash-btn-mini dash-btn-gold">تأیید پرداخت</button>
             )}
             {!e.completed && (
-              <button onClick={() => markCompleted(e.id, true)} className="bg-violet/20 text-[#D8D7FF] px-3.5 py-2 rounded-btn shadow-neumo-out hover:-translate-y-0.5 transition-transform duration-300">تکمیل دوره + صدور گواهی</button>
+              <button onClick={() => markCompleted(e.id, true)} className="dash-btn-mini dash-btn-violet">تکمیل دوره + صدور گواهی</button>
             )}
-            <button onClick={() => setUploadFor(e)} className="bg-white/5 px-3.5 py-2 rounded-btn shadow-neumo-out hover:-translate-y-0.5 transition-transform duration-300">آپلود مدرک برای این دانشجو</button>
+            <button onClick={() => setUploadFor(e)} className="dash-btn-mini dash-btn-ghost">آپلود مدرک برای این دانشجو</button>
           </div>
         </div>
       ))}
-      {enrollments.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز ثبت‌نامی وجود ندارد.</div>}
+      {enrollments.length === 0 && <div className="dash-empty">هنوز ثبت‌نامی وجود ندارد.</div>}
     </div>
   )
 }
@@ -252,13 +243,13 @@ function TestimonialsTab() {
   const remove = async (id: string) => { await supabase.from('testimonials').delete().eq('id', id); load() }
   return (
     <div className="space-y-3">
-      <div className="glass-panel rounded-card p-5 space-y-2">
-        <input className={inputCls} placeholder="نام دانشجو" value={name} onChange={(e) => setName(e.target.value)} />
-        <textarea className={`${inputCls} resize-none`} rows={2} placeholder="متن نظر" value={text} onChange={(e) => setText(e.target.value)} />
-        <button onClick={add} className={`${btnCls} w-full`}>افزودن نظر</button>
+      <div className="dash-card space-y-2">
+        <input className="input-3d" placeholder="نام دانشجو" value={name} onChange={(e) => setName(e.target.value)} />
+        <textarea className="input-3d resize-none" rows={2} placeholder="متن نظر" value={text} onChange={(e) => setText(e.target.value)} />
+        <button onClick={add} className="hero-primary-btn w-full justify-center">افزودن نظر</button>
       </div>
       {items.map((t) => (
-        <div key={t.id} className="glass-panel rounded-btn p-4">
+        <div key={t.id} className="dash-card">
           <div className="text-sm">{t.text}</div>
           <div className="flex justify-between items-center mt-2">
             <span className="text-xs text-accent font-bold">{t.student_name}</span>
@@ -286,13 +277,13 @@ function NewsTab() {
   const remove = async (id: string) => { await supabase.from('news').delete().eq('id', id); load() }
   return (
     <div className="space-y-3">
-      <div className="glass-panel rounded-card p-5 space-y-2">
-        <input className={inputCls} placeholder="عنوان خبر" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <textarea className={`${inputCls} resize-none`} rows={3} placeholder="متن خبر" value={content} onChange={(e) => setContent(e.target.value)} />
-        <button onClick={add} className={`${btnCls} w-full`}>انتشار خبر</button>
+      <div className="dash-card space-y-2">
+        <input className="input-3d" placeholder="عنوان خبر" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea className="input-3d resize-none" rows={3} placeholder="متن خبر" value={content} onChange={(e) => setContent(e.target.value)} />
+        <button onClick={add} className="hero-primary-btn w-full justify-center">انتشار خبر</button>
       </div>
       {items.map((n) => (
-        <div key={n.id} className="glass-panel rounded-btn p-4">
+        <div key={n.id} className="dash-card">
           <div className="font-bold text-sm">{n.title}</div>
           <p className="text-xs text-[#8B8FC0] mt-1">{n.content}</p>
           <button onClick={() => remove(n.id)} className="text-[#FB7185] text-xs mt-2 hover:underline transition-colors duration-300">حذف</button>
@@ -316,13 +307,13 @@ function FaqTab() {
   const remove = async (id: string) => { await supabase.from('faq').delete().eq('id', id); load() }
   return (
     <div className="space-y-3">
-      <div className="glass-panel rounded-card p-5 space-y-2">
-        <input className={inputCls} placeholder="سؤال" value={q} onChange={(e) => setQ(e.target.value)} />
-        <textarea className={`${inputCls} resize-none`} rows={2} placeholder="پاسخ" value={a} onChange={(e) => setA(e.target.value)} />
-        <button onClick={add} className={`${btnCls} w-full`}>افزودن سؤال</button>
+      <div className="dash-card space-y-2">
+        <input className="input-3d" placeholder="سؤال" value={q} onChange={(e) => setQ(e.target.value)} />
+        <textarea className="input-3d resize-none" rows={2} placeholder="پاسخ" value={a} onChange={(e) => setA(e.target.value)} />
+        <button onClick={add} className="hero-primary-btn w-full justify-center">افزودن سؤال</button>
       </div>
       {items.map((f) => (
-        <div key={f.id} className="glass-panel rounded-btn p-4">
+        <div key={f.id} className="dash-card">
           <div className="font-bold text-sm">{f.question}</div>
           <p className="text-xs text-[#8B8FC0] mt-1">{f.answer}</p>
           <button onClick={() => remove(f.id)} className="text-[#FB7185] text-xs mt-2 hover:underline transition-colors duration-300">حذف</button>
@@ -338,12 +329,12 @@ function MessagesTab() {
   return (
     <div className="space-y-2.5">
       {items.map((m) => (
-        <div key={m.id} className="glass-panel rounded-btn p-4">
+        <div key={m.id} className="dash-card">
           <div className="flex justify-between text-sm font-bold"><span>{m.name}</span><span className="text-[#7B7FB5] text-xs">{m.phone}</span></div>
           <p className="text-xs text-[#8B8FC0] mt-1">{m.message}</p>
         </div>
       ))}
-      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">پیامی وجود ندارد.</div>}
+      {items.length === 0 && <div className="dash-empty">پیامی وجود ندارد.</div>}
     </div>
   )
 }
@@ -357,9 +348,9 @@ function AnnouncementTab() {
     showToast('اطلاعیه ارسال شد.')
   }
   return (
-    <div className="glass-panel rounded-card p-5 space-y-2">
-      <textarea className={`${inputCls} resize-none`} rows={3} placeholder="متن اطلاعیه برای همه دانشجویان" value={text} onChange={(e) => setText(e.target.value)} />
-      <button onClick={send} className={`${btnCls} w-full`}>ارسال اطلاعیه</button>
+    <div className="dash-card space-y-2">
+      <textarea className="input-3d resize-none" rows={3} placeholder="متن اطلاعیه برای همه دانشجویان" value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={send} className="hero-primary-btn w-full justify-center">ارسال اطلاعیه</button>
     </div>
   )
 }
@@ -394,18 +385,18 @@ function DocumentsTab() {
   const getUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
   return (
     <div className="space-y-3">
-      <div className="glass-panel rounded-card p-5 space-y-2">
-        <input className={inputCls} placeholder="عنوان مدرک" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <input type="file" accept="image/*,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className={inputCls} />
-        <button onClick={upload} disabled={busy} className={`${btnCls} w-full`}>{busy ? 'در حال آپلود...' : 'آپلود مدرک'}</button>
+      <div className="dash-card space-y-2">
+        <input className="input-3d" placeholder="عنوان مدرک" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input type="file" accept="image/*,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
+        <button onClick={upload} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال آپلود...' : 'آپلود مدرک'}</button>
       </div>
       {items.map((d) => (
-        <div key={d.id} className="glass-panel rounded-btn p-4 flex items-center justify-between">
+        <div key={d.id} className="dash-card flex items-center justify-between">
           <a href={getUrl(d.file_path)} target="_blank" rel="noreferrer" className="text-sm text-accent hover:underline transition-colors duration-300">{d.title}</a>
           <button onClick={() => remove(d)} className="text-[#FB7185] text-xs hover:underline transition-colors duration-300">حذف</button>
         </div>
       ))}
-      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز مدرکی آپلود نشده.</div>}
+      {items.length === 0 && <div className="dash-empty">هنوز مدرکی آپلود نشده.</div>}
     </div>
   )
 }
@@ -429,13 +420,13 @@ function TeachersTab() {
   }
   return (
     <div className="space-y-3">
-      <div className="glass-panel rounded-card p-5 space-y-2">
-        <label className="block text-xs text-[#7B7FB5]">ایمیل کاربری که می‌خوای مدرس بشه</label>
-        <input className={inputCls} placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <button onClick={addTeacher} className={`${btnCls} w-full`}>افزودن به‌عنوان مدرس</button>
+      <div className="dash-card space-y-2">
+        <label className="auth-label">ایمیل کاربری که می‌خوای مدرس بشه</label>
+        <input className="input-3d" placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <button onClick={addTeacher} className="hero-primary-btn w-full justify-center">افزودن به‌عنوان مدرس</button>
       </div>
       {teachers.map((t) => (
-        <div key={t.id} className="glass-panel rounded-btn p-4 flex items-center justify-between">
+        <div key={t.id} className="dash-card flex items-center justify-between">
           <div>
             <div className="font-bold text-sm">{t.name}</div>
             <div className="text-xs text-[#7B7FB5]">{t.email}</div>
@@ -443,7 +434,7 @@ function TeachersTab() {
           <button onClick={() => removeTeacher(t.id)} className="text-[#FB7185] text-xs hover:underline transition-colors duration-300">حذف نقش مدرس</button>
         </div>
       ))}
-      {teachers.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز مدرسی ثبت نشده.</div>}
+      {teachers.length === 0 && <div className="dash-empty">هنوز مدرسی ثبت نشده.</div>}
     </div>
   )
 }
@@ -485,24 +476,24 @@ function MaterialsTab() {
   }
   return (
     <div className="space-y-3">
-      <div className="glass-panel rounded-card p-5 space-y-2">
-        <select className={inputCls} value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+      <div className="dash-card space-y-2">
+        <select className="input-3d" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
           <option value="">انتخاب دوره</option>
           {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
         </select>
-        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className={inputCls} />
-        <button onClick={upload} disabled={busy} className={`${btnCls} w-full`}>{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
+        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
+        <button onClick={upload} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
       </div>
       {items.map((m) => (
-        <div key={m.id} className="glass-panel rounded-btn p-4 flex items-center justify-between">
+        <div key={m.id} className="dash-card flex items-center justify-between">
           <button onClick={() => openFile(m.file_path)} className="text-right flex-1 truncate hover:text-accent transition-colors duration-300">
             <div className="text-sm font-medium truncate">{m.file_name}</div>
             <div className="text-xs text-[#7B7FB5]">{m.courses?.title} · {m.profiles?.name}</div>
           </button>
-          <button onClick={() => remove(m)} className="text-[#FB7185] text-xs px-2 hover:underline transition-colors duration-300">حذف</button>
+          <button onClick={() => remove(m)} className="dash-btn-mini dash-btn-danger">حذف</button>
         </div>
       ))}
-      {items.length === 0 && <div className="text-center py-10 text-[#5C5F8A]">هنوز جزوه‌ای آپلود نشده.</div>}
+      {items.length === 0 && <div className="dash-empty">هنوز جزوه‌ای آپلود نشده.</div>}
     </div>
   )
 }
@@ -537,19 +528,19 @@ function SettingsTab() {
     ['copyright_text', 'متن کپی‌رایت (پایین سایت)'],
   ]
   return (
-    <div className="glass-panel rounded-card p-5 space-y-4">
+    <div className="dash-card space-y-4">
       <div>
-        <label className="block text-xs text-[#7B7FB5] mb-1.5">لوگوی آموزشگاه</label>
-        {settings.logo_url && <img src={settings.logo_url} alt="لوگو" className="h-16 mb-2 rounded-btn shadow-neumo-out" />}
-        <input type="file" accept="image/*" disabled={logoBusy} onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} className={inputCls} />
+        <label className="auth-label">لوگوی آموزشگاه</label>
+        {settings.logo_url && <img src={settings.logo_url} alt="لوگو" className="h-16 mb-2 rounded-btn" />}
+        <input type="file" accept="image/*" disabled={logoBusy} onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} className="input-3d" />
       </div>
       {fields.map(([key, label]) => (
         <div key={key}>
-          <label className="block text-xs text-[#7B7FB5] mb-1.5">{label}</label>
-          <input className={inputCls} value={settings[key] || ''} onChange={(e) => setSettings({ ...settings, [key]: e.target.value })} />
+          <label className="auth-label">{label}</label>
+          <input className="input-3d" value={settings[key] || ''} onChange={(e) => setSettings({ ...settings, [key]: e.target.value })} />
         </div>
       ))}
-      <button onClick={save} className={`${btnCls} w-full`}>ذخیره تنظیمات</button>
+      <button onClick={save} className="hero-primary-btn w-full justify-center">ذخیره تنظیمات</button>
     </div>
   )
 }
@@ -576,18 +567,18 @@ function AdminSupportTab() {
 
   if (selected) {
     return (
-      <div className="glass-panel rounded-card p-5">
+      <div className="chat-panel">
         <button onClick={() => setSelected(null)} className="text-xs text-accent mb-3 hover:-translate-x-0.5 transition-transform duration-300 inline-block">← برگشت</button>
         <div className="font-bold text-sm mb-3">{selected.name}</div>
-        <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+        <div className="chat-scroll">
           {messages.map((m) => (
-            <div key={m.id} className={`text-sm px-3.5 py-2.5 rounded-btn max-w-[80%] shadow-neumo-out ${m.sender_id === session?.user.id ? 'bg-gradient-to-l from-accent to-accent2 text-bg mr-auto' : 'bg-white/5 text-[#C4C7ED]'}`}>{m.message}</div>
+            <div key={m.id} className={`chat-bubble ${m.sender_id === session?.user.id ? 'chat-bubble-mine' : 'chat-bubble-theirs'}`}>{m.message}</div>
           ))}
-          {messages.length === 0 && <div className="text-center text-[#5C5F8A] text-sm py-6">هنوز پیامی نیست.</div>}
+          {messages.length === 0 && <div className="dash-empty">هنوز پیامی نیست.</div>}
         </div>
         <div className="flex gap-2">
-          <input value={text} onChange={(e) => setText(e.target.value)} className={`${inputCls} flex-1`} placeholder="پاسخ..." onKeyDown={(e) => e.key === 'Enter' && send()} />
-          <button onClick={send} className={`${btnCls} !px-4`}>ارسال</button>
+          <input value={text} onChange={(e) => setText(e.target.value)} className="input-3d flex-1" placeholder="پاسخ..." onKeyDown={(e) => e.key === 'Enter' && send()} />
+          <button onClick={send} className="hero-primary-btn !px-4">ارسال</button>
         </div>
       </div>
     )
@@ -596,7 +587,7 @@ function AdminSupportTab() {
   return (
     <div className="space-y-2.5">
       {students.map((s) => (
-        <button key={s.id} onClick={() => { setSelected(s); load(s.id) }} className="glass-panel rounded-btn p-4 w-full text-right flex items-center justify-between transition-transform duration-300 hover:-translate-y-0.5">
+        <button key={s.id} onClick={() => { setSelected(s); load(s.id) }} className="dash-card w-full text-right flex items-center justify-between">
           <div>
             <div className="font-bold text-sm">{s.name}</div>
             <div className="text-xs text-[#7B7FB5]">{s.role === 'teacher' ? 'مدرس' : 'دانشجو'}</div>
@@ -606,4 +597,4 @@ function AdminSupportTab() {
       ))}
     </div>
   )
-    }
+        }
