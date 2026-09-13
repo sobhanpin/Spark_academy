@@ -414,6 +414,11 @@ body {
   background: linear-gradient(155deg, rgba(139,92,246,0.12), rgba(23,20,61,0.55) 45%, rgba(10,9,24,0.65));
   border: 1px solid rgba(180,150,255,0.18);
   box-shadow: 0 2px 0 rgba(255,255,255,0.07) inset, 0 -18px 45px rgba(0,0,0,0.4) inset, 0 35px 80px -20px rgba(0,0,0,0.65), 0 0 50px -14px var(--glow-violet);
+  animation: auth-card-in 0.7s var(--ease-3d) both;
+}
+@keyframes auth-card-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .auth-title { font-size: 1.5rem; font-weight: 900; text-align: center; margin-bottom: 1.75rem; }
 .input-3d {
@@ -424,7 +429,10 @@ body {
   transition: box-shadow 0.3s var(--ease-3d), border-color 0.3s var(--ease-3d);
 }
 .input-3d::placeholder { color: #6B6A94; }
-.input-3d:focus { border-color: rgba(139,92,246,0.5); box-shadow: var(--shadow-neumo-in), 0 0 0 3px rgba(139,92,246,0.18); }
+.input-3d:focus {
+  border-color: rgba(139,92,246,0.5);
+  box-shadow: var(--shadow-neumo-in), 0 0 0 3px rgba(139,92,246,0.18), 0 0 18px -4px var(--glow-violet);
+}
 .auth-label { display: block; font-size: 0.75rem; color: #9290B8; margin-bottom: 0.4rem; }
 .auth-error {
   background: rgba(251,113,133,0.12); border: 1px solid rgba(251,113,133,0.25);
@@ -434,3 +442,22 @@ body {
 .auth-link { color: #9290B8; font-size: 0.8rem; transition: color 0.3s; }
 .auth-link:hover { color: #FFC168; }
 .auth-divider { border-top: 1px solid rgba(255,255,255,0.07); margin-top: 1.25rem; padding-top: 1rem; text-align: center; }
+
+.auth-particle {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(139,92,246,0.55), transparent 70%);
+  filter: blur(2px);
+  animation: auth-particle-float 6s ease-in-out infinite;
+}
+.auth-particle-gold {
+  background: radial-gradient(circle, rgba(255,193,104,0.55), transparent 70%);
+}
+@keyframes auth-particle-float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+  50% { transform: translateY(-18px) translateX(6px); opacity: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card { animation: none; }
+  .auth-particle { animation: none; opacity: 0.4; }
+  }
