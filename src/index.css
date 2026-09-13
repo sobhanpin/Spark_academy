@@ -461,3 +461,83 @@ body {
   .auth-card { animation: none; }
   .auth-particle { animation: none; opacity: 0.4; }
   }
+/* =========================================================
+   DASHBOARDS (Student/Teacher/Admin) — same visual system
+========================================================= */
+.dash-header { font-size: 1.35rem; font-weight: 900; margin-bottom: 1.25rem; }
+
+.dash-tabs {
+  display: grid; gap: 0.4rem;
+  background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1.25rem; padding: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+.dash-tab {
+  position: relative;
+  padding: 0.65rem 0.5rem; border-radius: var(--radius-btn);
+  font-size: 0.72rem; font-weight: 700; color: #9290B8;
+  transition: all 0.3s var(--ease-3d);
+}
+.dash-tab.active {
+  color: var(--color-bg);
+  background: linear-gradient(135deg, #FFC168, #FF7A3D);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 18px -6px rgba(255,122,61,0.5);
+}
+.dash-notify-dot {
+  position: absolute; top: 0.3rem; left: 0.3rem; width: 0.4rem; height: 0.4rem;
+  border-radius: 50%; background: #FB7185; box-shadow: 0 0 6px rgba(251,113,133,0.7);
+}
+
+.dash-card {
+  position: relative; border-radius: var(--radius-card); padding: 1.1rem 1.25rem;
+  background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 20px 45px -18px rgba(0,0,0,0.55);
+  transition: transform 0.3s var(--ease-3d);
+}
+.dash-card:hover { transform: translateY(-4px); }
+
+.dash-badge {
+  display: inline-block; font-size: 0.65rem; font-weight: 800;
+  padding: 0.25rem 0.7rem; border-radius: 999px;
+  box-shadow: var(--shadow-neumo-out);
+}
+.dash-badge-success { background: rgba(52,211,153,0.15); color: #34D399; }
+.dash-badge-pending { background: rgba(255,193,104,0.15); color: #FFC168; }
+
+.dash-btn-mini {
+  font-size: 0.7rem; font-weight: 700; padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-btn); transition: transform 0.3s var(--ease-3d);
+  box-shadow: var(--shadow-neumo-out);
+}
+.dash-btn-mini:hover { transform: translateY(-2px); }
+.dash-btn-gold { background: linear-gradient(135deg, #FFC168, #FF7A3D); color: var(--color-bg); }
+.dash-btn-violet { background: rgba(139,92,246,0.18); color: #D8D7FF; }
+.dash-btn-ghost { background: rgba(255,255,255,0.05); color: #C4C7ED; }
+.dash-btn-danger { background: rgba(251,113,133,0.12); color: #FB7185; }
+
+.chat-panel {
+  border-radius: var(--radius-card); padding: 1.25rem;
+  background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.chat-scroll { max-height: 20rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
+.chat-bubble {
+  max-width: 80%; padding: 0.6rem 0.9rem; border-radius: var(--radius-btn);
+  font-size: 0.82rem; box-shadow: var(--shadow-neumo-out);
+}
+.chat-bubble-mine { margin-right: auto; background: linear-gradient(135deg, #FFC168, #FF7A3D); color: var(--color-bg); }
+.chat-bubble-theirs { background: rgba(255,255,255,0.06); color: #C4C7ED; }
+
+.dash-empty { text-align: center; padding: 2.5rem 1rem; color: #6B6A94; font-size: 0.85rem; }
+
+.dash-dropzone {
+  width: 100%; padding: 1.5rem; border-radius: var(--radius-btn);
+  border: 2px dashed rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-neumo-in);
+  text-align: center; font-size: 0.82rem; color: #9290B8;
+  transition: border-color 0.3s;
+}
+.dash-dropzone:hover { border-color: rgba(255,193,104,0.4); }
