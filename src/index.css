@@ -548,3 +548,34 @@ body {
   transition: border-color 0.3s;
 }
 .dash-dropzone:hover { border-color: rgba(255,193,104,0.4); }
+/* =========================================================
+   DESKTOP ENHANCEMENTS — richer, larger Hero on wide screens
+========================================================= */
+@media (min-width: 1024px) {
+  .hero-shell { min-height: 46rem !important; }
+  .education-stage svg,
+  .education-stage { transform: scale(1.15); }
+  .hero-shell .certificate-card { transform: scale(1.1); }
+  .hero-shell .float-card { transform: scale(1.1); }
+
+  .home-grid { opacity: 0.6; }
+
+  .course-3d-card { min-height: 22rem; }
+  .course-image-wrap, .course-placeholder { height: 11rem !important; }
+}
+
+@media (min-width: 1280px) {
+  .hero-shell { min-height: 50rem !important; }
+}
+
+/* subtle desktop-only ambient rings behind Hero */
+@media (min-width: 1024px) {
+  .hero-shell::after {
+    content: "";
+    position: absolute; inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,193,104,0.15), transparent 30%, transparent 70%, rgba(139,92,246,0.15));
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+    }
