@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   return (
    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="dash-header">پنل مدیریت</h1>
-      <div className="dash-tabs flex flex-wrap !grid-cols-none">
+      <div className="dash-tabs flow">
         {TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)} className={`dash-tab !px-3.5 ${tab === t ? 'active' : ''}`}>
             {t}
