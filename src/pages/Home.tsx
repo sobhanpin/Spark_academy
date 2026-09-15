@@ -13,6 +13,8 @@ const Icon = ({ name, className = 'w-5 h-5' }: { name: string; className?: strin
     news: <><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></>,
     wrench: <path d="M14.7 6.3a4 4 0 0 0-5.6 5.1L3 17.5V21h3.5l6.1-6.1a4 4 0 0 0 5.1-5.6l-2.6 2.6-2-2 2.6-2.6Z"/>,
     pencil: <><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></>,
+    cap: <><path d="m3 10 9-5 9 5-9 5-9-5Z"/><path d="M7 12.2V17c2.8 2 7.2 2 10 0v-4.8"/><path d="M21 10v6"/></>,
+    certificate: <><path d="M5 4h14v12H5z"/><path d="M8 8h8M8 11h5"/><path d="m10 16 2 4 2-4"/></>,
   }
 
   return (
@@ -23,7 +25,7 @@ const Icon = ({ name, className = 'w-5 h-5' }: { name: string; className?: strin
 }
 
 const Stars = () => (
-  <div className="flex gap-0.5 text-accent mb-3" aria-hidden="true">
+  <div className="flex gap-0.5 mb-3" style={{ color: 'var(--gold)' }} aria-hidden="true">
     {[1, 2, 3, 4, 5].map((i) => (
       <Icon key={i} name="star" className="w-3.5 h-3.5" />
     ))}
@@ -58,209 +60,164 @@ export default function Home() {
 
   const docUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
 
-  const cardShadow = '0 24px 55px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.09), inset 0 -18px 35px rgba(0,0,0,.18)'
-
   return (
-    <main className="relative overflow-hidden bg-[#090718]">
-      <div className="home-orb home-orb-a" aria-hidden="true" />
-      <div className="home-orb home-orb-b" aria-hidden="true" />
-      <div className="home-grid" aria-hidden="true" />
+    <main className="ref-home">
+      <div className="ref-bg-glow ref-glow-a" aria-hidden="true" />
+      <div className="ref-bg-glow ref-glow-b" aria-hidden="true" />
+      <div className="ref-particles" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>
 
       {/* HERO */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 sm:pt-10 pb-14 sm:pb-20">
-        <div className="hero-shell relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] min-h-[600px] lg:min-h-[650px]">
-          <div className="hero-noise" aria-hidden="true" />
-          <div className="absolute -top-32 -left-20 w-80 h-80 rounded-full bg-violet/20 blur-3xl" />
-          <div className="absolute -bottom-40 right-10 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
-
-          <div className="relative grid lg:grid-cols-[.92fr_1.08fr] min-h-[600px] lg:min-h-[650px] items-center p-6 sm:p-10 lg:p-14 gap-8">
-            <div className="order-2 lg:order-1 text-center lg:text-right z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-chip text-accent text-xs font-bold mb-6">
-                <span className="w-2 h-2 rounded-full bg-accent shadow-[0_0_14px_rgba(255,193,104,.9)]" />
-                آموزشگاه توسعه‌کاران ستایش
-              </div>
-
-              <h1 className="text-[2.25rem] sm:text-5xl lg:text-[4.2rem] font-black leading-[1.18] tracking-tight max-w-2xl mx-auto lg:mr-0">
-                <span className="hero-gradient-text">
-                  {settings.hero_title || 'اسپارک باش، مسیرتو روشن کن'}
-                </span>
-              </h1>
-
-              <p className="mt-6 max-w-xl mx-auto lg:mr-0 text-[#B9B8D8] leading-8 text-sm sm:text-base">
-                {settings.hero_subtitle ||
-                  'زبان، کنکور و مهارت‌های فنی؛ آموزش حرفه‌ای با مسیر روشن، استادهای باتجربه و تجربه‌ای مدرن برای رشد واقعی.'}
-              </p>
-
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 mt-8">
-                <Link to="/courses" className="hero-primary-btn">
-                  <span>مشاهده دوره‌ها</span>
-                  <Icon name="arrow" className="w-5 h-5" />
-                </Link>
-                <Link to="/contact" className="hero-secondary-btn">
-                  با ما در ارتباط باشید
-                </Link>
-              </div>
-
-              <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-8 text-xs text-[#9B99BE]">
-                <span className="mini-stat">
-                  <Icon name="users" className="w-4 h-4 text-accent" />
-                  آموزش برای همه
-                </span>
-                <span className="mini-stat">
-                  <Icon name="clock" className="w-4 h-4 text-violetlight" />
-                  حضوری و آنلاین
-                </span>
-                <span className="mini-stat">
-                  <Icon name="star" className="w-4 h-4 text-accent" />
-                  مسیر حرفه‌ای
-                </span>
-              </div>
-            </div>
-
-            {/* 3D EDUCATION VISUAL */}
-            <div className="order-1 lg:order-2 relative h-[330px] sm:h-[390px] lg:h-[540px] perspective-1000" aria-hidden="true">
-              <div className="hero-aura absolute inset-[8%] rounded-full" />
-
-              <div className="float-card float-card-top">
-                <div className="icon-tile purple">
-                  <Icon name="book" />
-                </div>
-                <div>
-                  <b>یادگیری</b>
-                  <small>هر روز یک قدم</small>
-                </div>
-              </div>
-
-              <div className="float-card float-card-side">
-                <div className="icon-tile gold">
-                  <Icon name="star" />
-                </div>
-                <div>
-                  <b>مهارت جدید</b>
-                  <small>شروع از همین امروز</small>
-                </div>
-              </div>
-
-              <div className="certificate-card">
-                <div className="cert-seal">★</div>
-                <div>
-                  <small>گواهی پایان دوره</small>
-                  <strong>توسعه‌کاران ستایش</strong>
-                </div>
-              </div>
-
-              <div className="education-stage">
-                <div className="stage-glow" />
-                <div className="book-stack book-one" />
-                <div className="book-stack book-two" />
-                <div className="book-stack book-three" />
-                <div className="open-book">
-                  <span />
-                  <span />
-                </div>
-                <div className="cap">
-                  <div className="cap-top" />
-                  <div className="cap-body" />
-                  <i />
-                </div>
-                <div className="stage-platform" />
-              </div>
-
-              <div className="hero-sparkle sparkle-a">✦</div>
-              <div className="hero-sparkle sparkle-b">✦</div>
-              <div className="hero-sparkle sparkle-c">✧</div>
-
-              <div className="hero-dot dot-one" />
-              <div className="hero-dot dot-two" />
-              <div className="hero-dot dot-three" />
-            </div>
+      <section className="ref-hero">
+        <div className="ref-hero-copy">
+          <div className="ref-kicker">
+            <span/> آموزشگاه توسعه‌کاران ستایش
           </div>
 
-          <div className="hero-bottom-line" />
+          <h1>{settings.hero_title || 'اسپارک باش، مسیرتو روشن کن'}</h1>
+
+          <p>
+            {settings.hero_subtitle ||
+              'زبان، کنکور و مهارت‌های فنی؛ آموزش حرفه‌ای با مسیر روشن، استادهای باتجربه و تجربه‌ای مدرن برای رشد واقعی.'}
+          </p>
+
+          <div className="ref-actions">
+            <Link to="/courses" className="ref-btn ref-btn-gold">
+              مشاهده دوره‌ها <Icon name="arrow" className="w-4 h-4"/>
+            </Link>
+            <Link to="/contact" className="ref-btn ref-btn-outline">
+              با ما در ارتباط باشید
+            </Link>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.6rem', marginTop: '1.5rem', fontSize: '.68rem', color: '#9db3ca' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '.35rem' }}>
+              <Icon name="users" className="w-4 h-4" /> آموزش برای همه
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '.35rem' }}>
+              <Icon name="clock" className="w-4 h-4" /> حضوری و آنلاین
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '.35rem' }}>
+              <Icon name="star" className="w-4 h-4" /> مسیر حرفه‌ای
+            </span>
+          </div>
+        </div>
+
+        {/* 3D SCENE */}
+        <div className="ref-scene" aria-hidden="true">
+          <div className="scene-ring ring-one"/><div className="scene-ring ring-two"/>
+          <div className="scene-orb"/><div className="scene-orb-small"/>
+          <div className="scene-cube cube-one"/><div className="scene-cube cube-two"/>
+          <div className="scene-platform"/>
+          <div className="scene-books"><div/><div/><div/></div>
+          <div className="scene-scroll"><span/></div>
+          <div className="scene-cap"><b/><i/></div>
+          <div className="scene-light light-one"/><div className="scene-light light-two"/>
         </div>
       </section>
 
+      {/* WHY US */}
+      <section className="ref-features" aria-label="مزایای آموزشگاه">
+        <article>
+          <span className="ref-feature-icon"><Icon name="cap"/></span>
+          <div><b>دوره‌های آموزشی</b><small>زبان، کنکور و مهارت‌های فنی<br/>با اساتید مجرب</small></div>
+          <em>↙</em>
+        </article>
+        <article>
+          <span className="ref-feature-icon"><Icon name="users"/></span>
+          <div><b>حضوری و آنلاین</b><small>آموزش برای همه، هر جا<br/>که باشید</small></div>
+          <em>↙</em>
+        </article>
+        <article>
+          <span className="ref-feature-icon"><Icon name="star"/></span>
+          <div><b>مسیر حرفه‌ای</b><small>برنامه‌ای شفاف تا رسیدن<br/>به هدف</small></div>
+          <em>↙</em>
+        </article>
+        <article>
+          <span className="ref-feature-icon"><Icon name="certificate"/></span>
+          <div><b>مدرک معتبر</b><small>ارائه گواهینامه پایان دوره<br/>با قابلیت استعلام</small></div>
+          <em>↙</em>
+        </article>
+      </section>
+
       {/* COURSES */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-        <div className="section-heading">
+      <section className="ref-section" id="courses">
+        <div className="ref-section-head">
           <div>
-            <span className="section-kicker">آموزش هدفمند</span>
-            <h2><span className="section-arrow">←</span> دوره‌های آموزشی</h2>
+            <small>آموزش هدفمند</small>
+            <h2>دوره‌های <strong>آموزشی</strong></h2>
             <p>با بهترین اساتید و جدیدترین روش‌های آموزشی.</p>
           </div>
-          <Link to="/courses" className="section-link hidden sm:inline-flex">
-            مشاهده همه دوره‌ها
-          </Link>
+          <Link to="/courses">مشاهده همه دوره‌ها <Icon name="arrow" className="w-4 h-4"/></Link>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+        <div className="ref-course-grid">
           {courses.map((c, index) => (
-            <Link key={c.id} to={`/courses/${c.id}`} className="course-3d-card group" style={{ boxShadow: cardShadow }}>
-              <div className="course-image-wrap">
+            <Link key={c.id} to={`/courses/${c.id}`} className="ref-course-card">
+              <div className="ref-course-media">
                 {c.image_url ? (
-                  <img src={c.image_url} alt={c.title} className="course-image" />
+                  <img src={c.image_url} alt={c.title} />
                 ) : (
-                  <div className="course-placeholder">
+                  <div className="ref-course-fallback">
                     <Icon name={categoryIcon(c.category)} className="w-12 h-12" />
                   </div>
                 )}
-                <span className="course-number">۰{index + 1}</span>
-                <span className="course-category">{c.category}</span>
+                <span>{c.category}</span>
+                <b>۰{index + 1}</b>
               </div>
-
-              <div className="p-5">
-                <h3 className="font-black text-base leading-7 mb-2">{c.title}</h3>
+              <div className="ref-course-body">
+                <h3>{c.title}</h3>
                 {c.duration && (
-                  <div className="course-meta">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.3rem', color: '#43b8ff', fontSize: '.6rem', marginTop: '.3rem' }}>
                     <Icon name="clock" className="w-3.5 h-3.5" />
                     {c.duration}
                   </div>
                 )}
-                <p className="text-xs text-[#9290B8] leading-6 line-clamp-2 min-h-12">{c.description}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-accent font-black text-sm">{c.price.toLocaleString('fa-IR')} تومان</span>
-                  <span className="course-arrow">
-                    <Icon name="arrow" className="w-4 h-4" />
-                  </span>
+                <p>{c.description}</p>
+                <div>
+                  <small>{c.price.toLocaleString('fa-IR')} تومان</small>
+                  <i><Icon name="arrow" className="w-4 h-4" /></i>
                 </div>
               </div>
             </Link>
           ))}
         </div>
 
-        <div className="text-center mt-7 sm:hidden">
-          <Link to="/courses" className="section-link inline-flex">
+        <div style={{ textAlign: 'center', marginTop: '1.75rem' }} className="sm:hidden">
+          <Link to="/courses" className="ref-btn ref-btn-outline" style={{ display: 'inline-flex' }}>
             مشاهده همه دوره‌ها
             <Icon name="arrow" className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
+      {/* STATS */}
+      <section className="ref-stats">
+        <div><span><Icon name="users"/></span><b>+۳۰۰۰</b><small>دانشجوی فعال</small></div>
+        <div><span><Icon name="book"/></span><b>+{courses.length || 50}</b><small>دوره آموزشی</small></div>
+        <div><span><Icon name="star"/></span><b>۹۵٪</b><small>رضایت دانشجویان</small></div>
+        <div><span><Icon name="clock"/></span><b>+۸</b><small>سال سابقه فعالیت</small></div>
+      </section>
+
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
-        <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-          <div className="feature-panel">
-            <div className="section-heading mb-8">
+        <section className="ref-section">
+          <div className="ref-panel">
+            <div className="ref-section-head" style={{ marginBottom: '2rem' }}>
               <div>
-                <span className="section-kicker">تجربه واقعی</span>
-                <h2><span className="section-arrow">←</span> نظرات زبان‌آموزان</h2>
+                <small>تجربه واقعی</small>
+                <h2>نظرات <strong>زبان‌آموزان</strong></h2>
                 <p>موفقیت شما، افتخار ماست.</p>
               </div>
-              <span className="section-link section-link-static hidden sm:inline-flex">مشاهده همه نظرات</span>
             </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="ref-testimonials">
               {testimonials.slice(0, 3).map((t) => (
-                <article key={t.id} className="testimonial-3d">
-                  <div className="quote-mark">"</div>
+                <article key={t.id}>
+                  <span>"</span>
                   <Stars />
-                  <p className="text-sm leading-7 text-[#C2C1DD] min-h-[84px]">{t.text}</p>
-                  <div className="mt-5 pt-4 border-t border-white/7 flex items-center gap-3">
-                    <span className="avatar-3d">{t.student_name?.charAt(0)}</span>
-                    <div>
-                      <strong className="text-sm">{t.student_name}</strong>
-                      <small className="block text-[#77769B] mt-0.5">زبان‌آموز آموزشگاه</small>
-                    </div>
+                  <p>{t.text}</p>
+                  <div>
+                    <b>{t.student_name}</b>
+                    <small>زبان‌آموز آموزشگاه</small>
                   </div>
                 </article>
               ))}
@@ -271,27 +228,25 @@ export default function Home() {
 
       {/* NEWS */}
       {news.length > 0 && (
-        <section id="news" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-          <div className="section-heading">
+        <section id="news" className="ref-section">
+          <div className="ref-section-head">
             <div>
-              <span className="section-kicker">تازه‌های آموزشگاه</span>
-              <h2><span className="section-arrow">←</span> آخرین اخبار</h2>
+              <small>تازه‌های آموزشگاه</small>
+              <h2>آخرین <strong>اخبار</strong></h2>
               <p>از رویدادها و اطلاعیه‌های جدید باخبر باشید.</p>
             </div>
-            <span className="section-link section-link-static hidden sm:inline-flex">مشاهده همه اخبار</span>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="ref-news-grid">
             {news.map((n, i) => (
-              <article key={n.id} className="news-3d-card">
-                <div className="news-top">
-                  <span>۰{i + 1}</span>
-                  <Icon name="news" className="w-5 h-5" />
+              <article key={n.id}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Icon name="news" />
+                  <small style={{ color: 'var(--gold)' }}>۰{i + 1}</small>
                 </div>
                 <Stars />
+                <small>اطلاعیه</small>
                 <h3>{n.title}</h3>
                 <p>{n.content}</p>
-                <div className="news-line" />
               </article>
             ))}
           </div>
@@ -299,78 +254,62 @@ export default function Home() {
       )}
 
       {/* DOCUMENTS + FAQ */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-        <div className="grid lg:grid-cols-[.9fr_1.1fr] gap-6 lg:gap-8">
+      {(documents.length > 0 || faqs.length > 0) && (
+        <section className="ref-section ref-bottom-grid">
           {documents.length > 0 && (
-            <div className="feature-panel p-5 sm:p-7">
-              <div className="section-heading mb-6">
+            <div className="ref-panel">
+              <div className="ref-section-head">
                 <div>
-                  <span className="section-kicker">مرجع سریع</span>
-                  <h2><span className="section-arrow">←</span> مدارک و مستندات</h2>
+                  <small>مرجع سریع</small>
+                  <h2>مدارک و <strong>مستندات</strong></h2>
                 </div>
               </div>
-              <div className="space-y-3">
-                {documents.map((d) => (
-                  <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="document-3d">
-                    <span className="doc-icon">
-                      <Icon name="file" />
-                    </span>
-                    <span className="flex-1 font-bold text-sm">{d.title}</span>
-                    <Icon name="arrow" className="w-4 h-4 text-accent" />
-                  </a>
-                ))}
-              </div>
+              {documents.map((d) => (
+                <a key={d.id} href={docUrl(d.file_path)} target="_blank" rel="noreferrer" className="ref-document">
+                  <Icon name="file" />
+                  <b>{d.title}</b>
+                  <Icon name="arrow" className="w-4 h-4" />
+                </a>
+              ))}
             </div>
           )}
 
           {faqs.length > 0 && (
-            <div id="faq" className="feature-panel p-5 sm:p-7">
-              <div className="section-heading mb-6">
+            <div className="ref-panel" id="faq">
+              <div className="ref-section-head">
                 <div>
-                  <span className="section-kicker">راهنمای شما</span>
-                  <h2><span className="section-arrow">←</span> سؤالات متداول</h2>
+                  <small>راهنمای شما</small>
+                  <h2>سؤالات <strong>متداول</strong></h2>
                 </div>
               </div>
-              <div className="space-y-3">
-                {faqs.map((f) => {
-                  const isOpen = openFaq === f.id
-                  return (
-                    <div key={f.id} className={`faq-3d ${isOpen ? 'faq-open' : ''}`}>
-                      <button
-                        className="w-full flex items-center justify-between gap-4 text-right p-4"
-                        onClick={() => setOpenFaq(isOpen ? null : f.id)}
-                      >
-                        <span className="font-bold text-sm">{f.question}</span>
-                        <span className="faq-plus">+</span>
-                      </button>
-                      {isOpen && (
-                        <div className="px-4 pb-4">
-                          <p className="faq-answer">{f.answer}</p>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+              {faqs.map((f) => {
+                const isOpen = openFaq === f.id
+                return (
+                  <div className={`ref-faq ${isOpen ? 'open' : ''}`} key={f.id}>
+                    <button onClick={() => setOpenFaq(isOpen ? null : f.id)}>
+                      <span>{f.question}</span>
+                      <b>+</b>
+                    </button>
+                    {isOpen && <p>{f.answer}</p>}
+                  </div>
+                )
+              })}
             </div>
           )}
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* FINAL CTA */}
-      <div className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="cta-strip">
-          <div>
-            <span className="section-kicker">شروع مسیر</span>
-            <h2>آماده‌ای قدم بعدی رو برداری؟</h2>
-            <p>دوره مناسب خودت رو پیدا کن و از همین امروز شروع کن.</p>
-          </div>
-          <Link to="/courses" className="hero-primary-btn shrink-0">
-            <span>شروع یادگیری</span>
-            <Icon name="arrow" className="w-5 h-5" />
-          </Link>
+      <section className="ref-final-cta">
+        <div>
+          <small>شروع مسیر</small>
+          <h2>آماده‌ای قدم بعدی رو برداری؟</h2>
+          <p>دوره مناسب خودت رو پیدا کن و از همین امروز شروع کن.</p>
         </div>
-      </div>
+        <Link to="/courses" className="ref-btn ref-btn-gold">
+          شروع یادگیری <Icon name="arrow" className="w-4 h-4"/>
+        </Link>
+      </section>
     </main>
   )
       }
