@@ -104,14 +104,119 @@ export default function Home() {
 
         {/* 3D SCENE */}
         <div className="ref-scene" aria-hidden="true">
-          <div className="scene-ring ring-one"/><div className="scene-ring ring-two"/>
-          <div className="scene-orb"/><div className="scene-orb-small"/>
-          <div className="scene-cube cube-one"/><div className="scene-cube cube-two"/>
-          <div className="scene-platform"/>
-          <div className="scene-books"><div/><div/><div/></div>
-          <div className="scene-scroll"><span/></div>
-          <div className="scene-cap"><b/><i/></div>
-          <div className="scene-light light-one"/><div className="scene-light light-two"/>
+          <svg viewBox="0 0 640 640" className="hero-scene-svg" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="coverNavy" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#163f78" />
+                <stop offset="1" stopColor="#081d3d" />
+              </linearGradient>
+              <linearGradient id="coverBlue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#2e7fd6" />
+                <stop offset="1" stopColor="#0d3868" />
+              </linearGradient>
+              <linearGradient id="coverGold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#1a4a86" />
+                <stop offset="1" stopColor="#081d3d" />
+              </linearGradient>
+              <linearGradient id="pagesCream" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#faf3dd" />
+                <stop offset="1" stopColor="#e3cd97" />
+              </linearGradient>
+              <linearGradient id="goldMetal" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#ffe29a" />
+                <stop offset="1" stopColor="#ff9f1c" />
+              </linearGradient>
+              <radialGradient id="platformGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stopColor="#168cff" stopOpacity=".55" />
+                <stop offset="1" stopColor="#168cff" stopOpacity="0" />
+              </radialGradient>
+              <linearGradient id="lightBeam" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#38b7ff" stopOpacity="0" />
+                <stop offset=".5" stopColor="#38b7ff" stopOpacity=".8" />
+                <stop offset="1" stopColor="#38b7ff" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+
+            {/* platform */}
+            <ellipse className="hs-platform" cx="320" cy="565" rx="235" ry="58" fill="url(#platformGlow)" />
+            <ellipse cx="320" cy="565" rx="150" ry="34" fill="none" stroke="#2e9cff" strokeWidth="2" opacity=".55" />
+
+            {/* rotating light rings */}
+            <g className="hs-ring">
+              <ellipse cx="320" cy="430" rx="215" ry="68" fill="none" stroke="#2e9cff" strokeWidth="5" strokeDasharray="3 16" opacity=".5" />
+            </g>
+            <g className="hs-ring hs-ring-2">
+              <ellipse cx="320" cy="448" rx="152" ry="46" fill="none" stroke="#ffc94d" strokeWidth="3" strokeDasharray="2 12" opacity=".55" />
+            </g>
+
+            {/* light beams */}
+            <rect className="hs-light" x="165" y="40" width="4" height="170" fill="url(#lightBeam)" />
+            <rect className="hs-light" x="480" y="65" width="4" height="150" fill="url(#lightBeam)" style={{ animationDelay: '-2s' }} />
+
+            {/* particles */}
+            <g fill="#78cfff">
+              <circle className="hs-particle" cx="110" cy="150" r="3.5" style={{ animationDelay: '0s' }} />
+              <circle className="hs-particle" cx="520" cy="120" r="3" style={{ animationDelay: '-2s' }} />
+              <circle className="hs-particle" cx="540" cy="380" r="3.5" style={{ animationDelay: '-4s' }} />
+              <circle className="hs-particle" cx="95" cy="380" r="3" style={{ animationDelay: '-1s' }} />
+              <circle className="hs-particle" cx="330" cy="80" r="3" style={{ animationDelay: '-3s' }} />
+            </g>
+
+            {/* 3D book stack */}
+            <g className="hs-books">
+              <polygon points="150,400 380,400 460,366 230,366" fill="url(#coverNavy)" />
+              <rect x="150" y="400" width="230" height="26" fill="url(#coverNavy)" />
+              <polygon points="380,400 460,366 460,392 380,426" fill="url(#pagesCream)" />
+              <line x1="380" y1="400" x2="460" y2="366" stroke="#ffc94d" strokeWidth="2" opacity=".8" />
+
+              <polygon points="168,372 364,372 432,343 236,343" fill="url(#coverBlue)" />
+              <rect x="168" y="372" width="196" height="22" fill="url(#coverBlue)" />
+              <polygon points="364,372 432,343 432,365 364,394" fill="url(#pagesCream)" />
+              <line x1="364" y1="372" x2="432" y2="343" stroke="#ffc94d" strokeWidth="2" opacity=".8" />
+
+              <polygon points="190,347 340,347 392,325 242,325" fill="url(#coverGold)" />
+              <rect x="190" y="347" width="150" height="18" fill="url(#coverGold)" />
+              <polygon points="340,347 392,325 392,343 340,365" fill="url(#pagesCream)" />
+              <line x1="340" y1="347" x2="392" y2="325" stroke="#ffc94d" strokeWidth="2.5" />
+              <rect x="205" y="353" width="110" height="4" rx="2" fill="#ffc94d" opacity=".85" />
+            </g>
+
+            {/* graduation cap */}
+            <g className="hs-cap">
+              <ellipse cx="330" cy="234" rx="34" ry="15" fill="url(#coverNavy)" />
+              <polygon points="330,188 402,224 330,260 258,224" fill="url(#coverNavy)" stroke="#38b7ff" strokeWidth="1.5" opacity=".95" />
+              <polygon points="330,188 402,224 330,232 258,224" fill="#1c4d8e" opacity=".55" />
+              <circle cx="330" cy="224" r="7" fill="url(#goldMetal)" />
+              <path d="M330,224 Q360,250 358,278" fill="none" stroke="url(#goldMetal)" strokeWidth="2.5" strokeLinecap="round" />
+              <g stroke="url(#goldMetal)" strokeWidth="2" strokeLinecap="round">
+                <line x1="358" y1="278" x2="352" y2="294" />
+                <line x1="358" y1="278" x2="358" y2="296" />
+                <line x1="358" y1="278" x2="364" y2="294" />
+              </g>
+            </g>
+
+            {/* certificate */}
+            <g className="hs-cert" transform="rotate(-9 460 320)">
+              <rect x="392" y="262" width="140" height="102" rx="5" fill="url(#goldMetal)" />
+              <rect x="400" y="270" width="124" height="86" rx="3" fill="#faf6ea" />
+              <text x="462" y="292" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0d3868" style={{ letterSpacing: '.5px' }}>CERTIFICATE</text>
+              <rect x="415" y="300" width="94" height="3" fill="#c9cfd8" />
+              <rect x="425" y="309" width="74" height="3" fill="#c9cfd8" />
+              <circle cx="462" cy="336" r="13" fill="url(#goldMetal)" stroke="#0d3868" strokeWidth="1.5" />
+              <path d="m457,336 3,4 7,-8" fill="none" stroke="#0d3868" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M454,347 L458,368 L462,352 Z" fill="#0d3868" />
+              <path d="M470,347 L466,368 L462,352 Z" fill="#0d3868" />
+            </g>
+
+            {/* pencil */}
+            <g className="hs-pencil" transform="rotate(-30 150 437)">
+              <rect x="120" y="430" width="90" height="14" rx="3" fill="url(#goldMetal)" />
+              <polygon points="120,430 120,444 96,437" fill="#0d3868" />
+              <polygon points="108,433 108,441 96,437" fill="#04101f" />
+              <rect x="196" y="430" width="10" height="14" fill="#c9cfd8" />
+              <rect x="206" y="430" width="16" height="14" rx="3" fill="#ff8ba0" />
+            </g>
+          </svg>
         </div>
       </section>
 
@@ -312,4 +417,4 @@ export default function Home() {
       </section>
     </main>
   )
-      }
+    }
