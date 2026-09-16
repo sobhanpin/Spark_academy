@@ -12,14 +12,14 @@ export default function Footer() {
 
   return (
     <footer className="relative mt-20 overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 100%, rgba(91,50,196,0.2), transparent)' }} />
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true" style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 100%, rgba(22,140,255,0.16), transparent)' }} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
         <div
-          className="relative rounded-3xl px-6 sm:px-10 py-8 sm:py-10 text-sm text-[#8B8FC0]"
+          className="relative rounded-3xl px-6 sm:px-10 py-8 sm:py-10 text-sm text-[#9db3ca]"
           style={{
-            background: 'linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015))',
-            border: '1px solid rgba(180,150,255,0.15)',
-            boxShadow: '0 1px 0 rgba(255,255,255,0.06) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 40px -12px var(--glow-violet)',
+            background: 'linear-gradient(160deg, rgba(9,43,80,0.55), rgba(4,20,41,0.8))',
+            border: '1px solid rgba(56,183,255,0.2)',
+            boxShadow: '0 1px 0 rgba(255,201,77,0.08) inset, 0 30px 60px -20px rgba(0,0,0,0.6), 0 0 40px -14px rgba(22,140,255,0.35)',
           }}
         >
           <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
@@ -71,4 +71,4 @@ export default function Footer() {
       </div>
     </footer>
   )
-          }
+                                                                                                                                                                                                        }
