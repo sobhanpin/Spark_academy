@@ -135,6 +135,13 @@ export default function Home() {
                 <stop offset=".5" stopColor="#38b7ff" stopOpacity=".8" />
                 <stop offset="1" stopColor="#38b7ff" stopOpacity="0" />
               </linearGradient>
+              <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stopColor="#ffc94d" stopOpacity=".5" />
+                <stop offset="1" stopColor="#ffc94d" stopOpacity="0" />
+              </radialGradient>
+              <filter id="softShadow" x="-60%" y="-60%" width="220%" height="220%">
+                <feDropShadow dx="0" dy="14" stdDeviation="10" floodColor="#000" floodOpacity=".5" />
+              </filter>
             </defs>
 
             {/* platform */}
@@ -162,8 +169,9 @@ export default function Home() {
               <circle className="hs-particle" cx="330" cy="80" r="3" style={{ animationDelay: '-3s' }} />
             </g>
 
-            {/* 3D book stack — scaled ~30% larger, in place */}
-            <g transform="translate(305,375) scale(1.3) translate(-305,-375)">
+            {/* 3D book stack — the hero's main object, scaled up ~45% further (~1.85x total) */}
+            <ellipse cx="305" cy="392" rx="195" ry="78" fill="url(#platformGlow)" opacity=".55" />
+            <g transform="translate(305,375) scale(1.85) translate(-305,-375)" filter="url(#softShadow)">
               <g className="hs-books">
                 <polygon points="150,400 380,400 460,366 230,366" fill="url(#coverNavy)" />
                 <rect x="150" y="400" width="230" height="26" fill="url(#coverNavy)" />
@@ -183,8 +191,8 @@ export default function Home() {
               </g>
             </g>
 
-            {/* graduation cap — scaled ~20% larger, in place */}
-            <g transform="translate(330,240) scale(1.2) translate(-330,-240)">
+            {/* graduation cap — scaled ~30% larger, in place */}
+            <g transform="translate(330,240) scale(1.3) translate(-330,-240)" filter="url(#softShadow)">
               <g className="hs-cap">
                 <ellipse cx="330" cy="234" rx="34" ry="15" fill="url(#coverNavy)" />
                 <polygon points="330,188 402,224 330,260 258,224" fill="url(#coverNavy)" stroke="#38b7ff" strokeWidth="1.5" opacity=".95" />
@@ -199,8 +207,8 @@ export default function Home() {
               </g>
             </g>
 
-            {/* certificate — scaled ~25% larger, rotation moved outside the animated group */}
-            <g transform="translate(462,320) rotate(-9) scale(1.25) translate(-462,-320)">
+            {/* certificate — scaled ~35% larger, rotation moved outside the animated group */}
+            <g transform="translate(462,320) rotate(-9) scale(1.35) translate(-462,-320)" filter="url(#softShadow)">
               <g className="hs-cert">
                 <rect x="392" y="262" width="140" height="102" rx="5" fill="url(#goldMetal)" />
                 <rect x="400" y="270" width="124" height="86" rx="3" fill="#faf6ea" />
@@ -214,14 +222,18 @@ export default function Home() {
               </g>
             </g>
 
-            {/* pencil */}
-            <g transform="rotate(-30 150 437)">
-              <g className="hs-pencil">
-                <rect x="120" y="430" width="90" height="14" rx="3" fill="url(#goldMetal)" />
-                <polygon points="120,430 120,444 96,437" fill="#0d3868" />
-                <polygon points="108,433 108,441 96,437" fill="#04101f" />
-                <rect x="196" y="430" width="10" height="14" fill="#c9cfd8" />
-                <rect x="206" y="430" width="16" height="14" rx="3" fill="#ff8ba0" />
+            {/* pencil — scaled ~40% larger with its own soft blue/gold glow */}
+            <ellipse cx="159" cy="437" rx="78" ry="42" fill="url(#platformGlow)" opacity=".45" />
+            <ellipse cx="180" cy="430" rx="50" ry="28" fill="url(#goldGlow)" opacity=".4" />
+            <g transform="translate(159,437) scale(1.4) translate(-159,-437)" filter="url(#softShadow)">
+              <g transform="rotate(-30 150 437)">
+                <g className="hs-pencil">
+                  <rect x="120" y="430" width="90" height="14" rx="3" fill="url(#goldMetal)" />
+                  <polygon points="120,430 120,444 96,437" fill="#0d3868" />
+                  <polygon points="108,433 108,441 96,437" fill="#04101f" />
+                  <rect x="196" y="430" width="10" height="14" fill="#c9cfd8" />
+                  <rect x="206" y="430" width="16" height="14" rx="3" fill="#ff8ba0" />
+                </g>
               </g>
             </g>
           </svg>
