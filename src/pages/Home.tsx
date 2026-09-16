@@ -142,64 +142,6 @@ export default function Home() {
               <filter id="softShadow" x="-60%" y="-60%" width="220%" height="220%">
                 <feDropShadow dx="0" dy="14" stdDeviation="10" floodColor="#000" floodOpacity=".5" />
               </filter>
-
-              {/* --- extra materials for the upgraded 3D objects --- */}
-              <linearGradient id="spineDark" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="#040d1f" />
-                <stop offset="1" stopColor="#0e2c56" />
-              </linearGradient>
-              <linearGradient id="coverEdgeLight" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#ffffff" stopOpacity=".55" />
-                <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-              </linearGradient>
-              <linearGradient id="pagesShade" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#fff8e8" />
-                <stop offset="1" stopColor="#d8b76c" />
-              </linearGradient>
-              <linearGradient id="ribbonGold" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="#fff0c0" />
-                <stop offset="1" stopColor="#e08a1c" />
-              </linearGradient>
-              <linearGradient id="pencilWood" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="#f6d9a0" />
-                <stop offset="1" stopColor="#c98a3f" />
-              </linearGradient>
-              <linearGradient id="pencilBodyTop" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#ffe9ad" />
-                <stop offset="1" stopColor="#ffc94d" />
-              </linearGradient>
-              <linearGradient id="pencilBodyFront" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#e69a18" />
-                <stop offset="1" stopColor="#a5620a" />
-              </linearGradient>
-              <linearGradient id="ferruleMetal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#f3d9a3" />
-                <stop offset=".5" stopColor="#c99a4c" />
-                <stop offset="1" stopColor="#8a611f" />
-              </linearGradient>
-              <linearGradient id="eraserPink" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#ffb3c6" />
-                <stop offset="1" stopColor="#e0577e" />
-              </linearGradient>
-              <linearGradient id="capTop" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#2c66ab" />
-                <stop offset=".55" stopColor="#153f78" />
-                <stop offset="1" stopColor="#081d3d" />
-              </linearGradient>
-              <radialGradient id="capHead" cx="35%" cy="30%" r="75%">
-                <stop offset="0" stopColor="#1f4f8e" />
-                <stop offset="1" stopColor="#061a37" />
-              </radialGradient>
-              <linearGradient id="certPaper" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#fffdf6" />
-                <stop offset="1" stopColor="#efe4c4" />
-              </linearGradient>
-              <linearGradient id="sheenDiag" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#ffffff" stopOpacity="0" />
-                <stop offset=".48" stopColor="#ffffff" stopOpacity=".35" />
-                <stop offset=".56" stopColor="#ffffff" stopOpacity="0" />
-                <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-              </linearGradient>
             </defs>
 
             {/* platform */}
@@ -227,149 +169,70 @@ export default function Home() {
               <circle className="hs-particle" cx="330" cy="80" r="3" style={{ animationDelay: '-3s' }} />
             </g>
 
-            {/* 3D book stack — redesigned: real spines, page-leaf texture, cover sheen, gold ribbon */}
+            {/* 3D book stack — the hero's main object, scaled up ~45% further (~1.85x total) */}
             <ellipse cx="305" cy="392" rx="195" ry="78" fill="url(#platformGlow)" opacity=".55" />
-            <g transform="translate(305,375) scale(1.95) translate(-305,-375)" filter="url(#softShadow)">
+            <g transform="translate(305,375) scale(1.85) translate(-305,-375)" filter="url(#softShadow)">
               <g className="hs-books">
+                <polygon points="150,400 380,400 460,366 230,366" fill="url(#coverNavy)" />
+                <rect x="150" y="400" width="230" height="26" fill="url(#coverNavy)" />
+                <polygon points="380,400 460,366 460,392 380,426" fill="url(#pagesCream)" />
+                <line x1="380" y1="400" x2="460" y2="366" stroke="#ffc94d" strokeWidth="2" opacity=".8" />
 
-                {/* ===== bottom book (navy) ===== */}
-                {/* spine (left thick edge, darkest — true depth) */}
-                <polygon points="150,366 150,428 172,436 172,374" fill="url(#spineDark)" />
-                {/* front cover face */}
-                <rect x="172" y="374" width="208" height="34" fill="url(#coverNavy)" />
-                <rect x="172" y="374" width="208" height="8" fill="url(#coverEdgeLight)" opacity=".5" />
-                {/* top (page-top) face, foreshortened */}
-                <polygon points="172,374 380,374 460,340 252,340" fill="url(#coverNavy)" />
-                {/* page leaves, seen edge-on at the right */}
-                <polygon points="380,374 460,340 460,366 380,400" fill="url(#pagesShade)" />
-                {[0,1,2,3,4,5].map(i => (
-                  <line key={`p1-${i}`} x1={386 + i * 12} y1={374 - i * 0.4} x2={386 + i * 12 - 1} y2={399 - i * 0.4}
-                    stroke="#b9924f" strokeWidth="1" opacity=".55" />
-                ))}
-                <line x1="380" y1="374" x2="460" y2="340" stroke="url(#ribbonGold)" strokeWidth="2.5" opacity=".9" />
-                {/* thin gold ribbon bookmark trailing out from the pages */}
-                <polygon points="410,362 417,359 421,404 414,414 407,404" fill="url(#ribbonGold)" opacity=".92" />
+                <polygon points="168,372 364,372 432,343 236,343" fill="url(#coverBlue)" />
+                <rect x="168" y="372" width="196" height="22" fill="url(#coverBlue)" />
+                <polygon points="364,372 432,343 432,365 364,394" fill="url(#pagesCream)" />
+                <line x1="364" y1="372" x2="432" y2="343" stroke="#ffc94d" strokeWidth="2" opacity=".8" />
 
-                {/* ===== middle book (blue) ===== */}
-                <polygon points="184,340 184,374 204,381 204,347" fill="url(#spineDark)" />
-                <rect x="204" y="347" width="172" height="27" fill="url(#coverBlue)" />
-                <rect x="204" y="347" width="172" height="6" fill="url(#coverEdgeLight)" opacity=".5" />
-                <polygon points="204,347 364,347 432,318 272,318" fill="url(#coverBlue)" />
-                <polygon points="364,347 432,318 432,340 364,366" fill="url(#pagesShade)" />
-                {[0,1,2,3,4].map(i => (
-                  <line key={`p2-${i}`} x1={370 + i * 12} y1={347 - i * 0.4} x2={370 + i * 12 - 1} y2={365 - i * 0.4}
-                    stroke="#b9924f" strokeWidth="1" opacity=".5" />
-                ))}
-                <line x1="364" y1="347" x2="432" y2="318" stroke="url(#ribbonGold)" strokeWidth="2" opacity=".85" />
-
-                {/* ===== top book (gold-navy) ===== */}
-                <polygon points="212,318 212,347 230,353 230,324" fill="url(#spineDark)" />
-                <rect x="230" y="324" width="118" height="23" fill="url(#coverGold)" />
-                <rect x="230" y="324" width="118" height="5" fill="url(#coverEdgeLight)" opacity=".55" />
-                <polygon points="230,324 340,324 392,302 282,302" fill="url(#coverGold)" />
-                <polygon points="340,324 392,302 392,320 340,342" fill="url(#pagesShade)" />
-                {[0,1,2,3].map(i => (
-                  <line key={`p3-${i}`} x1={346 + i * 11} y1={324 - i * 0.4} x2={346 + i * 11 - 1} y2={340 - i * 0.4}
-                    stroke="#b9924f" strokeWidth="1" opacity=".5" />
-                ))}
-                <line x1="340" y1="324" x2="392" y2="302" stroke="url(#ribbonGold)" strokeWidth="2.5" />
-                <rect x="245" y="330" width="90" height="4" rx="2" fill="url(#ribbonGold)" opacity=".9" />
-                {/* embossed title strip */}
-                <rect x="245" y="337" width="60" height="2.4" rx="1.2" fill="#fff2cf" opacity=".55" />
-
-                {/* soft diagonal glass sheen across the whole stack */}
-                <polygon points="150,428 460,320 460,340 170,436" fill="url(#sheenDiag)" />
+                <polygon points="190,347 340,347 392,325 242,325" fill="url(#coverGold)" />
+                <rect x="190" y="347" width="150" height="18" fill="url(#coverGold)" />
+                <polygon points="340,347 392,325 392,343 340,365" fill="url(#pagesCream)" />
+                <line x1="340" y1="347" x2="392" y2="325" stroke="#ffc94d" strokeWidth="2.5" />
+                <rect x="205" y="353" width="110" height="4" rx="2" fill="#ffc94d" opacity=".85" />
               </g>
             </g>
 
-            {/* graduation cap — redesigned: real board thickness, fabric folds, full tassel */}
-            <g transform="translate(330,240) scale(1.4) translate(-330,-240)" filter="url(#softShadow)">
+            {/* graduation cap — scaled ~30% larger, in place */}
+            <g transform="translate(330,240) scale(1.3) translate(-330,-240)" filter="url(#softShadow)">
               <g className="hs-cap">
-                {/* head/band the cap sits on, with volume */}
-                <ellipse cx="330" cy="236" rx="35" ry="16" fill="url(#capHead)" />
-                <ellipse cx="330" cy="232" rx="35" ry="16" fill="url(#coverNavy)" opacity=".9" />
-
-                {/* board underside sliver (gives the diamond real thickness) */}
-                <polygon points="258,224 330,260 330,268 258,232" fill="url(#spineDark)" />
-                <polygon points="330,260 402,224 402,232 330,268" fill="#081d3d" opacity=".85" />
-
-                {/* top board (diamond), faceted for a fabric feel */}
-                <polygon points="330,186 402,224 330,262 258,224" fill="url(#capTop)" stroke="#4fb2ff" strokeWidth="1.5" opacity=".97" />
-                <polygon points="330,186 366,205 330,224 294,205" fill="url(#coverEdgeLight)" opacity=".55" />
-                <line x1="330" y1="186" x2="330" y2="262" stroke="#0a2b57" strokeWidth="1" opacity=".4" />
-                <line x1="258" y1="224" x2="402" y2="224" stroke="#0a2b57" strokeWidth="1" opacity=".3" />
-
-                {/* button + cord */}
-                <circle cx="330" cy="224" r="7.5" fill="url(#goldMetal)" stroke="#8a611f" strokeWidth=".6" />
-                <path d="M330,224 Q356,248 356,270" fill="none" stroke="url(#ribbonGold)" strokeWidth="3" strokeLinecap="round" />
-                <path d="M330,224 Q356,248 356,270" fill="none" stroke="#fff0c0" strokeWidth="1" strokeLinecap="round" opacity=".6" />
-                <circle cx="356" cy="271" r="4" fill="url(#goldMetal)" stroke="#8a611f" strokeWidth=".6" />
-                {/* tassel fan */}
-                <g stroke="url(#ribbonGold)" strokeWidth="2" strokeLinecap="round">
-                  <line x1="356" y1="275" x2="347" y2="294" />
-                  <line x1="356" y1="275" x2="353" y2="297" />
-                  <line x1="356" y1="275" x2="359" y2="298" />
-                  <line x1="356" y1="275" x2="365" y2="295" />
-                  <line x1="356" y1="275" x2="361" y2="292" opacity=".7" />
+                <ellipse cx="330" cy="234" rx="34" ry="15" fill="url(#coverNavy)" />
+                <polygon points="330,188 402,224 330,260 258,224" fill="url(#coverNavy)" stroke="#38b7ff" strokeWidth="1.5" opacity=".95" />
+                <polygon points="330,188 402,224 330,232 258,224" fill="#1c4d8e" opacity=".55" />
+                <circle cx="330" cy="224" r="7" fill="url(#goldMetal)" />
+                <path d="M330,224 Q360,250 358,278" fill="none" stroke="url(#goldMetal)" strokeWidth="2.5" strokeLinecap="round" />
+                <g stroke="url(#goldMetal)" strokeWidth="2" strokeLinecap="round">
+                  <line x1="358" y1="278" x2="352" y2="294" />
+                  <line x1="358" y1="278" x2="358" y2="296" />
+                  <line x1="358" y1="278" x2="364" y2="294" />
                 </g>
               </g>
             </g>
 
-            {/* certificate — redesigned: thicker paper stack, ornate gold frame, glossy sheen */}
-            <g transform="translate(462,320) rotate(-9) scale(1.4) translate(-462,-320)" filter="url(#softShadow)">
+            {/* certificate — scaled ~35% larger, rotation moved outside the animated group */}
+            <g transform="translate(462,320) rotate(-9) scale(1.35) translate(-462,-320)" filter="url(#softShadow)">
               <g className="hs-cert">
-                {/* paper depth — stacked sheets peeking out behind the top page */}
-                <rect x="397" y="267" width="140" height="102" rx="4" fill="#d8bf85" opacity=".8" />
-                <rect x="394" y="264" width="140" height="102" rx="4" fill="#e9d6a2" opacity=".9" />
-                {/* gold ornate frame */}
                 <rect x="392" y="262" width="140" height="102" rx="5" fill="url(#goldMetal)" />
-                <rect x="396.5" y="266.5" width="131" height="93" rx="3.5" fill="none" stroke="#0d3868" strokeWidth=".8" opacity=".35" />
-                {/* paper */}
-                <rect x="400" y="270" width="124" height="86" rx="3" fill="url(#certPaper)" />
-                <text x="462" y="288" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#0d3868" style={{ letterSpacing: '1.5px' }}>CERTIFICATE</text>
-                <line x1="428" y1="293" x2="496" y2="293" stroke="#c9a15c" strokeWidth="1" opacity=".7" />
-                <rect x="415" y="300" width="94" height="2.6" fill="#c9cfd8" />
-                <rect x="425" y="308" width="74" height="2.6" fill="#c9cfd8" />
-                <rect x="418" y="316" width="88" height="2.2" fill="#dbdfe4" />
-                {/* wax seal + ribbon */}
-                <path d="M454,347 L458,368 L462,352 Z" fill="#0a2c56" />
-                <path d="M470,347 L466,368 L462,352 Z" fill="#0d3868" />
-                <circle cx="462" cy="336" r="13.5" fill="url(#goldMetal)" stroke="#0d3868" strokeWidth="1.5" />
-                <circle cx="462" cy="336" r="9.5" fill="none" stroke="#8a611f" strokeWidth=".6" opacity=".6" />
+                <rect x="400" y="270" width="124" height="86" rx="3" fill="#faf6ea" />
+                <text x="462" y="292" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0d3868" style={{ letterSpacing: '.5px' }}>CERTIFICATE</text>
+                <rect x="415" y="300" width="94" height="3" fill="#c9cfd8" />
+                <rect x="425" y="309" width="74" height="3" fill="#c9cfd8" />
+                <circle cx="462" cy="336" r="13" fill="url(#goldMetal)" stroke="#0d3868" strokeWidth="1.5" />
                 <path d="m457,336 3,4 7,-8" fill="none" stroke="#0d3868" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                {/* dog-ear corner fold */}
-                <path d="M400,356 L400,344 L412,356 Z" fill="#dcc98a" opacity=".8" />
-                {/* glossy diagonal sheen */}
-                <polygon points="400,270 460,270 424,356 400,356" fill="url(#sheenDiag)" opacity=".8" />
+                <path d="M454,347 L458,368 L462,352 Z" fill="#0d3868" />
+                <path d="M470,347 L466,368 L462,352 Z" fill="#0d3868" />
               </g>
             </g>
 
-            {/* pencil — redesigned: faceted hex body, wood tip, graphite point, metal ferrule, full eraser */}
+            {/* pencil — scaled ~40% larger with its own soft blue/gold glow */}
             <ellipse cx="159" cy="437" rx="78" ry="42" fill="url(#platformGlow)" opacity=".45" />
             <ellipse cx="180" cy="430" rx="50" ry="28" fill="url(#goldGlow)" opacity=".4" />
-            <g transform="translate(159,437) scale(1.55) translate(-159,-437)" filter="url(#softShadow)">
-              <g transform="rotate(-28 150 437)">
+            <g transform="translate(159,437) scale(1.4) translate(-159,-437)" filter="url(#softShadow)">
+              <g transform="rotate(-30 150 437)">
                 <g className="hs-pencil">
-                  {/* body — two facets for a faceted, premium look */}
-                  <polygon points="122,427 214,427 214,437 122,437" fill="url(#pencilBodyTop)" />
-                  <polygon points="122,437 214,437 214,446 122,446" fill="url(#pencilBodyFront)" />
-                  <line x1="122" y1="437" x2="214" y2="437" stroke="#fff0c0" strokeWidth="1" opacity=".65" />
-                  <line x1="122" y1="427" x2="214" y2="427" stroke="#8a611f" strokeWidth="1" opacity=".4" />
-
-                  {/* sharpened wood tip + graphite point */}
-                  <polygon points="122,427 122,446 84,436.5" fill="url(#pencilWood)" />
-                  <polygon points="122,427 122,436.5 84,436.5" fill="#fbe6bd" opacity=".55" />
-                  <polygon points="84,436.5 100,433.5 100,439.5" fill="#3a2a17" />
-                  <polygon points="84,436.5 92,435 92,438" fill="#161010" />
-
-                  {/* metal ferrule */}
-                  <rect x="214" y="427" width="12" height="19" fill="url(#ferruleMetal)" />
-                  <line x1="218" y1="427" x2="218" y2="446" stroke="#8a611f" strokeWidth=".8" opacity=".6" />
-                  <line x1="222" y1="427" x2="222" y2="446" stroke="#8a611f" strokeWidth=".8" opacity=".6" />
-
-                  {/* eraser */}
-                  <rect x="226" y="427" width="20" height="19" rx="4.5" fill="url(#eraserPink)" />
-                  <ellipse cx="234" cy="432" rx="6" ry="2.4" fill="#ffe3ea" opacity=".6" />
+                  <rect x="120" y="430" width="90" height="14" rx="3" fill="url(#goldMetal)" />
+                  <polygon points="120,430 120,444 96,437" fill="#0d3868" />
+                  <polygon points="108,433 108,441 96,437" fill="#04101f" />
+                  <rect x="196" y="430" width="10" height="14" fill="#c9cfd8" />
+                  <rect x="206" y="430" width="16" height="14" rx="3" fill="#ff8ba0" />
                 </g>
               </g>
             </g>
