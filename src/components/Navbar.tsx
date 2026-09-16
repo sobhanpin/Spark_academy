@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import LiveClock from './LiveClock'
 
 const mobileLinks = [
@@ -52,6 +52,14 @@ export default function Navbar() {
   const { session, profile } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const logout = async () => {
     await supabase.auth.signOut()
@@ -65,11 +73,14 @@ export default function Navbar() {
     <header
       className="sticky top-0 z-30"
       style={{
-        background: 'linear-gradient(180deg, rgba(23,20,61,0.92), rgba(13,11,38,0.92))',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        borderBottom: '1px solid rgba(180,150,255,0.12)',
-        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)',
+        background: scrolled
+          ? 'linear-gradient(180deg, rgba(6,21,45,0.97), rgba(3,17,38,0.97))'
+          : 'linear-gradient(180deg, rgba(6,21,45,0.8), rgba(3,17,38,0.8))',
+        backdropFilter: scrolled ? 'blur(22px)' : 'blur(12px)',
+        WebkitBackdropFilter: scrolled ? 'blur(22px)' : 'blur(12px)',
+        borderBottom: scrolled ? '1px solid rgba(56,183,255,0.22)' : '1px solid rgba(56,183,255,0.1)',
+        boxShadow: scrolled ? '0 10px 30px -10px rgba(0,0,0,0.55), 0 1px 0 rgba(255,201,77,0.08) inset' : '0 4px 16px -10px rgba(0,0,0,0.35)',
+        transition: 'background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease',
       }}
     >
       {/* Row 1 — logo / nav links / auth / hamburger */}
@@ -165,4 +176,4 @@ export default function Navbar() {
       )}
     </header>
   )
-          }
+        }
