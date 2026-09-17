@@ -104,6 +104,8 @@ export default function Home() {
 
         {/* 3D SCENE — real rendered illustration (book stack, cap, certificate, scroll, pencil) */}
         <div className="ref-scene" aria-hidden="true">
+          <span className="ref-scene-ring ref-scene-ring-blue" />
+          <span className="ref-scene-ring ref-scene-ring-gold" />
           <img
             src={`${import.meta.env.BASE_URL}hero-scene.webp`}
             alt=""
@@ -113,6 +115,9 @@ export default function Home() {
             loading="eager"
             className="hero-scene-img"
           />
+          <span className="ref-scene-orb ref-scene-orb-a" />
+          <span className="ref-scene-orb ref-scene-orb-b" />
+          <span className="ref-scene-orb ref-scene-orb-c" />
         </div>
       </section>
 
