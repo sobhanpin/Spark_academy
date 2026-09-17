@@ -343,7 +343,7 @@ export default function Home() {
             </g>
 
             {/* certificate — beside the stack, tilted toward the viewer */}
-            <g transform="translate(462,320) rotate(-9) scale(1.4) translate(-462,-320)" filter="url(#softShadow)">
+            <g transform="translate(500,365) rotate(-9) scale(1.3) translate(-462,-320)" filter="url(#softShadow)">
               <g className="hs-cert">
                 <rect x="397" y="267" width="140" height="102" rx="4" fill="#d8bf85" opacity=".8" />
                 <rect x="394" y="264" width="140" height="102" rx="4" fill="#e9d6a2" opacity=".9" />
@@ -366,7 +366,7 @@ export default function Home() {
             </g>
 
             {/* scroll — small complementary element near the base of the stack */}
-            <g transform="translate(255,470) scale(1.05) translate(-255,-470)" filter="url(#softShadow)">
+            <g transform="translate(275,478) scale(1.25) translate(-255,-470)" filter="url(#softShadow)">
               <g className="hs-scroll">
                 <ellipse cx="207" cy="470" rx="13" ry="17" fill="url(#goldMetal)" />
                 <ellipse cx="207" cy="470" rx="7" ry="11" fill="#0d3868" opacity=".5" />
@@ -379,9 +379,9 @@ export default function Home() {
             </g>
 
             {/* pencil — smaller than the books, diagonal in the foreground */}
-            <ellipse cx="159" cy="437" rx="78" ry="42" fill="url(#platformGlow)" opacity=".45" />
-            <ellipse cx="180" cy="430" rx="50" ry="28" fill="url(#goldGlow)" opacity=".4" />
-            <g transform="translate(159,437) scale(1.55) translate(-159,-437)" filter="url(#softShadow)">
+            <ellipse cx="159" cy="507" rx="78" ry="42" fill="url(#platformGlow)" opacity=".45" />
+<ellipse cx="180" cy="500" rx="50" ry="28" fill="url(#goldGlow)" opacity=".4" />
+<g transform="translate(159,507) scale(1.55) translate(-159,-437)" filter="url(#softShadow)">
               <g transform="rotate(-28 150 437)">
                 <g className="hs-pencil">
                   <polygon points="122,427 214,427 214,437 122,437" fill="url(#pencilBodyTop)" />
