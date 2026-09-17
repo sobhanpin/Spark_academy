@@ -105,8 +105,12 @@ export default function Home() {
         {/* 3D SCENE — real rendered illustration (book stack, cap, certificate, scroll, pencil) */}
         <div className="ref-scene" aria-hidden="true">
           <img
-            src={`${import.meta.env.BASE_URL}file_00000000d7fc81f582933fca6f84541a.png`}
+            src={`${import.meta.env.BASE_URL}hero-scene.webp`}
             alt=""
+            width="1000"
+            height="1000"
+            fetchPriority="high"
+            loading="eager"
             className="hero-scene-img"
           />
         </div>
