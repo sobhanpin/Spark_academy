@@ -105,7 +105,7 @@ export default function Home() {
         {/* 3D SCENE — real rendered illustration (book stack, cap, certificate, scroll, pencil) */}
         <div className="ref-scene" aria-hidden="true">
           <img
-            src={`${import.meta.env.BASE_URL}images/hero-scene.png`}
+            src={`${import.meta.env.BASE_URL}file_00000000d7fc81f582933fca6f84541a.png`}
             alt=""
             className="hero-scene-img"
           />
