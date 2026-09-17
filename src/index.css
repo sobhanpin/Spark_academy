@@ -407,18 +407,18 @@ body {
 }
 .auth-glow {
   position: absolute; inset: -20% -10% auto -10%; height: 26rem;
-  background: radial-gradient(circle, var(--glow-violet), transparent 70%);
+  background: radial-gradient(circle, rgba(22,140,255,0.4), transparent 70%);
   filter: blur(50px); opacity: 0.5; pointer-events: none; z-index: -1;
 }
 .auth-card {
   position: relative;
   border-radius: 1.75rem;
   padding: 2rem 1.5rem;
-  background: linear-gradient(155deg, rgba(139,92,246,0.12), rgba(23,20,61,0.55) 45%, rgba(10,9,24,0.65));
-  border: 1px solid rgba(180,150,255,0.18);
-  box-shadow: 0 2px 0 rgba(255,255,255,0.07) inset, 0 -18px 45px rgba(0,0,0,0.4) inset, 0 35px 80px -20px rgba(0,0,0,0.65), 0 0 50px -14px var(--glow-violet);
+  background: linear-gradient(155deg, rgba(22,140,255,0.12), rgba(6,21,45,0.55) 45%, rgba(3,17,38,0.65));
+  border: 1px solid rgba(120,190,255,0.22);
+  box-shadow: 0 2px 0 rgba(255,255,255,0.07) inset, 0 -18px 45px rgba(0,0,0,0.4) inset, 0 35px 80px -20px rgba(0,0,0,0.65), 0 0 50px -14px rgba(22,140,255,0.45);
   animation: auth-card-in 0.7s var(--ease-3d) both;
-}
+  }
 @keyframes auth-card-in {
   from { opacity: 0; transform: translateY(24px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -433,8 +433,8 @@ body {
 }
 .input-3d::placeholder { color: #6B6A94; }
 .input-3d:focus {
-  border-color: rgba(139,92,246,0.5);
-  box-shadow: var(--shadow-neumo-in), 0 0 0 3px rgba(139,92,246,0.18), 0 0 18px -4px var(--glow-violet);
+  border-color: rgba(22,140,255,0.55);
+  box-shadow: var(--shadow-neumo-in), 0 0 0 3px rgba(22,140,255,0.18), 0 0 18px -4px rgba(22,140,255,0.45);
 }
 .auth-label { display: block; font-size: 0.75rem; color: #9290B8; margin-bottom: 0.4rem; }
 .auth-error {
@@ -448,7 +448,7 @@ body {
 
 .auth-particle {
   position: absolute; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(139,92,246,0.55), transparent 70%);
+  background: radial-gradient(circle, rgba(22,140,255,0.55), transparent 70%);
   filter: blur(2px);
   animation: auth-particle-float 6s ease-in-out infinite;
 }
