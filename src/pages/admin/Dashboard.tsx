@@ -519,7 +519,7 @@ function SettingsTab() {
   useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
   const save = async () => {
     const results = await Promise.all(
-      Object.entries(settings).map(([key, value]) => supabase.from('site_settings').upsert({ key, value }, { onConflict: 'key' }))
+      Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key))
     )
     const firstError = results.find((r) => r.error)?.error
     if (firstError) {
