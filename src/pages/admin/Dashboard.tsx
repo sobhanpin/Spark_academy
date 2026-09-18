@@ -518,7 +518,7 @@ function SettingsTab() {
   }
   useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
   const save = async () => {
-    const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key))
+    const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').upsert({ key, value }))
     await Promise.all(updates)
     showToast('تنظیمات ذخیره شد.')
   }
@@ -526,6 +526,8 @@ function SettingsTab() {
     ['site_name', 'اسم سایت'], ['tagline', 'شعار'], ['hero_title', 'تیتر اصلی صفحه اول'], ['hero_subtitle', 'زیرتیتر صفحه اول'],
     ['phone', 'شماره تماس'], ['address', 'آدرس'], ['instagram', 'اینستاگرام'], ['telegram', 'تلگرام'],
     ['copyright_text', 'متن کپی‌رایت (پایین سایت)'],
+    ['stat_students', 'تعداد دانشجوی فعال (مثلاً +۳۰۰۰)'], ['stat_courses', 'تعداد دوره آموزشی (مثلاً +۵۰ — خالی بگذارید برای محاسبه خودکار)'],
+    ['stat_satisfaction', 'درصد رضایت دانشجویان (مثلاً ۹۵٪)'], ['stat_years', 'سال سابقه فعالیت (مثلاً +۸)'],
   ]
   return (
     <div className="dash-card space-y-4">
