@@ -198,10 +198,10 @@ export default function Home() {
 
       {/* STATS */}
       <section className="ref-stats">
-        <div><span><Icon name="users"/></span><b>+۳۰۰۰</b><small>دانشجوی فعال</small></div>
-        <div><span><Icon name="book"/></span><b>+{courses.length || 50}</b><small>دوره آموزشی</small></div>
-        <div><span><Icon name="star"/></span><b>۹۵٪</b><small>رضایت دانشجویان</small></div>
-        <div><span><Icon name="clock"/></span><b>+۸</b><small>سال سابقه فعالیت</small></div>
+        <div><span><Icon name="users"/></span><b>{settings.stat_students || '+۳۰۰۰'}</b><small>دانشجوی فعال</small></div>
+        <div><span><Icon name="book"/></span><b>{settings.stat_courses || `+${courses.length || 50}`}</b><small>دوره آموزشی</small></div>
+        <div><span><Icon name="star"/></span><b>{settings.stat_satisfaction || '۹۵٪'}</b><small>رضایت دانشجویان</small></div>
+        <div><span><Icon name="clock"/></span><b>{settings.stat_years || '+۸'}</b><small>سال سابقه فعالیت</small></div>
       </section>
 
       {/* TESTIMONIALS */}
