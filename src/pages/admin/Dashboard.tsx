@@ -518,9 +518,15 @@ function SettingsTab() {
   }
   useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
   const save = async () => {
-    const updates = Object.entries(settings).map(([key, value]) => supabase.from('site_settings').upsert({ key, value }))
-    await Promise.all(updates)
-    showToast('تنظیمات ذخیره شد.')
+    const results = await Promise.all(
+      Object.entries(settings).map(([key, value]) => supabase.from('site_settings').upsert({ key, value }, { onConflict: 'key' }))
+    )
+    const firstError = results.find((r) => r.error)?.error
+    if (firstError) {
+      showToast('خطا در ذخیره: ' + firstError.message, 'error')
+    } else {
+      showToast('تنظیمات ذخیره شد.')
+    }
   }
   const fields: [string, string][] = [
     ['site_name', 'اسم سایت'], ['tagline', 'شعار'], ['hero_title', 'تیتر اصلی صفحه اول'], ['hero_subtitle', 'زیرتیتر صفحه اول'],
