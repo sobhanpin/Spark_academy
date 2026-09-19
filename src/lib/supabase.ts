@@ -72,11 +72,14 @@ export type Announcement = {
 
 export type Testimonial = {
   id: string
+  user_id?: string | null
   student_name: string
   text: string
   approved: boolean
+  status?: 'pending' | 'approved' | 'rejected'
+  course_id?: string | null
   created_at: string
-}
+  }
 
 export type NewsItem = {
   id: string
