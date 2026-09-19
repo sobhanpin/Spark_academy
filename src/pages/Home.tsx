@@ -211,7 +211,7 @@ export default function Home() {
             <div className="ref-section-head" style={{ marginBottom: '2rem' }}>
               <div>
                 <small>تجربه واقعی</small>
-                <h2>نظرات <strong>زبان‌آموزان</strong></h2>
+                <h2>نظرات <strong>دانشجویان</strong></h2>
                 <p>موفقیت شما، افتخار ماست.</p>
               </div>
             </div>
