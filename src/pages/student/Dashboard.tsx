@@ -220,48 +220,82 @@ export default function StudentDashboard() {
 }
 
 function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
+function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
   const { session } = useAuth()
   const { showToast } = useToast()
   const [name, setName] = useState(defaultName)
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
+  const [mine, setMine] = useState<Testimonial[]>([])
+
+  const loadMine = async () => {
+    if (!session) return
+    const { data } = await supabase.from('testimonials').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
+    setMine((data as Testimonial[]) || [])
+  }
+
+  useEffect(() => { loadMine() }, [session])
 
   const submit = async () => {
     if (!session || !name.trim() || !text.trim()) { showToast('نام و متن نظر رو پر کن', 'error'); return }
     setBusy(true)
-    const { error } = await supabase.from('testimonials').insert({ user_id: session.user.id, student_name: name.trim(), text: text.trim(), approved: false })
+    const { error } = await supabase.from('testimonials').insert({ user_id: session.user.id, student_name: name.trim(), text: text.trim(), approved: false, status: 'pending' })
     setBusy(false)
     if (error) { showToast('خطا در ارسال نظر: ' + error.message, 'error'); return }
     setText('')
     setSent(true)
+    loadMine()
   }
+
+  const statusLabel = (s?: string) => (s === 'approved' ? 'تأیید شده' : s === 'rejected' ? 'رد شده' : 'در انتظار بررسی')
+  const statusClass = (s?: string) => (s === 'approved' ? 'dash-badge-success' : s === 'rejected' ? 'dash-badge-danger' : 'dash-badge-pending')
+
+  const MyList = mine.length > 0 && (
+    <div className="space-y-2.5">
+      <div className="text-sm font-bold px-1">نظرات قبلی من</div>
+      {mine.map((t) => (
+        <div key={t.id} className="dash-card">
+          <div className="text-sm">{t.text}</div>
+          <div className="flex justify-between items-center mt-2">
+            <span className={`dash-badge ${statusClass(t.status)}`}>{statusLabel(t.status)}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 
   if (sent) {
     return (
-      <div className="dash-card text-center py-10">
-        <div className="text-2xl mb-2">🙏</div>
-        <div className="text-sm text-[#C4C7ED]">نظرت ثبت شد و بعد از تأیید آموزشگاه روی سایت نمایش داده می‌شود.</div>
-        <button onClick={() => setSent(false)} className="text-accent text-xs mt-4 hover:underline transition-colors duration-300">ثبت نظر دیگر</button>
+      <div className="space-y-4">
+        <div className="dash-card text-center py-10">
+          <div className="text-2xl mb-2">🙏</div>
+          <div className="text-sm text-[#C4C7ED]">نظرت ثبت شد و بعد از تأیید آموزشگاه روی سایت نمایش داده می‌شود.</div>
+          <button onClick={() => setSent(false)} className="text-accent text-xs mt-4 hover:underline transition-colors duration-300">ثبت نظر دیگر</button>
+        </div>
+        {MyList}
       </div>
     )
   }
 
   return (
-    <div className="dash-card space-y-4">
-      <div className="text-sm font-bold">نظرت رو با ما در میون بذار</div>
-      <div>
-        <label className="auth-label">نام</label>
-        <input className="input-3d" value={name} onChange={(e) => setName(e.target.value)} />
+    <div className="space-y-4">
+      <div className="dash-card space-y-4">
+        <div className="text-sm font-bold">نظرت رو با ما در میون بذار</div>
+        <div>
+          <label className="auth-label">نام</label>
+          <input className="input-3d" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <label className="auth-label">متن نظر</label>
+          <textarea className="input-3d resize-none" rows={4} placeholder="تجربه‌ت از دوره چطور بود؟" value={text} onChange={(e) => setText(e.target.value)} />
+        </div>
+        <button onClick={submit} disabled={busy} className="hero-primary-btn w-full justify-center disabled:opacity-60 disabled:pointer-events-none">{busy ? 'در حال ارسال...' : 'ارسال نظر'}</button>
       </div>
-      <div>
-        <label className="auth-label">متن نظر</label>
-        <textarea className="input-3d resize-none" rows={4} placeholder="تجربه‌ت از دوره چطور بود؟" value={text} onChange={(e) => setText(e.target.value)} />
-      </div>
-      <button onClick={submit} disabled={busy} className="hero-primary-btn w-full justify-center disabled:opacity-60 disabled:pointer-events-none">{busy ? 'در حال ارسال...' : 'ارسال نظر'}</button>
+      {MyList}
     </div>
   )
-}
+    }
 
 function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string }) {
   const { session } = useAuth()
