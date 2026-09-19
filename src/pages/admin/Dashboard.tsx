@@ -229,6 +229,7 @@ function StudentsTab() {
 }
 
 function TestimonialsTab() {
+  const { showToast } = useToast()
   const [items, setItems] = useState<Testimonial[]>([])
   const [name, setName] = useState('')
   const [text, setText] = useState('')
@@ -236,11 +237,22 @@ function TestimonialsTab() {
   useEffect(() => { load() }, [])
   const add = async () => {
     if (!name || !text) return
-    await supabase.from('testimonials').insert({ student_name: name, text, approved: true })
+    const { error } = await supabase.from('testimonials').insert({ student_name: name, text, approved: true, status: 'approved' })
+    if (error) { showToast('خطا در افزودن نظر: ' + error.message, 'error'); return }
     setName(''); setText(''); load()
   }
-  const toggle = async (id: string, approved: boolean) => { await supabase.from('testimonials').update({ approved: !approved }).eq('id', id); load() }
-  const remove = async (id: string) => { await supabase.from('testimonials').delete().eq('id', id); load() }
+  const setStatus = async (id: string, status: 'approved' | 'rejected' | 'pending') => {
+    const { error } = await supabase.from('testimonials').update({ status, approved: status === 'approved' }).eq('id', id)
+    if (error) { showToast('خطا در ذخیره: ' + error.message, 'error'); return }
+    load()
+  }
+  const remove = async (id: string) => {
+    const { error } = await supabase.from('testimonials').delete().eq('id', id)
+    if (error) { showToast('خطا در حذف: ' + error.message, 'error'); return }
+    load()
+  }
+  const statusLabel = (s?: string) => (s === 'approved' ? 'تأیید شده' : s === 'rejected' ? 'رد شده' : 'در انتظار بررسی')
+  const statusClass = (s?: string) => (s === 'approved' ? 'dash-badge-success' : s === 'rejected' ? 'dash-badge-danger' : 'dash-badge-pending')
   return (
     <div className="space-y-3">
       <div className="dash-card space-y-2">
@@ -251,10 +263,14 @@ function TestimonialsTab() {
       {items.map((t) => (
         <div key={t.id} className="dash-card">
           <div className="text-sm">{t.text}</div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-accent font-bold">{t.student_name}</span>
+          <div className="flex justify-between items-center mt-2 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-accent font-bold">{t.student_name}</span>
+              <span className={`dash-badge ${statusClass(t.status)}`}>{statusLabel(t.status)}</span>
+            </div>
             <div className="flex gap-3 text-xs">
-              <button onClick={() => toggle(t.id, t.approved)} className={`transition-colors duration-300 ${t.approved ? 'text-[#34D399]' : 'text-[#7B7FB5]'}`}>{t.approved ? 'نمایش‌داده‌شده' : 'مخفی'}</button>
+              {t.status !== 'approved' && <button onClick={() => setStatus(t.id, 'approved')} className="text-[#34D399] hover:underline transition-colors duration-300">تأیید</button>}
+              {t.status !== 'rejected' && <button onClick={() => setStatus(t.id, 'rejected')} className="text-[#FB7185] hover:underline transition-colors duration-300">رد</button>}
               <button onClick={() => remove(t.id)} className="text-[#FB7185] hover:underline transition-colors duration-300">حذف</button>
             </div>
           </div>
@@ -262,7 +278,7 @@ function TestimonialsTab() {
       ))}
     </div>
   )
-}
+                                                                                                              }
 function NewsTab() {
   const [items, setItems] = useState<NewsItem[]>([])
   const [title, setTitle] = useState('')
