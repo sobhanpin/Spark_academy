@@ -277,8 +277,8 @@ function TestimonialsTab() {
         </div>
       ))}
     </div>
-  )
-                                                                                                              }
+     )
+  }
 function NewsTab() {
   const [items, setItems] = useState<NewsItem[]>([])
   const [title, setTitle] = useState('')
