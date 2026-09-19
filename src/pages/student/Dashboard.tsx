@@ -220,7 +220,6 @@ export default function StudentDashboard() {
 }
 
 function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
-function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
   const { session } = useAuth()
   const { showToast } = useToast()
   const [name, setName] = useState(defaultName)
@@ -295,7 +294,7 @@ function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
       {MyList}
     </div>
   )
-    }
+}
 
 function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string }) {
   const { session } = useAuth()
@@ -354,4 +353,4 @@ function SupportChat() {
       </div>
     </div>
   )
-    }
+      }
