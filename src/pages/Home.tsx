@@ -223,7 +223,7 @@ export default function Home() {
                   <p>{t.text}</p>
                   <div>
                     <b>{t.student_name}</b>
-                    <small>زبان‌آموز آموزشگاه</small>
+                    <small>دانشجوی آموزشگاه</small>
                   </div>
                 </article>
               ))}
