@@ -512,6 +512,7 @@ body {
 }
 .dash-badge-success { background: rgba(52,211,153,0.15); color: #34D399; }
 .dash-badge-pending { background: rgba(255,193,104,0.15); color: #FFC168; }
+.dash-badge-danger { background: rgba(251,113,133,0.15); color: #FB7185; }
 
 .dash-btn-mini {
   font-size: 0.7rem; font-weight: 700; padding: 0.45rem 0.9rem;
