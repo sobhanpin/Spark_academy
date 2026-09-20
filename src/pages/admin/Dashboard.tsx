@@ -65,8 +65,10 @@ function CoursesTab() {
     const payload: any = { ...editing }
     delete payload.id
     delete payload.profiles
-    if (editing.id) await supabase.from('courses').update(payload).eq('id', editing.id)
-    else await supabase.from('courses').insert(payload)
+    const { error } = editing.id
+      ? await supabase.from('courses').update(payload).eq('id', editing.id)
+      : await supabase.from('courses').insert(payload)
+    if (error) { showToast('خطا در ذخیره دوره: ' + error.message, 'error'); return }
     setEditing(null)
     load()
     showToast('دوره ذخیره شد.')
@@ -74,7 +76,8 @@ function CoursesTab() {
 
   const remove = async (id: string) => {
     if (!confirm('حذف شود؟')) return
-    await supabase.from('courses').delete().eq('id', id)
+    const { error } = await supabase.from('courses').delete().eq('id', id)
+    if (error) { showToast('خطا در حذف دوره: ' + error.message, 'error'); return }
     load()
     showToast('دوره حذف شد.')
   }
@@ -160,12 +163,14 @@ function StudentsTab() {
   useEffect(() => { load() }, [])
 
   const confirmPayment = async (id: string) => {
-    await supabase.from('enrollments').update({ payment_status: 'paid', confirmed_at: new Date().toISOString() }).eq('id', id)
+    const { error } = await supabase.from('enrollments').update({ payment_status: 'paid', confirmed_at: new Date().toISOString() }).eq('id', id)
+    if (error) { showToast('خطا در تأیید پرداخت: ' + error.message, 'error'); return }
     load()
     showToast('پرداخت تأیید شد.')
   }
   const markCompleted = async (id: string, issueCertificate: boolean) => {
-    await supabase.from('enrollments').update({ completed: true, certificate_issued: issueCertificate }).eq('id', id)
+    const { error } = await supabase.from('enrollments').update({ completed: true, certificate_issued: issueCertificate }).eq('id', id)
+    if (error) { showToast('خطا در ثبت تکمیل دوره: ' + error.message, 'error'); return }
     load()
     showToast('دوره تکمیل شد.')
   }
@@ -176,9 +181,13 @@ function StudentsTab() {
     const path = `${uploadFor.user_id}/${Date.now()}_${docFile.name}`
     const { error } = await supabase.storage.from('student-documents').upload(path, docFile)
     if (!error) {
-      await supabase.from('student_documents').insert({ user_id: uploadFor.user_id, title: docTitle, file_path: path })
-      setUploadFor(null); setDocTitle(''); setDocFile(null)
-      showToast('مدرک برای دانشجو ارسال شد.')
+      const { error: dbErr } = await supabase.from('student_documents').insert({ user_id: uploadFor.user_id, title: docTitle, file_path: path })
+      if (dbErr) {
+        showToast('خطا در ثبت مدرک: ' + dbErr.message, 'error')
+      } else {
+        setUploadFor(null); setDocTitle(''); setDocFile(null)
+        showToast('مدرک برای دانشجو ارسال شد.')
+      }
     } else {
       showToast('خطا در آپلود: ' + error.message, 'error')
     }
@@ -277,9 +286,10 @@ function TestimonialsTab() {
         </div>
       ))}
     </div>
-     )
-  }
+  )
+}
 function NewsTab() {
+  const { showToast } = useToast()
   const [items, setItems] = useState<NewsItem[]>([])
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -287,10 +297,15 @@ function NewsTab() {
   useEffect(() => { load() }, [])
   const add = async () => {
     if (!title || !content) return
-    await supabase.from('news').insert({ title, content })
+    const { error } = await supabase.from('news').insert({ title, content })
+    if (error) { showToast('خطا در انتشار خبر: ' + error.message, 'error'); return }
     setTitle(''); setContent(''); load()
   }
-  const remove = async (id: string) => { await supabase.from('news').delete().eq('id', id); load() }
+  const remove = async (id: string) => {
+    const { error } = await supabase.from('news').delete().eq('id', id)
+    if (error) { showToast('خطا در حذف خبر: ' + error.message, 'error'); return }
+    load()
+  }
   return (
     <div className="space-y-3">
       <div className="dash-card space-y-2">
@@ -310,6 +325,7 @@ function NewsTab() {
 }
 
 function FaqTab() {
+  const { showToast } = useToast()
   const [items, setItems] = useState<FaqItem[]>([])
   const [q, setQ] = useState('')
   const [a, setA] = useState('')
@@ -317,10 +333,15 @@ function FaqTab() {
   useEffect(() => { load() }, [])
   const add = async () => {
     if (!q || !a) return
-    await supabase.from('faq').insert({ question: q, answer: a, sort_order: items.length })
+    const { error } = await supabase.from('faq').insert({ question: q, answer: a, sort_order: items.length })
+    if (error) { showToast('خطا در افزودن سؤال: ' + error.message, 'error'); return }
     setQ(''); setA(''); load()
   }
-  const remove = async (id: string) => { await supabase.from('faq').delete().eq('id', id); load() }
+  const remove = async (id: string) => {
+    const { error } = await supabase.from('faq').delete().eq('id', id)
+    if (error) { showToast('خطا در حذف: ' + error.message, 'error'); return }
+    load()
+  }
   return (
     <div className="space-y-3">
       <div className="dash-card space-y-2">
@@ -359,7 +380,8 @@ function AnnouncementTab() {
   const [text, setText] = useState('')
   const send = async () => {
     if (!text) return
-    await supabase.from('announcements').insert({ text })
+    const { error } = await supabase.from('announcements').insert({ text })
+    if (error) { showToast('خطا در ارسال اطلاعیه: ' + error.message, 'error'); return }
     setText('')
     showToast('اطلاعیه ارسال شد.')
   }
@@ -385,17 +407,23 @@ function DocumentsTab() {
     const path = `${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('documents').upload(path, file)
     if (!error) {
-      await supabase.from('academy_documents').insert({ title, file_path: path })
-      setTitle(''); setFile(null); load()
-      showToast('مدرک آپلود شد.')
+      const { error: dbErr } = await supabase.from('academy_documents').insert({ title, file_path: path })
+      if (dbErr) {
+        showToast('خطا در ثبت مدرک: ' + dbErr.message, 'error')
+      } else {
+        setTitle(''); setFile(null); load()
+        showToast('مدرک آپلود شد.')
+      }
     } else {
       showToast('خطا در آپلود: ' + error.message, 'error')
     }
     setBusy(false)
   }
   const remove = async (doc: AcademyDocument) => {
-    await supabase.storage.from('documents').remove([doc.file_path])
-    await supabase.from('academy_documents').delete().eq('id', doc.id)
+    const { error: storageErr } = await supabase.storage.from('documents').remove([doc.file_path])
+    if (storageErr) { showToast('خطا در حذف فایل: ' + storageErr.message, 'error'); return }
+    const { error } = await supabase.from('academy_documents').delete().eq('id', doc.id)
+    if (error) { showToast('خطا در حذف مدرک: ' + error.message, 'error'); return }
     load()
   }
   const getUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
@@ -431,7 +459,8 @@ function TeachersTab() {
     showToast('مدرس اضافه شد.')
   }
   const removeTeacher = async (id: string) => {
-    await supabase.from('profiles').update({ role: 'student' }).eq('id', id)
+    const { error } = await supabase.from('profiles').update({ role: 'student' }).eq('id', id)
+    if (error) { showToast('خطا در حذف نقش: ' + error.message, 'error'); return }
     load()
   }
   return (
@@ -473,17 +502,23 @@ function MaterialsTab() {
     const path = `${courseId}/${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('materials').upload(path, file)
     if (!error && userData.user) {
-      await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: userData.user.id, file_name: file.name, file_path: path })
-      setFile(null); load()
-      showToast('جزوه آپلود شد.')
+      const { error: dbErr } = await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: userData.user.id, file_name: file.name, file_path: path })
+      if (dbErr) {
+        showToast('خطا در ثبت جزوه: ' + dbErr.message, 'error')
+      } else {
+        setFile(null); load()
+        showToast('جزوه آپلود شد.')
+      }
     } else if (error) {
       showToast('خطا در آپلود: ' + error.message, 'error')
     }
     setBusy(false)
   }
   const remove = async (m: CourseMaterial) => {
-    await supabase.storage.from('materials').remove([m.file_path])
-    await supabase.from('course_materials').delete().eq('id', m.id)
+    const { error: storageErr } = await supabase.storage.from('materials').remove([m.file_path])
+    if (storageErr) { showToast('خطا در حذف فایل: ' + storageErr.message, 'error'); return }
+    const { error } = await supabase.from('course_materials').delete().eq('id', m.id)
+    if (error) { showToast('خطا در حذف جزوه: ' + error.message, 'error'); return }
     load()
   }
   const openFile = async (path: string) => {
@@ -524,9 +559,15 @@ function SettingsTab() {
     const { error } = await supabase.storage.from('documents').upload(path, file)
     if (!error) {
       const url = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
-      await supabase.from('site_settings').upsert({ key: 'logo_url', value: url })
-      setSettings((s) => ({ ...s, logo_url: url }))
-      showToast('لوگو به‌روزرسانی شد.')
+      const { data, error: dbErr } = await supabase.from('site_settings').update({ value: url }).eq('key', 'logo_url').select()
+      if (dbErr) {
+        showToast('خطا در ذخیره لوگو: ' + dbErr.message, 'error')
+      } else if (!data || data.length === 0) {
+        showToast('ردیف logo_url در دیتابیس وجود نداره — باید یک‌بار دستی از Supabase ساخته بشه.', 'error')
+      } else {
+        setSettings((s) => ({ ...s, logo_url: url }))
+        showToast('لوگو به‌روزرسانی شد.')
+      }
     } else {
       showToast('خطا در آپلود لوگو: ' + error.message, 'error')
     }
@@ -570,6 +611,7 @@ function SettingsTab() {
 }
 function AdminSupportTab() {
   const { session } = useAuth()
+  const { showToast } = useToast()
   const [students, setStudents] = useState<Profile[]>([])
   const [selected, setSelected] = useState<Profile | null>(null)
   const [messages, setMessages] = useState<any[]>([])
@@ -585,7 +627,8 @@ function AdminSupportTab() {
 
   const send = async () => {
     if (!text.trim() || !session || !selected) return
-    await supabase.from('support_messages').insert({ user_id: selected.id, sender_id: session.user.id, message: text.trim() })
+    const { error } = await supabase.from('support_messages').insert({ user_id: selected.id, sender_id: session.user.id, message: text.trim() })
+    if (error) { showToast('خطا در ارسال پیام: ' + error.message, 'error'); return }
     setText(''); load(selected.id)
   }
 
@@ -620,5 +663,5 @@ function AdminSupportTab() {
         </button>
       ))}
     </div>
-  )
-        }
+    )
+  }
