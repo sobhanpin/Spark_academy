@@ -1,297 +1,202 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial } from '../../lib/supabase'
+import { supabase, Course, Enrollment, CourseMaterial } from '../../lib/supabase'
 import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
 
-const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'ثبت نظر', 'پروفایل'] as const
+const TABS = ['دوره‌های من', 'دانشجویان و چت', 'جزوات', 'گفتگو با مدیریت'] as const
 
-export default function StudentDashboard() {
-  const { session, profile, refreshProfile } = useAuth()
-  const { showToast } = useToast()
+export default function TeacherDashboard() {
+  const { session, profile } = useAuth()
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌های من')
+  const [courses, setCourses] = useState<Course[]>([])
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
-  const [materials, setMaterials] = useState<CourseMaterial[]>([])
-  const [uploads, setUploads] = useState<Upload[]>([])
-  const [studentDocs, setStudentDocs] = useState<StudentDocument[]>([])
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [selectedCourse, setSelectedCourse] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [activeChat, setActiveChat] = useState<Enrollment | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const [activeEnrollment, setActiveEnrollment] = useState<Enrollment | null>(null)
 
-  const hasUnseenDocs = studentDocs.some((d) => !d.seen)
-
-  const load = async () => {
+  const loadCourses = () => {
     if (!session) return
-    const { data: en } = await supabase.from('enrollments').select('*, courses(*)').eq('user_id', session.user.id).order('enrolled_at', { ascending: false })
-    setEnrollments((en as Enrollment[]) || [])
-    const courseIds = ((en as Enrollment[]) || []).map((e) => e.course_id)
-    if (courseIds.length > 0) {
-      const { data: mat } = await supabase.from('course_materials').select('*, courses(*), profiles(*)').in('course_id', courseIds)
-      setMaterials((mat as CourseMaterial[]) || [])
-    }
-    const { data: up } = await supabase.from('uploads').select('*').eq('user_id', session.user.id).order('uploaded_at', { ascending: false })
-    setUploads((up as Upload[]) || [])
-    const { data: sd } = await supabase.from('student_documents').select('*').eq('user_id', session.user.id).order('uploaded_at', { ascending: false })
-    setStudentDocs((sd as StudentDocument[]) || [])
-    const { data: an } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(10)
-    setAnnouncements((an as Announcement[]) || [])
+    supabase.from('courses').select('*').eq('teacher_id', session.user.id).then(({ data }) => setCourses(data || []))
   }
-
-  useEffect(() => { load() }, [session])
 
   useEffect(() => {
-    if (tab === 'مدارک من' && session && studentDocs.some((d) => !d.seen)) {
-      supabase.from('student_documents').update({ seen: true }).eq('user_id', session.user.id).eq('seen', false).then(() => {
-        setStudentDocs((docs) => docs.map((d) => ({ ...d, seen: true })))
-      })
-    }
-  }, [tab, session])
-
-  const uploadFile = async (file: File) => {
-    if (!session || !file) return
-    if (file.size > 10 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.', 'error'); return }
-    setBusy(true)
-    const path = `${session.user.id}/${Date.now()}_${file.name}`
-    const { error: upErr } = await supabase.storage.from('uploads').upload(path, file)
-    if (!upErr) {
-      await supabase.from('uploads').insert({ user_id: session.user.id, course_id: selectedCourse || null, file_name: file.name, file_path: path, file_type: file.type, size_kb: Math.round(file.size / 1024) })
-      await load()
-      showToast('فایل آپلود شد.')
-    } else {
-      showToast('خطا در آپلود: ' + upErr.message, 'error')
-    }
-    setBusy(false)
-    if (fileRef.current) fileRef.current.value = ''
-  }
-
-  const openFile = async (bucket: string, path: string) => {
-    const { data } = await supabase.storage.from(bucket).createSignedUrl(path, 60)
-    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
-  }
-
-  const deleteFile = async (u: Upload) => {
-    await supabase.storage.from('uploads').remove([u.file_path])
-    await supabase.from('uploads').delete().eq('id', u.id)
-    load()
-  }
-
-  const updateProfile = async (form: FormData) => {
     if (!session) return
-    await supabase.from('profiles').update({ name: form.get('name') as string, phone: form.get('phone') as string }).eq('id', session.user.id)
-    await refreshProfile()
-    showToast('پروفایل به‌روزرسانی شد.')
-  }
+    loadCourses()
+    supabase.from('enrollments').select('*, courses(*), profiles(*)').then(({ data }) => {
+      const mine = (data as Enrollment[] || []).filter((e) => e.courses?.teacher_id === session.user.id)
+      setEnrollments(mine)
+    })
+  }, [session])
 
-  if (activeChat) {
+  if (activeEnrollment) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <button onClick={() => setActiveChat(null)} className="text-sm text-accent mb-4 hover:-translate-x-0.5 transition-transform duration-300 inline-block">← برگشت</button>
-        <ChatBox enrollmentId={activeChat.id} title={activeChat.courses?.title || ''} />
+        <button onClick={() => setActiveEnrollment(null)} className="text-sm text-accent mb-4 hover:-translate-x-0.5 transition-transform duration-300 inline-block">← برگشت</button>
+        <ChatBox enrollmentId={activeEnrollment.id} title={`${activeEnrollment.profiles?.name} · ${activeEnrollment.courses?.title}`} />
       </div>
     )
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="dash-header">سلام {profile?.name} 👋</h1>
-
-      <div className="dash-tabs grid-cols-3 sm:grid-cols-5 lg:grid-cols-9">
+      <h1 className="dash-header">پنل مدرس — سلام {profile?.name} 👋</h1>
+      <div className="dash-tabs grid-cols-2 sm:grid-cols-4">
         {TABS.map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`dash-tab ${tab === t ? 'active' : ''}`}>
-            {t}
-            {t === 'مدارک من' && hasUnseenDocs && <span className="dash-notify-dot" />}
-          </button>
+          <button key={t} onClick={() => setTab(t)} className={`dash-tab ${tab === t ? 'active' : ''}`}>{t}</button>
         ))}
       </div>
 
       {tab === 'دوره‌های من' && (
-        <div className="space-y-3">
-          {enrollments.length === 0 && <div className="dash-empty">هنوز در دوره‌ای ثبت‌نام نکرده‌ای.</div>}
-          {enrollments.map((e) => (
-            <div key={e.id} className="dash-card">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="font-bold">{e.courses?.title}</h3>
-                <span className={`dash-badge ${e.payment_status === 'paid' ? 'dash-badge-success' : 'dash-badge-pending'}`}>
-                  {e.payment_status === 'paid' ? 'پرداخت‌شده' : 'در انتظار پرداخت حضوری'}
-                </span>
-              </div>
-              <div className="text-xs text-[#7B7FB5]">{e.class_mode === 'in_person' ? 'حضوری' : 'آنلاین'} · {e.courses?.schedule || 'زمان‌بندی به‌زودی اعلام می‌شود'}</div>
-              {e.class_mode === 'online' && e.courses?.online_link && (
-                <a href={e.courses.online_link} target="_blank" rel="noreferrer" className="dash-btn-mini dash-btn-violet inline-block mt-2.5">🔗 ورود به کلاس آنلاین</a>
-              )}
-              {e.completed && (
-                <div className="mt-2.5 text-sm text-accent font-bold">{e.certificate_issued ? '🎓 گواهی پایان دوره صادر شد' : '✅ دوره تکمیل شد'}</div>
-              )}
-            </div>
+        <div className="space-y-2.5">
+          {courses.map((c) => (
+            <TeacherCourseCard key={c.id} course={c} onSaved={loadCourses} />
           ))}
+          {courses.length === 0 && <div className="dash-empty">هنوز دوره‌ای به تو اختصاص داده نشده.</div>}
         </div>
       )}
 
-      {tab === 'چت با مدرس' && (
+      {tab === 'دانشجویان و چت' && (
         <div className="space-y-2.5">
           {enrollments.map((e) => (
-            <button key={e.id} onClick={() => setActiveChat(e)} className="dash-card w-full text-right flex items-center justify-between">
-              <span className="text-sm font-medium">{e.courses?.title}</span>
+            <button key={e.id} onClick={() => setActiveEnrollment(e)} className="dash-card w-full text-right flex items-center justify-between">
+              <div>
+                <div className="font-bold text-sm">{e.profiles?.name}</div>
+                <div className="text-xs text-[#7B7FB5]">{e.courses?.title} · {e.class_mode === 'in_person' ? 'حضوری' : 'آنلاین'}</div>
+              </div>
               <span className="text-accent text-xs">گفتگو ←</span>
             </button>
           ))}
-          {enrollments.length === 0 && <div className="dash-empty">هنوز در دوره‌ای ثبت‌نام نکرده‌ای.</div>}
+          {enrollments.length === 0 && <div className="dash-empty">هنوز دانشجویی ثبت‌نام نکرده.</div>}
         </div>
       )}
 
-      {tab === 'پشتیبانی' && <SupportChat />}
+      {tab === 'جزوات' && <TeacherMaterials courses={courses} />}
 
-      {tab === 'جزوات کلاس' && (
-        <div className="space-y-2.5">
-          {materials.map((m) => (
-            <button key={m.id} onClick={() => openFile('materials', m.file_path)} className="dash-card w-full text-right block">
-              <div className="text-sm font-medium truncate">{m.file_name}</div>
-              <div className="text-xs text-[#7B7FB5] mt-1">{m.courses?.title} · {m.profiles?.name}</div>
-            </button>
-          ))}
-          {materials.length === 0 && <div className="dash-empty">هنوز جزوه‌ای برای دوره‌هات آپلود نشده.</div>}
-        </div>
-      )}
-
-      {tab === 'فایل‌های من' && (
-        <div className="space-y-4">
-          <div className="dash-card">
-            <label className="auth-label">برای کدام دوره؟ (اختیاری)</label>
-            <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} className="input-3d mb-3">
-              <option value="">انتخاب نشده</option>
-              {enrollments.map((e) => <option key={e.course_id} value={e.course_id}>{e.courses?.title}</option>)}
-            </select>
-            <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0])} />
-            <button disabled={busy} onClick={() => fileRef.current?.click()} className="dash-dropzone w-full">
-              {busy ? 'در حال آپلود...' : '📎 عکس یا PDF رو انتخاب کن'}
-            </button>
-          </div>
-          <div className="space-y-2.5">
-            {uploads.map((u) => (
-              <div key={u.id} className="dash-card flex items-center justify-between">
-                <button onClick={() => openFile('uploads', u.file_path)} className="text-sm text-right truncate flex-1 hover:text-accent transition-colors duration-300">{u.file_name}</button>
-                <button onClick={() => deleteFile(u)} className="dash-btn-mini dash-btn-danger">حذف</button>
-              </div>
-            ))}
-            {uploads.length === 0 && <div className="dash-empty">هنوز فایلی آپلود نکرده‌ای.</div>}
-          </div>
-        </div>
-      )}
-
-      {tab === 'مدارک من' && (
-        <div className="space-y-2.5">
-          {studentDocs.map((d) => (
-            <button key={d.id} onClick={() => openFile('student-documents', d.file_path)} className="dash-card w-full text-right flex items-center justify-between">
-              <span className="text-sm font-medium">{d.title}</span>
-              <span className="text-accent text-xs">دانلود ←</span>
-            </button>
-          ))}
-          {studentDocs.length === 0 && <div className="dash-empty">هنوز مدرکی برات آپلود نشده.</div>}
-        </div>
-      )}
-
-      {tab === 'اطلاعیه‌ها' && (
-        <div className="space-y-2.5">
-          {announcements.map((a) => <div key={a.id} className="dash-card text-sm">{a.text}</div>)}
-          {announcements.length === 0 && <div className="dash-empty">اطلاعیه‌ای وجود ندارد.</div>}
-        </div>
-      )}
-
-      {tab === 'ثبت نظر' && <StudentTestimonialForm defaultName={profile?.name || ''} />}
-
-      {tab === 'پروفایل' && (
-        <form className="dash-card space-y-4" onSubmit={(e) => { e.preventDefault(); updateProfile(new FormData(e.currentTarget)) }}>
-          <div>
-            <label className="auth-label">نام</label>
-            <input name="name" defaultValue={profile?.name} className="input-3d" />
-          </div>
-          <div>
-            <label className="auth-label">شماره تماس</label>
-            <input name="phone" defaultValue={profile?.phone || ''} className="input-3d" />
-          </div>
-          <button className="hero-primary-btn w-full justify-center">ذخیره تغییرات</button>
-        </form>
+      {tab === 'گفتگو با مدیریت' && (
+        <div className="dash-card text-center text-sm text-[#8B8FC0] py-10">برای هماهنگی با مدیریت، از طریق شماره تماس آموزشگاه (پایین سایت) اقدام کن.</div>
       )}
     </div>
   )
 }
 
-function StudentTestimonialForm({ defaultName }: { defaultName: string }) {
-  const { session } = useAuth()
+function TeacherCourseCard({ course, onSaved }: { course: Course; onSaved: () => void }) {
   const { showToast } = useToast()
-  const [name, setName] = useState(defaultName)
-  const [text, setText] = useState('')
+  const [editingLink, setEditingLink] = useState(false)
+  const [link, setLink] = useState(course.online_link || '')
   const [busy, setBusy] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [mine, setMine] = useState<Testimonial[]>([])
 
-  const loadMine = async () => {
-    if (!session) return
-    const { data } = await supabase.from('testimonials').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false })
-    setMine((data as Testimonial[]) || [])
-  }
+  const canHaveOnlineLink = course.mode !== 'in_person'
 
-  useEffect(() => { loadMine() }, [session])
-
-  const submit = async () => {
-    if (!session || !name.trim() || !text.trim()) { showToast('نام و متن نظر رو پر کن', 'error'); return }
+  const save = async () => {
     setBusy(true)
-    const { error } = await supabase.from('testimonials').insert({ user_id: session.user.id, student_name: name.trim(), text: text.trim(), approved: false, status: 'pending' })
+    const { error } = await supabase.rpc('update_course_online_link', { course_id: course.id, new_link: link.trim() || null })
     setBusy(false)
-    if (error) { showToast('خطا در ارسال نظر: ' + error.message, 'error'); return }
-    setText('')
-    setSent(true)
-    loadMine()
-  }
-
-  const statusLabel = (s?: string) => (s === 'approved' ? 'تأیید شده' : s === 'rejected' ? 'رد شده' : 'در انتظار بررسی')
-  const statusClass = (s?: string) => (s === 'approved' ? 'dash-badge-success' : s === 'rejected' ? 'dash-badge-danger' : 'dash-badge-pending')
-
-  const MyList = mine.length > 0 && (
-    <div className="space-y-2.5">
-      <div className="text-sm font-bold px-1">نظرات قبلی من</div>
-      {mine.map((t) => (
-        <div key={t.id} className="dash-card">
-          <div className="text-sm">{t.text}</div>
-          <div className="flex justify-between items-center mt-2">
-            <span className={`dash-badge ${statusClass(t.status)}`}>{statusLabel(t.status)}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-
-  if (sent) {
-    return (
-      <div className="space-y-4">
-        <div className="dash-card text-center py-10">
-          <div className="text-2xl mb-2">🙏</div>
-          <div className="text-sm text-[#C4C7ED]">نظرت ثبت شد و بعد از تأیید آموزشگاه روی سایت نمایش داده می‌شود.</div>
-          <button onClick={() => setSent(false)} className="text-accent text-xs mt-4 hover:underline transition-colors duration-300">ثبت نظر دیگر</button>
-        </div>
-        {MyList}
-      </div>
-    )
+    if (error) { showToast('خطا در ذخیره لینک: ' + error.message, 'error'); return }
+    setEditingLink(false)
+    onSaved()
+    showToast('لینک کلاس ذخیره شد.')
   }
 
   return (
-    <div className="space-y-4">
-      <div className="dash-card space-y-4">
-        <div className="text-sm font-bold">نظرت رو با ما در میون بذار</div>
-        <div>
-          <label className="auth-label">نام</label>
-          <input className="input-3d" value={name} onChange={(e) => setName(e.target.value)} />
+    <div className="dash-card">
+      <div className="font-bold text-sm">{course.title}</div>
+      <div className="text-xs text-[#7B7FB5] mt-1">{course.mode === 'both' ? 'حضوری و آنلاین' : course.mode === 'in_person' ? 'حضوری' : 'آنلاین'} · {course.category}</div>
+
+      {canHaveOnlineLink && (
+        <div className="mt-2.5">
+          {editingLink ? (
+            <div className="flex gap-2 items-center">
+              <input
+                className="input-3d !py-1.5 text-xs flex-1"
+                placeholder="لینک کلاس آنلاین (اسکای‌روم/گوگل‌میت و غیره)"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+              />
+              <button onClick={save} disabled={busy} className="dash-btn-mini dash-btn-gold shrink-0">{busy ? '...' : 'ذخیره'}</button>
+              <button onClick={() => { setEditingLink(false); setLink(course.online_link || '') }} className="text-xs text-[#7B7FB5] shrink-0 hover:text-accent transition-colors duration-300">انصراف</button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              {course.online_link ? (
+                <a href={course.online_link} target="_blank" rel="noreferrer" className="text-xs text-accent hover:underline transition-colors duration-300">🔗 لینک کلاس</a>
+              ) : (
+                <span className="text-xs text-[#5C5F8A]">لینک کلاس ثبت نشده</span>
+              )}
+              <button onClick={() => setEditingLink(true)} className="text-xs text-[#A8ACD9] underline hover:text-accent transition-colors duration-300">ویرایش لینک</button>
+            </div>
+          )}
         </div>
-        <div>
-          <label className="auth-label">متن نظر</label>
-          <textarea className="input-3d resize-none" rows={4} placeholder="تجربه‌ت از دوره چطور بود؟" value={text} onChange={(e) => setText(e.target.value)} />
-        </div>
-        <button onClick={submit} disabled={busy} className="hero-primary-btn w-full justify-center disabled:opacity-60 disabled:pointer-events-none">{busy ? 'در حال ارسال...' : 'ارسال نظر'}</button>
+      )}
+    </div>
+  )
+}
+
+function TeacherMaterials({ courses }: { courses: Course[] }) {
+  const { session } = useAuth()
+  const { showToast } = useToast()
+  const [items, setItems] = useState<CourseMaterial[]>([])
+  const [courseId, setCourseId] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  const load = () => {
+    if (!session) return
+    supabase.from('course_materials').select('*, courses(*)').eq('teacher_id', session.user.id).order('uploaded_at', { ascending: false }).then(({ data }) => setItems((data as CourseMaterial[]) || []))
+  }
+  useEffect(() => { load() }, [session])
+
+  const upload = async () => {
+    if (!courseId || !file || !session) { showToast('دوره و فایل رو انتخاب کن', 'error'); return }
+    setBusy(true)
+    const path = `${courseId}/${Date.now()}_${file.name}`
+    const { error } = await supabase.storage.from('materials').upload(path, file)
+    if (!error) {
+      const { error: dbErr } = await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: session.user.id, file_name: file.name, file_path: path })
+      if (dbErr) {
+        showToast('خطا در ثبت جزوه: ' + dbErr.message, 'error')
+      } else {
+        setFile(null); load()
+        showToast('جزوه آپلود شد.')
+      }
+    } else {
+      showToast('خطا در آپلود: ' + error.message, 'error')
+    }
+    setBusy(false)
+  }
+
+  const remove = async (m: CourseMaterial) => {
+    const { error: storageErr } = await supabase.storage.from('materials').remove([m.file_path])
+    if (storageErr) { showToast('خطا در حذف فایل: ' + storageErr.message, 'error'); return }
+    const { error } = await supabase.from('course_materials').delete().eq('id', m.id)
+    if (error) { showToast('خطا در حذف جزوه: ' + error.message, 'error'); return }
+    load()
+  }
+
+  const openFile = async (path: string) => {
+    const { data } = await supabase.storage.from('materials').createSignedUrl(path, 60)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="dash-card space-y-2">
+        <select className="input-3d" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+          <option value="">انتخاب دوره</option>
+          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
+        <button onClick={upload} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
       </div>
-      {MyList}
+      {items.map((m) => (
+        <div key={m.id} className="dash-card flex items-center justify-between">
+          <button onClick={() => openFile(m.file_path)} className="text-right flex-1 truncate hover:text-accent transition-colors duration-300">
+            <div className="text-sm font-medium truncate">{m.file_name}</div>
+            <div className="text-xs text-[#7B7FB5]">{m.courses?.title}</div>
+          </button>
+          <button onClick={() => remove(m)} className="dash-btn-mini dash-btn-danger">حذف</button>
+        </div>
+      ))}
+      {items.length === 0 && <div className="dash-empty">هنوز جزوه‌ای آپلود نکردی.</div>}
     </div>
   )
 }
@@ -322,35 +227,4 @@ function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string 
       </div>
     </div>
   )
-}
-
-function SupportChat() {
-  const { session } = useAuth()
-  const [messages, setMessages] = useState<ChatMsg[]>([])
-  const [text, setText] = useState('')
-  const load = () => {
-    if (!session) return
-    supabase.from('support_messages').select('*').eq('user_id', session.user.id).order('created_at').then(({ data }) => setMessages((data as any) || []))
-  }
-  useEffect(() => { load() }, [session])
-  const send = async () => {
-    if (!text.trim() || !session) return
-    await supabase.from('support_messages').insert({ user_id: session.user.id, sender_id: session.user.id, message: text.trim() })
-    setText(''); load()
-  }
-  return (
-    <div className="chat-panel">
-      <div className="font-bold text-sm mb-3">پشتیبانی آموزشگاه</div>
-      <div className="chat-scroll">
-        {messages.map((m: any) => (
-          <div key={m.id} className={`chat-bubble ${m.sender_id === session?.user.id ? 'chat-bubble-mine' : 'chat-bubble-theirs'}`}>{m.message}</div>
-        ))}
-        {messages.length === 0 && <div className="dash-empty">برای شروع، پیامت رو بفرست.</div>}
-      </div>
-      <div className="flex gap-2">
-        <input value={text} onChange={(e) => setText(e.target.value)} className="input-3d flex-1" placeholder="پیام به پشتیبانی..." onKeyDown={(e) => e.key === 'Enter' && send()} />
-        <button onClick={send} className="hero-primary-btn !px-4">ارسال</button>
-      </div>
-    </div>
-  )
-      }
+          }
