@@ -14,7 +14,8 @@ export function AdminRoute({ children }: { children: ReactNode }) {
   const { session, profile, loading } = useAuth()
   if (loading) return <Spinner />
   if (!session) return <Navigate to="/login" replace />
-  if (profile?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  if (!profile) return <Spinner />
+  if (profile.role !== 'admin') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 
@@ -22,6 +23,7 @@ export function TeacherRoute({ children }: { children: ReactNode }) {
   const { session, profile, loading } = useAuth()
   if (loading) return <Spinner />
   if (!session) return <Navigate to="/login" replace />
-  if (profile?.role !== 'teacher' && profile?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  if (!profile) return <Spinner />
+  if (profile.role !== 'teacher' && profile.role !== 'admin') return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
