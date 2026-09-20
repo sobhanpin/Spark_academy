@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import Spinner from '../components/Spinner'
 
 export default function Enroll() {
   const { id } = useParams()
   const { session } = useAuth()
+  const { showToast } = useToast()
   const navigate = useNavigate()
   const [course, setCourse] = useState<Course | null>(null)
   const [classMode, setClassMode] = useState<'in_person' | 'online'>('in_person')
@@ -34,11 +36,17 @@ export default function Enroll() {
       .select()
       .single()
 
-    if (!error && docFile && enrollment) {
+    if (error) {
+      showToast('خطا در ثبت‌نام: ' + error.message, 'error')
+      setLoading(false)
+      return
+    }
+
+    if (docFile && enrollment) {
       const path = `${session.user.id}/${Date.now()}_${docFile.name}`
       const { error: upErr } = await supabase.storage.from('uploads').upload(path, docFile)
       if (!upErr) {
-        await supabase.from('uploads').insert({
+        const { error: dbErr } = await supabase.from('uploads').insert({
           user_id: session.user.id,
           course_id: id,
           file_name: docFile.name,
@@ -46,6 +54,9 @@ export default function Enroll() {
           file_type: docFile.type,
           size_kb: Math.round(docFile.size / 1024),
         })
+        if (dbErr) showToast('ثبت‌نام انجام شد، ولی مدرک آپلودی ذخیره نشد: ' + dbErr.message, 'error')
+      } else {
+        showToast('ثبت‌نام انجام شد، ولی آپلود مدرک fail شد: ' + upErr.message, 'error')
       }
     }
 
@@ -169,4 +180,4 @@ export default function Enroll() {
       </div>
     </div>
   )
-        }
+                             }
