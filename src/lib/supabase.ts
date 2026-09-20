@@ -99,9 +99,15 @@ export type FaqItem = {
 export type AcademyDocument = {
   id: string
   title: string
+  description?: string | null
   file_path: string
+  category?: string
+  audience_type?: 'all' | 'category' | 'course'
+  target_category?: string | null
+  target_course_id?: string | null
+  is_active?: boolean
   uploaded_at: string
-}
+  }
 
 export type CourseMaterial = {
   id: string
