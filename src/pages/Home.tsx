@@ -52,7 +52,7 @@ export default function Home() {
     supabase.from('testimonials').select('*').eq('approved', true).order('created_at', { ascending: false }).limit(6).then(({ data }) => setTestimonials(data || []))
     supabase.from('news').select('*').order('published_at', { ascending: false }).limit(3).then(({ data }) => setNews(data || []))
     supabase.from('faq').select('*').order('sort_order').then(({ data }) => setFaqs(data || []))
-    supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false }).then(({ data }) => setDocuments(data || []))
+    supabase.from('academy_documents').select('*').eq('audience_type', 'all').eq('is_active', true).order('uploaded_at', { ascending: false }).then(({ data }) => setDocuments(data || []))
     supabase.from('site_settings').select('key,value').then(({ data }) => {
       if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value])))
     })
