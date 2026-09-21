@@ -358,22 +358,53 @@ function MessagesTab() {
   )
 }
 function AnnouncementTab() {
+function AnnouncementTab() {
   const { showToast } = useToast()
   const [text, setText] = useState('')
+  const [courses, setCourses] = useState<Course[]>([])
+  const [audienceType, setAudienceType] = useState<'all' | 'category' | 'course'>('all')
+  const [targetCategory, setTargetCategory] = useState<'زبان' | 'کنکور' | 'فنی'>('زبان')
+  const [targetCourseId, setTargetCourseId] = useState('')
+  useEffect(() => { supabase.from('courses').select('*').then(({ data }) => setCourses(data || [])) }, [])
   const send = async () => {
     if (!text) return
-    const { error } = await supabase.from('announcements').insert({ text })
+    if (audienceType === 'course' && !targetCourseId) { showToast('یه دوره انتخاب کن', 'error'); return }
+    const { error } = await supabase.from('announcements').insert({
+      text,
+      audience_type: audienceType,
+      target_category: audienceType === 'category' ? targetCategory : null,
+      course_id: audienceType === 'course' ? targetCourseId : null,
+    })
     if (error) { showToast('خطا در ارسال اطلاعیه: ' + error.message, 'error'); return }
-    setText('')
+    setText(''); setAudienceType('all')
     showToast('اطلاعیه ارسال شد.')
   }
   return (
     <div className="dash-card space-y-2">
-      <textarea className="input-3d resize-none" rows={3} placeholder="متن اطلاعیه برای همه دانشجویان" value={text} onChange={(e) => setText(e.target.value)} />
+      <textarea className="input-3d resize-none" rows={3} placeholder="متن اطلاعیه" value={text} onChange={(e) => setText(e.target.value)} />
+      <div>
+        <label className="auth-label">مخاطب اطلاعیه</label>
+        <select className="input-3d" value={audienceType} onChange={(e) => setAudienceType(e.target.value as any)}>
+          <option value="all">همه دانشجویان</option>
+          <option value="category">دسته آموزشی خاص</option>
+          <option value="course">دوره خاص</option>
+        </select>
+      </div>
+      {audienceType === 'category' && (
+        <select className="input-3d" value={targetCategory} onChange={(e) => setTargetCategory(e.target.value as any)}>
+          <option>زبان</option><option>کنکور</option><option>فنی</option>
+        </select>
+      )}
+      {audienceType === 'course' && (
+        <select className="input-3d" value={targetCourseId} onChange={(e) => setTargetCourseId(e.target.value)}>
+          <option value="">انتخاب دوره</option>
+          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+        </select>
+      )}
       <button onClick={send} className="hero-primary-btn w-full justify-center">ارسال اطلاعیه</button>
     </div>
   )
-}
+        }
 
 function DocumentsTab() {
   const { showToast } = useToast()
