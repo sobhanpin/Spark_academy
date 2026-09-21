@@ -66,9 +66,11 @@ export type Announcement = {
   id: string
   author_id: string | null
   course_id: string | null
+  audience_type?: 'all' | 'category' | 'course'
+  target_category?: string | null
   text: string
   created_at: string
-}
+  }
 
 export type Testimonial = {
   id: string
