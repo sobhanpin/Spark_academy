@@ -357,7 +357,7 @@ function MessagesTab() {
     </div>
   )
 }
-function AnnouncementTab() {
+
 function AnnouncementTab() {
   const { showToast } = useToast()
   const [text, setText] = useState('')
