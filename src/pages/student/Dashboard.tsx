@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial } from '../../lib/supabase'
+import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial, AcademyDocument } from '../../lib/supabase'
 import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
 
-const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'ثبت نظر', 'پروفایل'] as const
+const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'مدارک و فایل‌ها', 'اطلاعیه‌ها', 'ثبت نظر', 'پروفایل'] as const
 
 export default function StudentDashboard() {
   const { session, profile, refreshProfile } = useAuth()
@@ -15,6 +15,7 @@ export default function StudentDashboard() {
   const [materials, setMaterials] = useState<CourseMaterial[]>([])
   const [uploads, setUploads] = useState<Upload[]>([])
   const [studentDocs, setStudentDocs] = useState<StudentDocument[]>([])
+  const [academyDocs, setAcademyDocs] = useState<AcademyDocument[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [selectedCourse, setSelectedCourse] = useState('')
   const [busy, setBusy] = useState(false)
@@ -36,6 +37,8 @@ export default function StudentDashboard() {
     setUploads((up as Upload[]) || [])
     const { data: sd } = await supabase.from('student_documents').select('*').eq('user_id', session.user.id).order('uploaded_at', { ascending: false })
     setStudentDocs((sd as StudentDocument[]) || [])
+    const { data: ad } = await supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false })
+    setAcademyDocs((ad as AcademyDocument[]) || [])
     const { data: an } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(10)
     setAnnouncements((an as Announcement[]) || [])
   }
@@ -58,15 +61,11 @@ export default function StudentDashboard() {
     const { error: upErr } = await supabase.storage.from('uploads').upload(path, file)
     if (!upErr) {
       const { error: dbErr } = await supabase.from('uploads').insert({ user_id: session.user.id, course_id: selectedCourse || null, file_name: file.name, file_path: path, file_type: file.type, size_kb: Math.round(file.size / 1024) })
-      if (dbErr) {
-        showToast('خطا در ثبت فایل: ' + dbErr.message, 'error')
-      } else {
+      if (dbErr) { showToast('خطا در ثبت فایل: ' + dbErr.message, 'error') } else {
         await load()
         showToast('فایل آپلود شد.')
       }
-    } else {
-      showToast('خطا در آپلود: ' + upErr.message, 'error')
-    }
+    } else { showToast('خطا در آپلود: ' + upErr.message, 'error') }
     setBusy(false)
     if (fileRef.current) fileRef.current.value = ''
   }
@@ -105,7 +104,7 @@ export default function StudentDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="dash-header">سلام {profile?.name} 👋</h1>
 
-      <div className="dash-tabs grid-cols-3 sm:grid-cols-5 lg:grid-cols-9">
+      <div className="dash-tabs grid-cols-3 sm:grid-cols-5 lg:grid-cols-10">
         {TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)} className={`dash-tab ${tab === t ? 'active' : ''}`}>
             {t}
@@ -197,6 +196,22 @@ export default function StudentDashboard() {
             </button>
           ))}
           {studentDocs.length === 0 && <div className="dash-empty">هنوز مدرکی برات آپلود نشده.</div>}
+        </div>
+      )}
+
+      {tab === 'مدارک و فایل‌ها' && (
+        <div className="space-y-2.5">
+          {academyDocs.map((d) => (
+            <button key={d.id} onClick={() => openFile('documents', d.file_path)} className="dash-card w-full text-right block">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">{d.title}</span>
+                <span className="text-accent text-xs shrink-0">مشاهده ←</span>
+              </div>
+              {d.description && <div className="text-xs text-[#8B8FC0] mt-1">{d.description}</div>}
+              <div className="text-[10px] text-[#7B7FB5] mt-1.5">{d.category}</div>
+            </button>
+          ))}
+          {academyDocs.length === 0 && <div className="dash-empty">فعلاً مدرکی برای نمایش نیست.</div>}
         </div>
       )}
 
@@ -360,4 +375,4 @@ function SupportChat() {
       </div>
     </div>
   )
-                                                }
+    }
