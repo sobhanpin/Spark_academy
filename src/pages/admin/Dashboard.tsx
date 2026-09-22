@@ -81,9 +81,10 @@ function CoursesTab() {
           {imgBusy && <div className="text-xs text-[#7B7FB5] mt-1">در حال آپلود...</div>}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select className="input-3d" value={editing.category || 'زبان'} onChange={(e) => setEditing({ ...editing, category: e.target.value as any })}>
-            <option>زبان</option><option>کنکور</option><option>فنی</option>
-          </select>
+          <input className="input-3d" list="course-category-options" placeholder="رشته (مثلاً: زبان)" value={editing.category || ''} onChange={(e) => setEditing({ ...editing, category: e.target.value })} />
+          <datalist id="course-category-options">
+            {[...new Set(courses.map((c) => c.category).filter(Boolean))].map((cat) => <option key={cat} value={cat} />)}
+          </datalist>
           <select className="input-3d" value={editing.mode || 'both'} onChange={(e) => setEditing({ ...editing, mode: e.target.value as any })}>
             <option value="both">حضوری و آنلاین</option><option value="in_person">فقط حضوری</option><option value="online">فقط آنلاین</option>
           </select>
