@@ -364,12 +364,13 @@ function AnnouncementTab() {
   const [text, setText] = useState('')
   const [courses, setCourses] = useState<Course[]>([])
   const [audienceType, setAudienceType] = useState<'all' | 'category' | 'course'>('all')
-  const [targetCategory, setTargetCategory] = useState<'زبان' | 'کنکور' | 'فنی'>('زبان')
+  const [targetCategory, setTargetCategory] = useState('')
   const [targetCourseId, setTargetCourseId] = useState('')
   useEffect(() => { supabase.from('courses').select('*').then(({ data }) => setCourses(data || [])) }, [])
   const send = async () => {
     if (!text) return
     if (audienceType === 'course' && !targetCourseId) { showToast('یه دوره انتخاب کن', 'error'); return }
+    if (audienceType === 'category' && !targetCategory) { showToast('یه رشته انتخاب کن', 'error'); return }
     const { error } = await supabase.from('announcements').insert({
       text,
       audience_type: audienceType,
@@ -392,8 +393,9 @@ function AnnouncementTab() {
         </select>
       </div>
       {audienceType === 'category' && (
-        <select className="input-3d" value={targetCategory} onChange={(e) => setTargetCategory(e.target.value as any)}>
-          <option>زبان</option><option>کنکور</option><option>فنی</option>
+        <select className="input-3d" value={targetCategory} onChange={(e) => setTargetCategory(e.target.value)}>
+          <option value="">انتخاب رشته</option>
+          {[...new Set(courses.map((c) => c.category).filter(Boolean))].map((cat) => <option key={cat} value={cat}>{cat}</option>)}
         </select>
       )}
       {audienceType === 'course' && (
@@ -415,7 +417,7 @@ function DocumentsTab() {
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('مدارک ثبت‌نام')
   const [audienceType, setAudienceType] = useState<'all' | 'category' | 'course'>('all')
-  const [targetCategory, setTargetCategory] = useState<'زبان' | 'کنکور' | 'فنی'>('زبان')
+  const [targetCategory, setTargetCategory] = useState('')
   const [targetCourseId, setTargetCourseId] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
@@ -427,6 +429,7 @@ function DocumentsTab() {
   const upload = async () => {
     if (!title || !file) { showToast('عنوان و فایل رو انتخاب کن', 'error'); return }
     if (audienceType === 'course' && !targetCourseId) { showToast('یه دوره انتخاب کن', 'error'); return }
+    if (audienceType === 'category' && !targetCategory) { showToast('یه رشته انتخاب کن', 'error'); return }
     setBusy(true)
     const path = `${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('documents').upload(path, file)
@@ -477,8 +480,9 @@ function DocumentsTab() {
           </select>
         </div>
         {audienceType === 'category' && (
-          <select className="input-3d" value={targetCategory} onChange={(e) => setTargetCategory(e.target.value as any)}>
-            <option>زبان</option><option>کنکور</option><option>فنی</option>
+          <select className="input-3d" value={targetCategory} onChange={(e) => setTargetCategory(e.target.value)}>
+            <option value="">انتخاب رشته</option>
+            {[...new Set(courses.map((c) => c.category).filter(Boolean))].map((cat) => <option key={cat} value={cat}>{cat}</option>)}
           </select>
         )}
         {audienceType === 'course' && (
