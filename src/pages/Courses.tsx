@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
 
-const categories = ['همه', 'زبان', 'کنکور', 'فنی']
-
 export default function Courses() {
   const [courses, setCourses] = useState<Course[]>([])
   const [category, setCategory] = useState('همه')
@@ -13,6 +11,8 @@ export default function Courses() {
   useEffect(() => {
     supabase.from('courses').select('*').eq('is_active', true).order('created_at').then(({ data }) => setCourses(data || []))
   }, [])
+
+  const categories = ['همه', ...new Set(courses.map((c) => c.category).filter(Boolean))]
 
   const filtered = courses.filter((c) => {
     if (category !== 'همه' && c.category !== category) return false
@@ -89,4 +89,4 @@ export default function Courses() {
       </div>
     </div>
   )
-                      }
+    }
