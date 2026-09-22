@@ -18,7 +18,7 @@ export type Profile = {
 export type Course = {
   id: string
   title: string
-  category: 'زبان' | 'کنکور' | 'فنی'
+  category: string
   description: string
   workshop_details: string | null
   price: number
