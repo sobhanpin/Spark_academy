@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
-const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'جزوات دوره', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
+const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار, 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌ها')
@@ -17,7 +17,7 @@ export default function AdminDashboard() {
       {tab === 'دوره‌ها' && <CoursesTab />}
       {tab === 'دانشجویان' && <StudentsTab />}
       {tab === 'مدرسین' && <TeachersTab />}
-      {tab === 'جزوات دوره' && <MaterialsTab />}
+      {tab === 'مدارک و فرم‌های دانشجویان' && <MaterialsTab />}
       {tab === 'پشتیبانی' && <AdminSupportTab />}
       {tab === 'نظرات' && <TestimonialsTab />}
       {tab === 'اخبار' && <NewsTab />}
