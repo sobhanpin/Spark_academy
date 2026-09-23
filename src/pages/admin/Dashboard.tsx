@@ -412,36 +412,28 @@ function AnnouncementTab() {
 function DocumentsTab() {
   const { showToast } = useToast()
   const [items, setItems] = useState<AcademyDocument[]>([])
-  const [courses, setCourses] = useState<Course[]>([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState('مدارک ثبت‌نام')
-  const [audienceType, setAudienceType] = useState<'all' | 'category' | 'course'>('all')
-  const [targetCategory, setTargetCategory] = useState('')
-  const [targetCourseId, setTargetCourseId] = useState('')
+  const [category, setCategory] = useState('مجوز و گواهی')
   const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
   const load = () => {
     supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false }).then(({ data }) => setItems(data || []))
-    supabase.from('courses').select('*').then(({ data }) => setCourses(data || []))
   }
   useEffect(() => { load() }, [])
   const upload = async () => {
     if (!title || !file) { showToast('عنوان و فایل رو انتخاب کن', 'error'); return }
-    if (audienceType === 'course' && !targetCourseId) { showToast('یه دوره انتخاب کن', 'error'); return }
-    if (audienceType === 'category' && !targetCategory) { showToast('یه رشته انتخاب کن', 'error'); return }
     setBusy(true)
     const path = `${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('documents').upload(path, file)
     if (!error) {
       const { error: dbErr } = await supabase.from('academy_documents').insert({
-        title, description: description || null, category, audience_type: audienceType,
-        target_category: audienceType === 'category' ? targetCategory : null,
-        target_course_id: audienceType === 'course' ? targetCourseId : null,
+        title, description: description || null, category, audience_type: 'all',
+        target_category: null, target_course_id: null,
         file_path: path, is_active: true,
       })
       if (dbErr) { showToast('خطا در ثبت مدرک: ' + dbErr.message, 'error') } else {
-        setTitle(''); setDescription(''); setFile(null); setAudienceType('all'); load()
+        setTitle(''); setDescription(''); setFile(null); load()
         showToast('مدرک آپلود شد.')
       }
     } else { showToast('خطا در آپلود: ' + error.message, 'error') }
@@ -460,37 +452,13 @@ function DocumentsTab() {
     load()
   }
   const getUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
-  const audienceLabel = (d: AcademyDocument) => {
-    if (d.audience_type === 'course') return 'دوره: ' + (courses.find((c) => c.id === d.target_course_id)?.title || '—')
-    if (d.audience_type === 'category') return 'دسته: ' + d.target_category
-    return 'همه دانشجویان'
-  }
   return (
     <div className="space-y-3">
       <div className="dash-card space-y-2">
+        <div className="text-xs text-[#8B8FC0]">این بخش برای مدارک، مجوزها و تقدیرنامه‌های خودِ آموزشگاهه — همیشه عمومی و برای نمایش در صفحه‌ی اصلی سایت (رزومه‌ی آموزشگاه)، نه برای ارسال به دانشجوی خاص.</div>
         <input className="input-3d" placeholder="عنوان مدرک" value={title} onChange={(e) => setTitle(e.target.value)} />
         <textarea className="input-3d resize-none" rows={2} placeholder="توضیحات (اختیاری)" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <input className="input-3d" placeholder="دسته‌بندی (مثلاً: مدارک ثبت‌نام، جزوات، فرم‌ها)" value={category} onChange={(e) => setCategory(e.target.value)} />
-        <div>
-          <label className="auth-label">مخاطب فایل</label>
-          <select className="input-3d" value={audienceType} onChange={(e) => setAudienceType(e.target.value as any)}>
-            <option value="all">همه دانشجویان</option>
-            <option value="category">دسته آموزشی خاص</option>
-            <option value="course">دوره خاص</option>
-          </select>
-        </div>
-        {audienceType === 'category' && (
-          <select className="input-3d" value={targetCategory} onChange={(e) => setTargetCategory(e.target.value)}>
-            <option value="">انتخاب رشته</option>
-            {[...new Set(courses.map((c) => c.category).filter(Boolean))].map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-          </select>
-        )}
-        {audienceType === 'course' && (
-          <select className="input-3d" value={targetCourseId} onChange={(e) => setTargetCourseId(e.target.value)}>
-            <option value="">انتخاب دوره</option>
-            {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
-          </select>
-        )}
+        <input className="input-3d" placeholder="دسته‌بندی (مثلاً: مجوز فعالیت، تقدیرنامه، گواهی)" value={category} onChange={(e) => setCategory(e.target.value)} />
         <input type="file" accept="image/*,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
         <button onClick={upload} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال آپلود...' : 'آپلود مدرک'}</button>
       </div>
@@ -501,7 +469,7 @@ function DocumentsTab() {
               <div className="min-w-0">
                 <a href={getUrl(d.file_path)} target="_blank" rel="noreferrer" className="text-sm text-accent hover:underline transition-colors duration-300 font-bold truncate block">{d.title}</a>
                 {d.description && <p className="text-xs text-[#8B8FC0] mt-1">{d.description}</p>}
-                <div className="text-[10px] text-[#7B7FB5] mt-1.5">{d.category} · {audienceLabel(d)}</div>
+                <div className="text-[10px] text-[#7B7FB5] mt-1.5">{d.category}</div>
               </div>
               <span className={`dash-badge shrink-0 ${d.is_active ? 'dash-badge-success' : 'dash-badge-pending'}`}>{d.is_active ? 'فعال' : 'غیرفعال'}</span>
             </div>
@@ -515,7 +483,7 @@ function DocumentsTab() {
       {items.length === 0 && <div className="dash-empty">هنوز مدرکی آپلود نشده.</div>}
     </div>
   )
-}
+          }
 
 function TeachersTab() {
   const { showToast } = useToast()
