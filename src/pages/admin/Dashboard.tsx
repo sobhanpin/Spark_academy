@@ -524,39 +524,48 @@ function TeachersTab() {
       {teachers.length === 0 && <div className="dash-empty">هنوز مدرسی ثبت نشده.</div>}
     </div>
   )
-}
+          }
 function MaterialsTab() {
   const { showToast } = useToast()
   const [items, setItems] = useState<CourseMaterial[]>([])
   const [courses, setCourses] = useState<Course[]>([])
+  const [sendMode, setSendMode] = useState<'course' | 'category'>('course')
   const [courseId, setCourseId] = useState('')
+  const [categoryTarget, setCategoryTarget] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
+  const categories = [...new Set(courses.map((c) => c.category).filter(Boolean))]
   const load = () => {
     supabase.from('course_materials').select('*, courses(*), profiles(*)').order('uploaded_at', { ascending: false }).then(({ data }) => setItems((data as CourseMaterial[]) || []))
     supabase.from('courses').select('*').then(({ data }) => setCourses(data || []))
   }
   useEffect(() => { load() }, [])
   const upload = async () => {
-    if (!courseId || !file) { showToast('دوره و فایل رو انتخاب کن', 'error'); return }
+    if (sendMode === 'course' && !courseId) { showToast('یه دوره انتخاب کن', 'error'); return }
+    if (sendMode === 'category' && !categoryTarget) { showToast('یه رشته/گروه انتخاب کن', 'error'); return }
+    if (!file) { showToast('فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
     const { data: userData } = await supabase.auth.getUser()
-    const path = `${courseId}/${Date.now()}_${file.name}`
+    if (!userData.user) { setBusy(false); return }
+    const targetCourseIds = sendMode === 'course' ? [courseId] : courses.filter((c) => c.category === categoryTarget).map((c) => c.id)
+    if (targetCourseIds.length === 0) { showToast('هیچ دوره‌ای توی این رشته پیدا نشد', 'error'); setBusy(false); return }
+    const path = `${targetCourseIds[0]}/${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('materials').upload(path, file)
-    if (!error && userData.user) {
-      const { error: dbErr } = await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: userData.user.id, file_name: file.name, file_path: path })
-      if (dbErr) { showToast('خطا در ثبت جزوه: ' + dbErr.message, 'error') } else {
+    if (!error) {
+      const rows = targetCourseIds.map((cid) => ({ course_id: cid, teacher_id: userData.user!.id, file_name: file.name, file_path: path }))
+      const { error: dbErr } = await supabase.from('course_materials').insert(rows)
+      if (dbErr) { showToast('خطا در ثبت: ' + dbErr.message, 'error') } else {
         setFile(null); load()
-        showToast('جزوه آپلود شد.')
+        showToast(sendMode === 'category' ? `برای ${targetCourseIds.length} دوره‌ی این رشته ارسال شد.` : 'ارسال شد.')
       }
-    } else if (error) { showToast('خطا در آپلود: ' + error.message, 'error') }
+    } else { showToast('خطا در آپلود: ' + error.message, 'error') }
     setBusy(false)
   }
   const remove = async (m: CourseMaterial) => {
     const { error: storageErr } = await supabase.storage.from('materials').remove([m.file_path])
     if (storageErr) { showToast('خطا در حذف فایل: ' + storageErr.message, 'error'); return }
     const { error } = await supabase.from('course_materials').delete().eq('id', m.id)
-    if (error) { showToast('خطا در حذف جزوه: ' + error.message, 'error'); return }
+    if (error) { showToast('خطا در حذف: ' + error.message, 'error'); return }
     load()
   }
   const openFile = async (path: string) => {
@@ -566,12 +575,27 @@ function MaterialsTab() {
   return (
     <div className="space-y-3">
       <div className="dash-card space-y-2">
-        <select className="input-3d" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
-          <option value="">انتخاب دوره</option>
-          {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
-        </select>
+        <div className="text-xs text-[#8B8FC0]">مدرک، فرم یا جزوه‌ی موردنیاز رو می‌تونی برای یک دوره‌ی خاص بفرستی، یا یک‌جا برای همه‌ی دوره‌های یک رشته/گروه.</div>
+        <div>
+          <label className="auth-label">ارسال برای</label>
+          <select className="input-3d" value={sendMode} onChange={(e) => { setSendMode(e.target.value as any); setCourseId(''); setCategoryTarget('') }}>
+            <option value="course">یک دوره‌ی خاص</option>
+            <option value="category">یک رشته/گروه کامل (همه‌ی دوره‌های اون رشته)</option>
+          </select>
+        </div>
+        {sendMode === 'course' ? (
+          <select className="input-3d" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+            <option value="">انتخاب دوره</option>
+            {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+          </select>
+        ) : (
+          <select className="input-3d" value={categoryTarget} onChange={(e) => setCategoryTarget(e.target.value)}>
+            <option value="">انتخاب رشته/گروه</option>
+            {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+        )}
         <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
-        <button onClick={upload} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال آپلود...' : 'آپلود جزوه'}</button>
+        <button onClick={upload} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال ارسال...' : 'ارسال'}</button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
       {items.map((m) => (
@@ -584,11 +608,10 @@ function MaterialsTab() {
         </div>
       ))}
       </div>
-      {items.length === 0 && <div className="dash-empty">هنوز جزوه‌ای آپلود نشده.</div>}
+      {items.length === 0 && <div className="dash-empty">هنوز چیزی ارسال نشده.</div>}
     </div>
   )
-}
-
+  }
 function SettingsTab() {
   const { showToast } = useToast()
   const [settings, setSettings] = useState<Record<string, string>>({})
