@@ -616,19 +616,22 @@ function SettingsTab() {
   const { showToast } = useToast()
   const [settings, setSettings] = useState<Record<string, string>>({})
   const [logoBusy, setLogoBusy] = useState(false)
-  const uploadLogo = async (file: File) => {
-    setLogoBusy(true)
-    const path = `logo/${Date.now()}_${file.name}`
+  const [bannerBusy, setBannerBusy] = useState(false)
+  const uploadImageSetting = async (file: File, key: string, folder: string, busySetter: (b: boolean) => void, label: string) => {
+    busySetter(true)
+    const path = `${folder}/${Date.now()}_${file.name}`
     const { error } = await supabase.storage.from('documents').upload(path, file)
     if (!error) {
       const url = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
-      const { data, error: dbErr } = await supabase.from('site_settings').update({ value: url }).eq('key', 'logo_url').select()
-      if (dbErr) { showToast('خطا در ذخیره لوگو: ' + dbErr.message, 'error') }
-      else if (!data || data.length === 0) { showToast('ردیف logo_url در دیتابیس وجود نداره — باید یک‌بار دستی از Supabase ساخته بشه.', 'error') }
-      else { setSettings((s) => ({ ...s, logo_url: url })); showToast('لوگو به‌روزرسانی شد.') }
-    } else { showToast('خطا در آپلود لوگو: ' + error.message, 'error') }
-    setLogoBusy(false)
+      const { data, error: dbErr } = await supabase.from('site_settings').update({ value: url }).eq('key', key).select()
+      if (dbErr) { showToast(`خطا در ذخیره ${label}: ` + dbErr.message, 'error') }
+      else if (!data || data.length === 0) { showToast(`ردیف ${key} در دیتابیس وجود نداره — باید یک‌بار دستی از Supabase ساخته بشه.`, 'error') }
+      else { setSettings((s) => ({ ...s, [key]: url })); showToast(`${label} به‌روزرسانی شد.`) }
+    } else { showToast(`خطا در آپلود ${label}: ` + error.message, 'error') }
+    busySetter(false)
   }
+  const uploadLogo = (file: File) => uploadImageSetting(file, 'logo_url', 'logo', setLogoBusy, 'لوگو')
+  const uploadBannerImage = (file: File) => uploadImageSetting(file, 'banner_image_url', 'banner', setBannerBusy, 'تصویر بنر')
   useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
   const save = async () => {
     const results = await Promise.all(Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key)))
@@ -641,6 +644,9 @@ function SettingsTab() {
     ['copyright_text', 'متن کپی‌رایت (پایین سایت)'],
     ['stat_students', 'تعداد دانشجوی فعال (مثلاً +۳۰۰۰)'], ['stat_courses', 'تعداد دوره آموزشی (مثلاً +۵۰ — خالی بگذارید برای محاسبه خودکار)'],
     ['stat_satisfaction', 'درصد رضایت دانشجویان (مثلاً ۹۵٪)'], ['stat_years', 'سال سابقه فعالیت (مثلاً +۸)'],
+    ['banner_kicker', 'بنر میانی — برچسب کوچک بالای عنوان'], ['banner_title', 'بنر میانی — عنوان'],
+    ['banner_subtitle', 'بنر میانی — توضیح'], ['banner_button_text', 'بنر میانی — متن دکمه'],
+    ['banner_button_link', 'بنر میانی — لینک دکمه (مثلاً /contact یا /courses)'],
   ]
   return (
     <div className="dash-card space-y-4">
@@ -648,6 +654,11 @@ function SettingsTab() {
         <label className="auth-label">لوگوی آموزشگاه</label>
         {settings.logo_url && <img src={settings.logo_url} alt="لوگو" className="h-16 mb-2 rounded-btn" />}
         <input type="file" accept="image/*" disabled={logoBusy} onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} className="input-3d" />
+      </div>
+      <div>
+        <label className="auth-label">تصویر بنر میانی صفحه اصلی</label>
+        {settings.banner_image_url && <img src={settings.banner_image_url} alt="بنر" className="h-16 mb-2 rounded-btn" />}
+        <input type="file" accept="image/*" disabled={bannerBusy} onChange={(e) => e.target.files?.[0] && uploadBannerImage(e.target.files[0])} className="input-3d" />
       </div>
       {fields.map(([key, label]) => (
         <div key={key}>
@@ -658,7 +669,7 @@ function SettingsTab() {
       <button onClick={save} className="hero-primary-btn w-full justify-center">ذخیره تنظیمات</button>
     </div>
   )
-}
+      }
 function AdminSupportTab() {
   const { session } = useAuth()
   const { showToast } = useToast()
