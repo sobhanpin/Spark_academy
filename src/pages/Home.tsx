@@ -109,7 +109,7 @@ export default function Home() {
           <span className="ref-scene-ring ref-scene-ring-blue" />
           <span className="ref-scene-ring ref-scene-ring-gold" />
           <img
-            src={`${import.meta.env.BASE_URL}hero-scene.webp`}
+            src={settings.hero_image_url || `${import.meta.env.BASE_URL}hero-scene.webp`}
             alt=""
             width="1000"
             height="1000"
