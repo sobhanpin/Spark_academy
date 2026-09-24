@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial } from '../../lib/supabase'
+import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial, Banner } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
-const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
+const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'بنرها', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌ها')
@@ -17,6 +17,7 @@ export default function AdminDashboard() {
       {tab === 'دوره‌ها' && <CoursesTab />}
       {tab === 'دانشجویان' && <StudentsTab />}
       {tab === 'مدرسین' && <TeachersTab />}
+      {tab === 'بنرها' && <BannersTab />}
       {tab === 'مدارک و فرم‌های دانشجویان' && <MaterialsTab />}
       {tab === 'پشتیبانی' && <AdminSupportTab />}
       {tab === 'نظرات' && <TestimonialsTab />}
@@ -525,6 +526,93 @@ function TeachersTab() {
     </div>
   )
           }
+function BannersTab() {
+  const { showToast } = useToast()
+  const [items, setItems] = useState<Banner[]>([])
+  const [title, setTitle] = useState('')
+  const [subtitle, setSubtitle] = useState('')
+  const [buttonText, setButtonText] = useState('')
+  const [buttonLink, setButtonLink] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
+  const load = () => {
+    supabase.from('banners').select('*').order('sort_order').then(({ data }) => setItems((data as Banner[]) || []))
+  }
+  useEffect(() => { load() }, [])
+  const resetForm = () => { setTitle(''); setSubtitle(''); setButtonText(''); setButtonLink(''); setFile(null) }
+  const add = async () => {
+    setBusy(true)
+    let imageUrl: string | null = null
+    if (file) {
+      const path = `banners/${Date.now()}_${file.name}`
+      const { error: upErr } = await supabase.storage.from('documents').upload(path, file)
+      if (upErr) { showToast('خطا در آپلود عکس: ' + upErr.message, 'error'); setBusy(false); return }
+      imageUrl = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
+    }
+    const nextOrder = items.length ? Math.max(...items.map((b) => b.sort_order)) + 1 : 0
+    const { error } = await supabase.from('banners').insert({
+      title: title || null, subtitle: subtitle || null, button_text: buttonText || null,
+      button_link: buttonLink || null, image_url: imageUrl, sort_order: nextOrder, is_active: true,
+    })
+    if (error) { showToast('خطا در ثبت بنر: ' + error.message, 'error') } else { resetForm(); load(); showToast('بنر اضافه شد.') }
+    setBusy(false)
+  }
+  const toggleActive = async (b: Banner) => {
+    const { error } = await supabase.from('banners').update({ is_active: !b.is_active }).eq('id', b.id)
+    if (error) { showToast('خطا در تغییر وضعیت: ' + error.message, 'error'); return }
+    load()
+  }
+  const remove = async (b: Banner) => {
+    const { error } = await supabase.from('banners').delete().eq('id', b.id)
+    if (error) { showToast('خطا در حذف: ' + error.message, 'error'); return }
+    load()
+  }
+  const move = async (b: Banner, dir: -1 | 1) => {
+    const sorted = [...items].sort((a, c) => a.sort_order - c.sort_order)
+    const idx = sorted.findIndex((x) => x.id === b.id)
+    const swapWith = sorted[idx + dir]
+    if (!swapWith) return
+    await Promise.all([
+      supabase.from('banners').update({ sort_order: swapWith.sort_order }).eq('id', b.id),
+      supabase.from('banners').update({ sort_order: b.sort_order }).eq('id', swapWith.id),
+    ])
+    load()
+  }
+  return (
+    <div className="space-y-3">
+      <div className="dash-card space-y-2">
+        <div className="text-xs text-[#8B8FC0]">هر بنر کاملاً جدا و مستقله — همه با هم توی صفحه‌ی اصلی زیر هم (نه روی هم) نمایش داده می‌شن. عنوان/توضیح/دکمه اختیاریه.</div>
+        <input className="input-3d" placeholder="عنوان بنر (اختیاری)" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea className="input-3d resize-none" rows={2} placeholder="توضیح بنر (اختیاری)" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
+        <input className="input-3d" placeholder="متن دکمه (اختیاری، مثلاً: اطلاعات بیشتر)" value={buttonText} onChange={(e) => setButtonText(e.target.value)} />
+        <input className="input-3d" placeholder="لینک دکمه (اختیاری، مثلاً /contact یا /courses)" value={buttonLink} onChange={(e) => setButtonLink(e.target.value)} />
+        <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
+        <button onClick={add} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال ثبت...' : 'افزودن بنر'}</button>
+      </div>
+      <div className="space-y-3">
+        {items.map((b, i) => (
+          <div key={b.id} className="dash-card">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                {b.image_url && <img src={b.image_url} alt="" className="h-12 rounded-btn mb-2" />}
+                <div className="text-sm font-bold truncate">{b.title || '(بدون عنوان)'}</div>
+                {b.subtitle && <p className="text-xs text-[#8B8FC0] mt-1">{b.subtitle}</p>}
+              </div>
+              <span className={`dash-badge shrink-0 ${b.is_active ? 'dash-badge-success' : 'dash-badge-pending'}`}>{b.is_active ? 'فعال' : 'غیرفعال'}</span>
+            </div>
+            <div className="flex gap-3 text-xs mt-2.5">
+              <button onClick={() => move(b, -1)} disabled={i === 0} className="text-[#A8ACD9] hover:underline transition-colors duration-300 disabled:opacity-30">▲ بالاتر</button>
+              <button onClick={() => move(b, 1)} disabled={i === items.length - 1} className="text-[#A8ACD9] hover:underline transition-colors duration-300 disabled:opacity-30">▼ پایین‌تر</button>
+              <button onClick={() => toggleActive(b)} className="text-[#A8ACD9] hover:underline transition-colors duration-300">{b.is_active ? 'غیرفعال کن' : 'فعال کن'}</button>
+              <button onClick={() => remove(b)} className="text-[#FB7185] hover:underline transition-colors duration-300">حذف</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      {items.length === 0 && <div className="dash-empty">هنوز بنری اضافه نشده.</div>}
+    </div>
+  )
+    }
 function MaterialsTab() {
   const { showToast } = useToast()
   const [items, setItems] = useState<CourseMaterial[]>([])
@@ -616,7 +704,7 @@ function SettingsTab() {
   const { showToast } = useToast()
   const [settings, setSettings] = useState<Record<string, string>>({})
   const [logoBusy, setLogoBusy] = useState(false)
-  const [bannerBusy, setBannerBusy] = useState(false)
+  const [heroImageBusy, setHeroImageBusy] = useState(false)
   const uploadImageSetting = async (file: File, key: string, folder: string, busySetter: (b: boolean) => void, label: string) => {
     busySetter(true)
     const path = `${folder}/${Date.now()}_${file.name}`
@@ -631,7 +719,7 @@ function SettingsTab() {
     busySetter(false)
   }
   const uploadLogo = (file: File) => uploadImageSetting(file, 'logo_url', 'logo', setLogoBusy, 'لوگو')
-  const uploadBannerImage = (file: File) => uploadImageSetting(file, 'banner_image_url', 'banner', setBannerBusy, 'تصویر بنر')
+  const uploadHeroImage = (file: File) => uploadImageSetting(file, 'hero_image_url', 'hero', setHeroImageBusy, 'تصویر هوم')
   useEffect(() => { supabase.from('site_settings').select('key,value').then(({ data }) => { if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value]))) }) }, [])
   const save = async () => {
     const results = await Promise.all(Object.entries(settings).map(([key, value]) => supabase.from('site_settings').update({ value }).eq('key', key)))
@@ -644,9 +732,6 @@ function SettingsTab() {
     ['copyright_text', 'متن کپی‌رایت (پایین سایت)'],
     ['stat_students', 'تعداد دانشجوی فعال (مثلاً +۳۰۰۰)'], ['stat_courses', 'تعداد دوره آموزشی (مثلاً +۵۰ — خالی بگذارید برای محاسبه خودکار)'],
     ['stat_satisfaction', 'درصد رضایت دانشجویان (مثلاً ۹۵٪)'], ['stat_years', 'سال سابقه فعالیت (مثلاً +۸)'],
-    ['banner_kicker', 'بنر میانی — برچسب کوچک بالای عنوان'], ['banner_title', 'بنر میانی — عنوان'],
-    ['banner_subtitle', 'بنر میانی — توضیح'], ['banner_button_text', 'بنر میانی — متن دکمه'],
-    ['banner_button_link', 'بنر میانی — لینک دکمه (مثلاً /contact یا /courses)'],
   ]
   return (
     <div className="dash-card space-y-4">
@@ -656,9 +741,9 @@ function SettingsTab() {
         <input type="file" accept="image/*" disabled={logoBusy} onChange={(e) => e.target.files?.[0] && uploadLogo(e.target.files[0])} className="input-3d" />
       </div>
       <div>
-        <label className="auth-label">تصویر بنر میانی صفحه اصلی</label>
-        {settings.banner_image_url && <img src={settings.banner_image_url} alt="بنر" className="h-16 mb-2 rounded-btn" />}
-        <input type="file" accept="image/*" disabled={bannerBusy} onChange={(e) => e.target.files?.[0] && uploadBannerImage(e.target.files[0])} className="input-3d" />
+        <label className="auth-label">تصویر صحنه‌ی هوم (کنار عنوان اصلی صفحه)</label>
+        {settings.hero_image_url && <img src={settings.hero_image_url} alt="تصویر هوم" className="h-16 mb-2 rounded-btn" />}
+        <input type="file" accept="image/*" disabled={heroImageBusy} onChange={(e) => e.target.files?.[0] && uploadHeroImage(e.target.files[0])} className="input-3d" />
       </div>
       {fields.map(([key, label]) => (
         <div key={key}>
