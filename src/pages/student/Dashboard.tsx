@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial, AcademyDocument } from '../../lib/supabase'
+import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial } from '../../lib/supabase'
 import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
 
-const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'مدارک و فایل‌ها', 'اطلاعیه‌ها', 'ثبت نظر', 'پروفایل'] as const
 
+const TABS = ['دوره‌های من', 'چت با مدرس', 'پشتیبانی', 'جزوات کلاس', 'فایل‌های من', 'مدارک من', 'اطلاعیه‌ها', 'ثبت نظر', 'پروفایل'] as const
 export default function StudentDashboard() {
   const { session, profile, refreshProfile } = useAuth()
   const { showToast } = useToast()
@@ -15,7 +15,6 @@ export default function StudentDashboard() {
   const [materials, setMaterials] = useState<CourseMaterial[]>([])
   const [uploads, setUploads] = useState<Upload[]>([])
   const [studentDocs, setStudentDocs] = useState<StudentDocument[]>([])
-  const [academyDocs, setAcademyDocs] = useState<AcademyDocument[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [selectedCourse, setSelectedCourse] = useState('')
   const [busy, setBusy] = useState(false)
@@ -37,8 +36,6 @@ export default function StudentDashboard() {
     setUploads((up as Upload[]) || [])
     const { data: sd } = await supabase.from('student_documents').select('*').eq('user_id', session.user.id).order('uploaded_at', { ascending: false })
     setStudentDocs((sd as StudentDocument[]) || [])
-    const { data: ad } = await supabase.from('academy_documents').select('*').order('uploaded_at', { ascending: false })
-    setAcademyDocs((ad as AcademyDocument[]) || [])
     const { data: an } = await supabase.from('announcements').select('*').order('created_at', { ascending: false }).limit(10)
     setAnnouncements((an as Announcement[]) || [])
   }
