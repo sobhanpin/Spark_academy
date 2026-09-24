@@ -110,7 +110,17 @@ export type AcademyDocument = {
   is_active?: boolean
   uploaded_at: string
   }
-
+export type Banner = {
+  id: string
+  title: string | null
+  subtitle: string | null
+  button_text: string | null
+  button_link: string | null
+  image_url: string | null
+  sort_order: number
+  is_active: boolean
+  created_at: string
+  }
 export type CourseMaterial = {
   id: string
   course_id: string
