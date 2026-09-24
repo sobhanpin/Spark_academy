@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase, Course, Testimonial, NewsItem, FaqItem, AcademyDocument } from '../lib/supabase'
+import { supabase, Course, Testimonial, NewsItem, FaqItem, AcademyDocument, Banner } from '../lib/supabase'
 
 const Icon = ({ name, className = 'w-5 h-5' }: { name: string; className?: string }) => {
   const paths: Record<string, JSX.Element> = {
@@ -45,6 +45,7 @@ export default function Home() {
   const [faqs, setFaqs] = useState<FaqItem[]>([])
   const [documents, setDocuments] = useState<AcademyDocument[]>([])
   const [settings, setSettings] = useState<Record<string, string>>({})
+  const [banners, setBanners] = useState<Banner[]>([])
   const [openFaq, setOpenFaq] = useState<string | null>(null)
 
   useEffect(() => {
@@ -56,6 +57,7 @@ export default function Home() {
     supabase.from('site_settings').select('key,value').then(({ data }) => {
       if (data) setSettings(Object.fromEntries(data.map((d) => [d.key, d.value])))
     })
+    supabase.from('banners').select('*').eq('is_active', true).order('sort_order').then(({ data }) => setBanners((data as Banner[]) || []))
   }, [])
 
   const docUrl = (path: string) => supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
