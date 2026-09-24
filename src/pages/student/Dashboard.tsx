@@ -196,22 +196,6 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {tab === 'مدارک و فایل‌ها' && (
-        <div className="space-y-2.5">
-          {academyDocs.map((d) => (
-            <button key={d.id} onClick={() => openFile('documents', d.file_path)} className="dash-card w-full text-right block">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{d.title}</span>
-                <span className="text-accent text-xs shrink-0">مشاهده ←</span>
-              </div>
-              {d.description && <div className="text-xs text-[#8B8FC0] mt-1">{d.description}</div>}
-              <div className="text-[10px] text-[#7B7FB5] mt-1.5">{d.category}</div>
-            </button>
-          ))}
-          {academyDocs.length === 0 && <div className="dash-empty">فعلاً مدرکی برای نمایش نیست.</div>}
-        </div>
-      )}
-
       {tab === 'اطلاعیه‌ها' && (
         <div className="space-y-2.5">
           {announcements.map((a) => <div key={a.id} className="dash-card text-sm">{a.text}</div>)}
