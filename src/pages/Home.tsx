@@ -205,7 +205,32 @@ export default function Home() {
         <div><span><Icon name="star"/></span><b>{settings.stat_satisfaction || '۹۵٪'}</b><small>رضایت دانشجویان</small></div>
         <div><span><Icon name="clock"/></span><b>{settings.stat_years || '+۸'}</b><small>سال سابقه فعالیت</small></div>
       </section>
-
+{/* PROMO BANNERS — independent, stacked one after another (not overlapping) */}
+      {banners.map((b) => (
+        <section className="ref-section" key={b.id}>
+          <div className="ref-banner">
+            <div className="ref-banner-glow" aria-hidden="true" />
+            {b.image_url ? (
+              <div className="ref-banner-media">
+                <img src={b.image_url} alt="" loading="lazy" />
+              </div>
+            ) : (
+              <div className="ref-banner-media ref-banner-media-fallback" aria-hidden="true">
+                <Icon name="cap" className="w-14 h-14" />
+              </div>
+            )}
+            <div className="ref-banner-copy">
+              {b.title && <h2>{b.title}</h2>}
+              {b.subtitle && <p>{b.subtitle}</p>}
+              {b.button_text && (
+                <Link to={b.button_link || '/contact'} className="ref-btn ref-btn-gold">
+                  {b.button_text} <Icon name="arrow" className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+      ))}
       {/* TESTIMONIALS */}
       {testimonials.length > 0 && (
         <section className="ref-section">
