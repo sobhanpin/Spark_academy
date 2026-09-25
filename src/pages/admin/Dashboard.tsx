@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial, Banner } from '../../lib/supabase'
+import { compressImage } from '../../lib/compressImage'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'بنرها', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
@@ -44,8 +45,8 @@ function CoursesTab() {
   useEffect(() => { load() }, [])
   const uploadImage = async (file: File) => {
     setImgBusy(true)
-    const path = `${Date.now()}_${file.name}`
-    const { error } = await supabase.storage.from('course-images').upload(path, file)
+    const path = `${Date.now()}_${compressed.name}`
+    const { error } = await supabase.storage.from('course-images').upload(path, compressed)
     if (!error) {
       const url = supabase.storage.from('course-images').getPublicUrl(path).data.publicUrl
       setEditing((prev) => (prev ? { ...prev, image_url: url } : prev))
@@ -166,8 +167,9 @@ function StudentsTab() {
   const uploadDoc = async () => {
     if (!uploadFor || !docTitle || !docFile) { showToast('عنوان و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
-    const path = `${uploadFor.user_id}/${Date.now()}_${docFile.name}`
-    const { error } = await supabase.storage.from('student-documents').upload(path, docFile)
+    const compressed = await compressImage(docFile)
+    const path = `${uploadFor.user_id}/${Date.now()}_${compressed.name}`
+    const { error } = await supabase.storage.from('student-documents').upload(path, compressed)
     if (!error) {
       const { error: dbErr } = await supabase.from('student_documents').insert({ user_id: uploadFor.user_id, title: docTitle, file_path: path })
       if (dbErr) { showToast('خطا در ثبت مدرک: ' + dbErr.message, 'error') } else {
@@ -425,8 +427,9 @@ function DocumentsTab() {
   const upload = async () => {
     if (!title || !file) { showToast('عنوان و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
-    const path = `${Date.now()}_${file.name}`
-    const { error } = await supabase.storage.from('documents').upload(path, file)
+    const compressed = await compressImage(file)
+    const path = `${Date.now()}_${compressed.name}`
+    const { error } = await supabase.storage.from('documents').upload(path, compressed)
     if (!error) {
       const { error: dbErr } = await supabase.from('academy_documents').insert({
         title, description: description || null, category, audience_type: 'all',
@@ -544,8 +547,9 @@ function BannersTab() {
     setBusy(true)
     let imageUrl: string | null = null
     if (file) {
-      const path = `banners/${Date.now()}_${file.name}`
-      const { error: upErr } = await supabase.storage.from('documents').upload(path, file)
+      const compressed = await compressImage(file)
+      const path = `banners/${Date.now()}_${compressed.name}`
+      const { error: upErr } = await supabase.storage.from('documents').upload(path, compressed)
       if (upErr) { showToast('خطا در آپلود عکس: ' + upErr.message, 'error'); setBusy(false); return }
       imageUrl = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
     }
@@ -637,10 +641,11 @@ function MaterialsTab() {
     if (!userData.user) { setBusy(false); return }
     const targetCourseIds = sendMode === 'course' ? [courseId] : courses.filter((c) => c.category === categoryTarget).map((c) => c.id)
     if (targetCourseIds.length === 0) { showToast('هیچ دوره‌ای توی این رشته پیدا نشد', 'error'); setBusy(false); return }
-    const path = `${targetCourseIds[0]}/${Date.now()}_${file.name}`
-    const { error } = await supabase.storage.from('materials').upload(path, file)
+    const compressed = await compressImage(file)
+    const path = `${targetCourseIds[0]}/${Date.now()}_${compressed.name}`
+    const { error } = await supabase.storage.from('materials').upload(path, compressed)
     if (!error) {
-      const rows = targetCourseIds.map((cid) => ({ course_id: cid, teacher_id: userData.user!.id, file_name: file.name, file_path: path }))
+      const rows = targetCourseIds.map((cid) => ({ course_id: cid, teacher_id: userData.user!.id, file_name: compressed.name, file_path: path }))
       const { error: dbErr } = await supabase.from('course_materials').insert(rows)
       if (dbErr) { showToast('خطا در ثبت: ' + dbErr.message, 'error') } else {
         setFile(null); load()
@@ -707,8 +712,9 @@ function SettingsTab() {
   const [heroImageBusy, setHeroImageBusy] = useState(false)
   const uploadImageSetting = async (file: File, key: string, folder: string, busySetter: (b: boolean) => void, label: string) => {
     busySetter(true)
-    const path = `${folder}/${Date.now()}_${file.name}`
-    const { error } = await supabase.storage.from('documents').upload(path, file)
+    const compressed = await compressImage(file)
+    const path = `${folder}/${Date.now()}_${compressed.name}`
+    const { error } = await supabase.storage.from('documents').upload(path, compressed)
     if (!error) {
       const url = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
       const { data, error: dbErr } = await supabase.from('site_settings').update({ value: url }).eq('key', key).select()
