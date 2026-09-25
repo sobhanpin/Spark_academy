@@ -45,6 +45,7 @@ function CoursesTab() {
   useEffect(() => { load() }, [])
   const uploadImage = async (file: File) => {
     setImgBusy(true)
+    const compressed = await compressImage(file)
     const path = `${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('course-images').upload(path, compressed)
     if (!error) {
