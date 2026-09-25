@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase, Course, Enrollment, CourseMaterial } from '../../lib/supabase'
+import { compressImage } from '../../lib/compressImage'
 import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
@@ -148,10 +149,11 @@ function TeacherMaterials({ courses }: { courses: Course[] }) {
   const upload = async () => {
     if (!courseId || !file || !session) { showToast('دوره و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
-    const path = `${courseId}/${Date.now()}_${file.name}`
-    const { error } = await supabase.storage.from('materials').upload(path, file)
+    const compressed = await compressImage(file)
+    const path = `${courseId}/${Date.now()}_${compressed.name}`
+    const { error } = await supabase.storage.from('materials').upload(path, compressed)
     if (!error) {
-      await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: session.user.id, file_name: file.name, file_path: path })
+      await supabase.from('course_materials').insert({ course_id: courseId, teacher_id: session.user.id, file_name: compressed.name, file_path: path })
       setFile(null); load()
       showToast('جزوه آپلود شد.')
     } else {
