@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
+import { compressImage } from '../lib/compressImage'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import Spinner from '../components/Spinner'
@@ -43,16 +44,17 @@ export default function Enroll() {
     }
 
     if (docFile && enrollment) {
-      const path = `${session.user.id}/${Date.now()}_${docFile.name}`
-      const { error: upErr } = await supabase.storage.from('uploads').upload(path, docFile)
+      const compressedDoc = await compressImage(docFile)
+      const path = `${session.user.id}/${Date.now()}_${compressedDoc.name}`
+      const { error: upErr } = await supabase.storage.from('uploads').upload(path, compressedDoc)
       if (!upErr) {
         const { error: dbErr } = await supabase.from('uploads').insert({
           user_id: session.user.id,
           course_id: id,
-          file_name: docFile.name,
+          file_name: compressedDoc.name,
           file_path: path,
-          file_type: docFile.type,
-          size_kb: Math.round(docFile.size / 1024),
+          file_type: compressedDoc.type,
+          size_kb: Math.round(compressedDoc.size / 1024),
         })
         if (dbErr) showToast('ثبت‌نام انجام شد، ولی مدرک آپلودی ذخیره نشد: ' + dbErr.message, 'error')
       } else {
