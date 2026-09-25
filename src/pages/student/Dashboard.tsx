@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial } from '../../lib/supabase'
+import { compressImage } from '../../lib/compressImage'
 import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
@@ -54,10 +55,11 @@ export default function StudentDashboard() {
     if (!session || !file) return
     if (file.size > 10 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.', 'error'); return }
     setBusy(true)
-    const path = `${session.user.id}/${Date.now()}_${file.name}`
-    const { error: upErr } = await supabase.storage.from('uploads').upload(path, file)
+    const compressed = await compressImage(file)
+    const path = `${session.user.id}/${Date.now()}_${compressed.name}`
+    const { error: upErr } = await supabase.storage.from('uploads').upload(path, compressed)
     if (!upErr) {
-      const { error: dbErr } = await supabase.from('uploads').insert({ user_id: session.user.id, course_id: selectedCourse || null, file_name: file.name, file_path: path, file_type: file.type, size_kb: Math.round(file.size / 1024) })
+      const { error: dbErr } = await supabase.from('uploads').insert({ user_id: session.user.id, course_id: selectedCourse || null, file_name: compressed.name, file_path: path, file_type: file.type, size_kb: Math.round(file.size / 1024) })
       if (dbErr) { showToast('خطا در ثبت فایل: ' + dbErr.message, 'error') } else {
         await load()
         showToast('فایل آپلود شد.')
