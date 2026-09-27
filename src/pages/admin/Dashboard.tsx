@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial, Banner } from '../../lib/supabase'
+import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial, Banner, Upload, StudentDocument } from '../../lib/supabase'
 import { compressImage } from '../../lib/compressImage'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
-const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'بنرها', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'تنظیمات'] as const
-
+const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'بنرها', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'پاک‌سازی فایل‌ها', 'تنظیمات'] as const
 export default function AdminDashboard() {
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌ها')
   return (
@@ -27,6 +26,7 @@ export default function AdminDashboard() {
       {tab === 'پیام‌ها' && <MessagesTab />}
       {tab === 'اطلاعیه' && <AnnouncementTab />}
       {tab === 'مدارک آموزشگاه' && <DocumentsTab />}
+      {tab === 'پاک‌سازی فایل‌ها' && <CleanupTab />}
       {tab === 'تنظیمات' && <SettingsTab />}
     </div>
   )
@@ -706,6 +706,84 @@ function MaterialsTab() {
     </div>
   )
   }
+function CleanupTab() {
+  const { showToast } = useToast()
+  const [uploads, setUploads] = useState<Upload[]>([])
+  const [materials, setMaterials] = useState<CourseMaterial[]>([])
+  const [studentDocs, setStudentDocs] = useState<StudentDocument[]>([])
+  const [busy, setBusy] = useState(false)
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const load = () => {
+    supabase.from('uploads').select('*').lt('uploaded_at', cutoff).then(({ data }) => setUploads((data as Upload[]) || []))
+    supabase.from('course_materials').select('*, courses(*), profiles(*)').lt('uploaded_at', cutoff).then(({ data }) => setMaterials((data as CourseMaterial[]) || []))
+    supabase.from('student_documents').select('*').lt('uploaded_at', cutoff).then(({ data }) => setStudentDocs((data as StudentDocument[]) || []))
+  }
+  useEffect(() => { load() }, [])
+  const total = uploads.length + materials.length + studentDocs.length
+  const cleanupAll = async () => {
+    setBusy(true)
+    let count = 0
+    let hadError = false
+    if (uploads.length) {
+      const { error: sErr } = await supabase.storage.from('uploads').remove(uploads.map((u) => u.file_path))
+      if (sErr) hadError = true
+      const { error: dErr } = await supabase.from('uploads').delete().in('id', uploads.map((u) => u.id))
+      if (dErr) hadError = true
+      else count += uploads.length
+    }
+    if (materials.length) {
+      const { error: sErr } = await supabase.storage.from('materials').remove(materials.map((m) => m.file_path))
+      if (sErr) hadError = true
+      const { error: dErr } = await supabase.from('course_materials').delete().in('id', materials.map((m) => m.id))
+      if (dErr) hadError = true
+      else count += materials.length
+    }
+    if (studentDocs.length) {
+      const { error: sErr } = await supabase.storage.from('student-documents').remove(studentDocs.map((d) => d.file_path))
+      if (sErr) hadError = true
+      const { error: dErr } = await supabase.from('student_documents').delete().in('id', studentDocs.map((d) => d.id))
+      if (dErr) hadError = true
+      else count += studentDocs.length
+    }
+    showToast(hadError ? `${count} فایل پاک شد، بعضی موارد با خطا مواجه شدند.` : `${count} فایل پاک شد.`, hadError ? 'error' : undefined)
+    load()
+    setBusy(false)
+  }
+  return (
+    <div className="space-y-3">
+      <div className="dash-card space-y-2">
+        <div className="text-xs text-[#8B8FC0]">
+          فایل‌های ردوبدل‌شده بین دانشجو، مدرس و ادمین (فایل‌های دانشجو، جزوات و فرم‌های دوره، مدارک شخصی دانشجویان) که بیش از ۳۰ روز از آپلودشون گذشته، اینجا لیست می‌شن. بنرها و مدارک آموزشگاه هرگز اینجا نمیان — همیشه دائمی باقی می‌مونن.
+        </div>
+        <div className="text-sm"><b>{total}</b> فایل آماده‌ی پاک‌سازی (قدیمی‌تر از ۳۰ روز)</div>
+        {total > 0 && (
+          <button onClick={cleanupAll} disabled={busy} className="hero-primary-btn w-full justify-center" style={{ background: '#FB7185' }}>
+            {busy ? 'در حال پاک‌سازی...' : `پاک‌سازی همه (${total} فایل)`}
+          </button>
+        )}
+      </div>
+      {uploads.length > 0 && (
+        <div className="dash-card">
+          <div className="text-xs font-bold mb-2">فایل‌های دانشجو ({uploads.length})</div>
+          {uploads.map((u) => <div key={u.id} className="text-xs text-[#8B8FC0] truncate">{u.file_name}</div>)}
+        </div>
+      )}
+      {materials.length > 0 && (
+        <div className="dash-card">
+          <div className="text-xs font-bold mb-2">جزوات و فرم‌های دوره ({materials.length})</div>
+          {materials.map((m) => <div key={m.id} className="text-xs text-[#8B8FC0] truncate">{m.file_name} — {m.courses?.title}</div>)}
+        </div>
+      )}
+      {studentDocs.length > 0 && (
+        <div className="dash-card">
+          <div className="text-xs font-bold mb-2">مدارک شخصی دانشجویان ({studentDocs.length})</div>
+          {studentDocs.map((d) => <div key={d.id} className="text-xs text-[#8B8FC0] truncate">{d.title}</div>)}
+        </div>
+      )}
+      {total === 0 && <div className="dash-empty">فایل قدیمی‌ای برای پاک‌سازی نیست.</div>}
+    </div>
+  )
+      }
 function SettingsTab() {
   const { showToast } = useToast()
   const [settings, setSettings] = useState<Record<string, string>>({})
