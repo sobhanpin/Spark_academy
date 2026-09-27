@@ -797,7 +797,7 @@ function SettingsTab() {
   const uploadImageSetting = async (file: File, key: string, folder: string, busySetter: (b: boolean) => void, label: string) => {
     busySetter(true)
     const compressed = await compressImage(file)
-    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); busySetter(false); return }
     const path = `${folder}/${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('documents').upload(path, compressed)
     if (!error) {
