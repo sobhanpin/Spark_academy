@@ -536,6 +536,7 @@ function TeachersTab() {
 function BannersTab() {
   const { showToast } = useToast()
   const [items, setItems] = useState<Banner[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [subtitle, setSubtitle] = useState('')
   const [buttonText, setButtonText] = useState('')
@@ -546,10 +547,18 @@ function BannersTab() {
     supabase.from('banners').select('*').order('sort_order').then(({ data }) => setItems((data as Banner[]) || []))
   }
   useEffect(() => { load() }, [])
-  const resetForm = () => { setTitle(''); setSubtitle(''); setButtonText(''); setButtonLink(''); setFile(null) }
-  const add = async () => {
+  const resetForm = () => { setEditingId(null); setTitle(''); setSubtitle(''); setButtonText(''); setButtonLink(''); setFile(null) }
+  const startEdit = (b: Banner) => {
+    setEditingId(b.id)
+    setTitle(b.title || '')
+    setSubtitle(b.subtitle || '')
+    setButtonText(b.button_text || '')
+    setButtonLink(b.button_link || '')
+    setFile(null)
+  }
+  const save = async () => {
     setBusy(true)
-    let imageUrl: string | null = null
+    let imageUrl: string | null = editingId ? (items.find((b) => b.id === editingId)?.image_url || null) : null
     if (file) {
       const compressed = await compressImage(file)
       if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
@@ -558,12 +567,18 @@ function BannersTab() {
       if (upErr) { showToast('خطا در آپلود عکس: ' + upErr.message, 'error'); setBusy(false); return }
       imageUrl = supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
     }
-    const nextOrder = items.length ? Math.max(...items.map((b) => b.sort_order)) + 1 : 0
-    const { error } = await supabase.from('banners').insert({
+    const payload = {
       title: title || null, subtitle: subtitle || null, button_text: buttonText || null,
-      button_link: buttonLink || null, image_url: imageUrl, sort_order: nextOrder, is_active: true,
-    })
-    if (error) { showToast('خطا در ثبت بنر: ' + error.message, 'error') } else { resetForm(); load(); showToast('بنر اضافه شد.') }
+      button_link: buttonLink || null, image_url: imageUrl,
+    }
+    if (editingId) {
+      const { error } = await supabase.from('banners').update(payload).eq('id', editingId)
+      if (error) { showToast('خطا در ذخیره‌ی تغییرات: ' + error.message, 'error') } else { resetForm(); load(); showToast('تغییرات ذخیره شد.') }
+    } else {
+      const nextOrder = items.length ? Math.max(...items.map((b) => b.sort_order)) + 1 : 0
+      const { error } = await supabase.from('banners').insert({ ...payload, sort_order: nextOrder, is_active: true })
+      if (error) { showToast('خطا در ثبت بنر: ' + error.message, 'error') } else { resetForm(); load(); showToast('بنر اضافه شد.') }
+    }
     setBusy(false)
   }
   const toggleActive = async (b: Banner) => {
@@ -574,6 +589,7 @@ function BannersTab() {
   const remove = async (b: Banner) => {
     const { error } = await supabase.from('banners').delete().eq('id', b.id)
     if (error) { showToast('خطا در حذف: ' + error.message, 'error'); return }
+    if (editingId === b.id) resetForm()
     load()
   }
   const move = async (b: Banner, dir: -1 | 1) => {
@@ -590,13 +606,20 @@ function BannersTab() {
   return (
     <div className="space-y-3">
       <div className="dash-card space-y-2">
-        <div className="text-xs text-[#8B8FC0]">هر بنر کاملاً جدا و مستقله — همه با هم توی صفحه‌ی اصلی زیر هم (نه روی هم) نمایش داده می‌شن. عنوان/توضیح/دکمه اختیاریه.</div>
+        <div className="text-xs text-[#8B8FC0]">
+          {editingId ? 'در حال ویرایش بنر — اگه عکس جدید انتخاب نکنی، همون عکس قبلی می‌مونه.' : 'هر بنر کاملاً جدا و مستقله — همه با هم توی صفحه‌ی اصلی زیر هم (نه روی هم) نمایش داده می‌شن. عنوان/توضیح/دکمه اختیاریه.'}
+        </div>
         <input className="input-3d" placeholder="عنوان بنر (اختیاری)" value={title} onChange={(e) => setTitle(e.target.value)} />
         <textarea className="input-3d resize-none" rows={2} placeholder="توضیح بنر (اختیاری)" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
         <input className="input-3d" placeholder="متن دکمه (اختیاری، مثلاً: اطلاعات بیشتر)" value={buttonText} onChange={(e) => setButtonText(e.target.value)} />
         <input className="input-3d" placeholder="لینک دکمه (اختیاری، مثلاً /contact یا /courses)" value={buttonLink} onChange={(e) => setButtonLink(e.target.value)} />
         <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} className="input-3d" />
-        <button onClick={add} disabled={busy} className="hero-primary-btn w-full justify-center">{busy ? 'در حال ثبت...' : 'افزودن بنر'}</button>
+        <div className="flex gap-2">
+          <button onClick={save} disabled={busy} className="hero-primary-btn flex-1 justify-center">
+            {busy ? 'در حال ذخیره...' : editingId ? 'ذخیره‌ی تغییرات' : 'افزودن بنر'}
+          </button>
+          {editingId && <button onClick={resetForm} className="dash-btn-mini">انصراف</button>}
+        </div>
       </div>
       <div className="space-y-3">
         {items.map((b, i) => (
@@ -609,7 +632,8 @@ function BannersTab() {
               </div>
               <span className={`dash-badge shrink-0 ${b.is_active ? 'dash-badge-success' : 'dash-badge-pending'}`}>{b.is_active ? 'فعال' : 'غیرفعال'}</span>
             </div>
-            <div className="flex gap-3 text-xs mt-2.5">
+            <div className="flex gap-3 text-xs mt-2.5 flex-wrap">
+              <button onClick={() => startEdit(b)} className="text-accent hover:underline transition-colors duration-300">ویرایش</button>
               <button onClick={() => move(b, -1)} disabled={i === 0} className="text-[#A8ACD9] hover:underline transition-colors duration-300 disabled:opacity-30">▲ بالاتر</button>
               <button onClick={() => move(b, 1)} disabled={i === items.length - 1} className="text-[#A8ACD9] hover:underline transition-colors duration-300 disabled:opacity-30">▼ پایین‌تر</button>
               <button onClick={() => toggleActive(b)} className="text-[#A8ACD9] hover:underline transition-colors duration-300">{b.is_active ? 'غیرفعال کن' : 'فعال کن'}</button>
@@ -621,7 +645,7 @@ function BannersTab() {
       {items.length === 0 && <div className="dash-empty">هنوز بنری اضافه نشده.</div>}
     </div>
   )
-    }
+  }
 function MaterialsTab() {
   const { showToast } = useToast()
   const [items, setItems] = useState<CourseMaterial[]>([])
