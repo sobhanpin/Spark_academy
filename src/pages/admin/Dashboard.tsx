@@ -46,6 +46,7 @@ function CoursesTab() {
   const uploadImage = async (file: File) => {
     setImgBusy(true)
     const compressed = await compressImage(file)
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setImgBusy(false); return }
     const path = `${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('course-images').upload(path, compressed)
     if (!error) {
@@ -169,6 +170,7 @@ function StudentsTab() {
     if (!uploadFor || !docTitle || !docFile) { showToast('عنوان و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
     const compressed = await compressImage(docFile)
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
     const path = `${uploadFor.user_id}/${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('student-documents').upload(path, compressed)
     if (!error) {
@@ -429,6 +431,7 @@ function DocumentsTab() {
     if (!title || !file) { showToast('عنوان و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
     const compressed = await compressImage(file)
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
     const path = `${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('documents').upload(path, compressed)
     if (!error) {
@@ -549,6 +552,7 @@ function BannersTab() {
     let imageUrl: string | null = null
     if (file) {
       const compressed = await compressImage(file)
+      if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
       const path = `banners/${Date.now()}_${compressed.name}`
       const { error: upErr } = await supabase.storage.from('documents').upload(path, compressed)
       if (upErr) { showToast('خطا در آپلود عکس: ' + upErr.message, 'error'); setBusy(false); return }
@@ -643,6 +647,7 @@ function MaterialsTab() {
     const targetCourseIds = sendMode === 'course' ? [courseId] : courses.filter((c) => c.category === categoryTarget).map((c) => c.id)
     if (targetCourseIds.length === 0) { showToast('هیچ دوره‌ای توی این رشته پیدا نشد', 'error'); setBusy(false); return }
     const compressed = await compressImage(file)
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
     const path = `${targetCourseIds[0]}/${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('materials').upload(path, compressed)
     if (!error) {
@@ -792,6 +797,7 @@ function SettingsTab() {
   const uploadImageSetting = async (file: File, key: string, folder: string, busySetter: (b: boolean) => void, label: string) => {
     busySetter(true)
     const compressed = await compressImage(file)
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
     const path = `${folder}/${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('documents').upload(path, compressed)
     if (!error) {
