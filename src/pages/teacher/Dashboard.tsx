@@ -164,10 +164,12 @@ function TeacherMaterials({ courses }: { courses: Course[] }) {
   }
 
   const remove = async (m: CourseMaterial) => {
-    await supabase.storage.from('materials').remove([m.file_path])
-    await supabase.from('course_materials').delete().eq('id', m.id)
+    const { error: sErr } = await supabase.storage.from('materials').remove([m.file_path])
+    if (sErr) { showToast('خطا در حذف فایل: ' + sErr.message, 'error'); return }
+    const { error: dErr } = await supabase.from('course_materials').delete().eq('id', m.id)
+    if (dErr) { showToast('خطا در حذف: ' + dErr.message, 'error'); return }
     load()
-  }
+      }
 
   const openFile = async (path: string) => {
     const { data } = await supabase.storage.from('materials').createSignedUrl(path, 60)
