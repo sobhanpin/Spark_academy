@@ -53,7 +53,7 @@ export default function StudentDashboard() {
 
   const uploadFile = async (file: File) => {
     if (!session || !file) return
-    if (file.size > 10 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.', 'error'); return }
+    if (file.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); return }
     setBusy(true)
     const compressed = await compressImage(file)
     const path = `${session.user.id}/${Date.now()}_${compressed.name}`
