@@ -45,6 +45,11 @@ export default function Enroll() {
 
     if (docFile && enrollment) {
       const compressedDoc = await compressImage(docFile)
+      if (compressedDoc.size > 6 * 1024 * 1024) {
+        showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error')
+        setLoading(false)
+        return
+      } 
       const path = `${session.user.id}/${Date.now()}_${compressedDoc.name}`
       const { error: upErr } = await supabase.storage.from('uploads').upload(path, compressedDoc)
       if (!upErr) {
