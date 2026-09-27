@@ -150,6 +150,7 @@ function TeacherMaterials({ courses }: { courses: Course[] }) {
     if (!courseId || !file || !session) { showToast('دوره و فایل رو انتخاب کن', 'error'); return }
     setBusy(true)
     const compressed = await compressImage(file)
+    if (compressed.size > 6 * 1024 * 1024) { showToast('حجم فایل نباید بیشتر از ۶ مگابایت باشد.', 'error'); setBusy(false); return }
     const path = `${courseId}/${Date.now()}_${compressed.name}`
     const { error } = await supabase.storage.from('materials').upload(path, compressed)
     if (!error) {
