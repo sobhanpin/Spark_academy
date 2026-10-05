@@ -24,7 +24,7 @@ export default function Signup() {
     })
     setLoading(false)
     if (error) { setError(error.message.includes('already') ? 'این ایمیل قبلاً ثبت شده است.' : 'خطا در ثبت‌نام. دوباره تلاش کنید.'); return }
-
+    if (data.user) emit('student.registered', { user_id: data.user.id, name, email, phone })
     if (data.session) navigate('/dashboard')
     else setDone(true)
   }
