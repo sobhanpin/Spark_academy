@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-
+import { emit } from '../lib/automation'
 export default function Contact() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -16,6 +16,8 @@ export default function Contact() {
     const { error } = await supabase.from('contact_messages').insert({ name, phone, message })
     setLoading(false)
     if (error) { setError('خطا در ارسال پیام. دوباره تلاش کن.'); return }
+    setSent(true)
+    emit('admin.notification', { reason: 'contact_message', name, phone })
     setSent(true)
   }
 
