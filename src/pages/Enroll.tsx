@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase, Course } from '../lib/supabase'
 import { compressImage } from '../lib/compressImage'
+import { emit } from '../lib/automation'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import Spinner from '../components/Spinner'
@@ -42,7 +43,7 @@ export default function Enroll() {
       setLoading(false)
       return
     }
-
+    emit('course.enrollment.created', { enrollment_id: enrollment?.id, user_id: session.user.id, course_id: id, class_mode: classMode })
     if (docFile && enrollment) {
       const compressedDoc = await compressImage(docFile)
       if (compressedDoc.size > 6 * 1024 * 1024) {
