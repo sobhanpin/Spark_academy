@@ -140,3 +140,15 @@ export type StudentDocument = {
   uploaded_at: string
   seen: boolean
 }
+export type AutomationEventRow = {
+  id: string
+  event_type: string
+  event_version: number
+  source: string
+  payload: Record<string, unknown>
+  status: 'pending' | 'sent' | 'failed' | 'skipped'
+  attempts: number
+  error_message: string | null
+  created_at: string
+  processed_at: string | null
+  }
