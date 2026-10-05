@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase, Enrollment, Upload, Announcement, CourseMaterial, StudentDocument, Testimonial } from '../../lib/supabase'
 import { compressImage } from '../../lib/compressImage'
+import { emit } from '../../lib/automation'
 import { useToast } from '../../contexts/ToastContext'
 
 type ChatMsg = { id: string; enrollment_id: string; sender_id: string; message: string; created_at: string }
@@ -310,6 +311,7 @@ function ChatBox({ enrollmentId, title }: { enrollmentId: string; title: string 
   const send = async () => {
     if (!text.trim() || !session) return
     await supabase.from('chat_messages').insert({ enrollment_id: enrollmentId, sender_id: session.user.id, message: text.trim() })
+    emit('message.created', { enrollment_id: enrollmentId, sender_id: session.user.id, channel: 'chat' })
     setText(''); load()
   }
   return (
@@ -341,6 +343,7 @@ function SupportChat() {
   const send = async () => {
     if (!text.trim() || !session) return
     await supabase.from('support_messages').insert({ user_id: session.user.id, sender_id: session.user.id, message: text.trim() })
+    emit('support.created', { user_id: session.user.id })
     setText(''); load()
   }
   return (
