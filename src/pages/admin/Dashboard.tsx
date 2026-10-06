@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial, Banner, Upload, StudentDocument } from '../../lib/supabase'
+import { supabase, Course, Enrollment, Testimonial, NewsItem, FaqItem, AcademyDocument, Profile, CourseMaterial, Banner, Upload, StudentDocument, AutomationEventRow } from '../../lib/supabase'
 import { compressImage } from '../../lib/compressImage'
+import { emit } from '../../lib/automation'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
-const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'بنرها', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'پاک‌سازی فایل‌ها', 'تنظیمات'] as const
+const TABS = ['دوره‌ها', 'دانشجویان', 'مدرسین', 'بنرها', 'مدارک و فرم‌های دانشجویان', 'پشتیبانی', 'نظرات', 'اخبار', 'FAQ', 'پیام‌ها', 'اطلاعیه', 'مدارک آموزشگاه', 'پاک‌سازی فایل‌ها', 'اتوماسیون', 'تنظیمات'] as const
 export default function AdminDashboard() {
   const [tab, setTab] = useState<(typeof TABS)[number]>('دوره‌ها')
   return (
@@ -27,6 +28,7 @@ export default function AdminDashboard() {
       {tab === 'اطلاعیه' && <AnnouncementTab />}
       {tab === 'مدارک آموزشگاه' && <DocumentsTab />}
       {tab === 'پاک‌سازی فایل‌ها' && <CleanupTab />}
+      {tab === 'اتوماسیون' && <AutomationTab />}
       {tab === 'تنظیمات' && <SettingsTab />}
     </div>
   )
@@ -813,6 +815,82 @@ function CleanupTab() {
     </div>
   )
       }
+function AutomationTab() {
+  const { showToast } = useToast()
+  const [events, setEvents] = useState<AutomationEventRow[]>([])
+  const [enabled, setEnabled] = useState(true)
+  const [retrying, setRetrying] = useState<string | null>(null)
+  const [toggling, setToggling] = useState(false)
+  const load = () => {
+    supabase.from('automation_events').select('*').order('created_at', { ascending: false }).limit(50)
+      .then(({ data }) => setEvents((data as AutomationEventRow[]) || []))
+    supabase.from('site_settings').select('value').eq('key', 'automation_enabled').maybeSingle()
+      .then(({ data }) => setEnabled(data?.value !== 'false'))
+  }
+  useEffect(() => { load() }, [])
+
+  const toggleEnabled = async () => {
+    setToggling(true)
+    const next = !enabled
+    const { data: existing } = await supabase.from('site_settings').select('key').eq('key', 'automation_enabled').maybeSingle()
+    const { error } = existing
+      ? await supabase.from('site_settings').update({ value: String(next) }).eq('key', 'automation_enabled')
+      : await supabase.from('site_settings').insert({ key: 'automation_enabled', value: String(next) })
+    if (error) { showToast('خطا در تغییر وضعیت: ' + error.message, 'error') } else { setEnabled(next); showToast(next ? 'اتوماسیون فعال شد.' : 'اتوماسیون غیرفعال شد.') }
+    setToggling(false)
+  }
+
+  const retry = async (id: string) => {
+    setRetrying(id)
+    const { error } = await supabase.functions.invoke('automation-emit', { body: { retry_id: id } })
+    if (error) { showToast('خطا در تلاش مجدد: ' + error.message, 'error') } else { showToast('درخواست ارسال مجدد ثبت شد.') }
+    setTimeout(load, 1200)
+    setRetrying(null)
+  }
+
+  const recentSent = events.find((e) => e.status === 'sent')
+  const statusLabel = (s: AutomationEventRow['status']) => ({ pending: 'در انتظار', sent: 'ارسال‌شده', failed: 'ناموفق', skipped: 'رد‌شده (غیرفعال)' }[s])
+  const statusClass = (s: AutomationEventRow['status']) => ({ pending: 'dash-badge-pending', sent: 'dash-badge-success', failed: 'dash-badge-danger', skipped: 'dash-badge-pending' }[s])
+  const failedCount = events.filter((e) => e.status === 'failed').length
+
+  return (
+    <div className="space-y-3">
+      <div className="dash-card space-y-2">
+        <div className="text-xs text-[#8B8FC0]">
+          این بخش رویدادهای مهم سایت (ثبت‌نام، ثبت دوره، پیام، پشتیبانی، آپلود مدرک) رو به n8n می‌فرسته تا Workflowهای خودکار (اطلاع‌رسانی، ایمیل، تلگرام و...) روشون اجرا بشه. تا وقتی n8n واقعی وصل نشده، رویدادها ثبت می‌شن ولی ارسال نمی‌شن — سایت همیشه کاملاً عادی کار می‌کنه، این بخش فقط یه لایه‌ی جانبیه.
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="text-sm">
+            وضعیت اتصال: {recentSent ? <span className="dash-badge dash-badge-success">آخرین ارسال موفق: {new Date(recentSent.processed_at || recentSent.created_at).toLocaleString('fa-IR')}</span> : <span className="dash-badge dash-badge-pending">هنوز هیچ ارسال موفقی ثبت نشده</span>}
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="text-sm">اتوماسیون {enabled ? 'فعاله' : 'غیرفعاله'}</div>
+          <button onClick={toggleEnabled} disabled={toggling} className="dash-btn-mini">{enabled ? 'غیرفعال کن' : 'فعال کن'}</button>
+        </div>
+        {failedCount > 0 && <div className="text-xs text-[#FB7185]">{failedCount} رویداد ناموفق — پایین لیست رو ببین.</div>}
+      </div>
+      <div className="space-y-2">
+        {events.map((e) => (
+          <div key={e.id} className="dash-card">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="text-sm font-bold">{e.event_type}</div>
+                <div className="text-[10px] text-[#7B7FB5] mt-1">{new Date(e.created_at).toLocaleString('fa-IR')} · تلاش {e.attempts}</div>
+                {e.error_message && <div className="text-[10px] text-[#FB7185] mt-1">{e.error_message}</div>}
+              </div>
+              <span className={`dash-badge shrink-0 ${statusClass(e.status)}`}>{statusLabel(e.status)}</span>
+            </div>
+            {e.status === 'failed' && (
+              <button onClick={() => retry(e.id)} disabled={retrying === e.id} className="dash-btn-mini mt-2.5">{retrying === e.id ? 'در حال تلاش...' : 'تلاش مجدد'}</button>
+            )}
+          </div>
+        ))}
+      </div>
+      {events.length === 0 && <div className="dash-empty">هنوز هیچ رویدادی ثبت نشده.</div>}
+    </div>
+  )
+  }
 function SettingsTab() {
   const { showToast } = useToast()
   const [settings, setSettings] = useState<Record<string, string>>({})
