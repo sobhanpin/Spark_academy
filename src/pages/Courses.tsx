@@ -79,7 +79,7 @@ export default function Courses() {
               <h3 className="font-bold mt-1 mb-2">{c.title}</h3>
               <p className="text-sm text-[#8B8FC0] line-clamp-2">{c.description}</p>
               <div className="mt-3 flex justify-between items-center">
-                <span className="text-sm font-bold text-accent">{c.price.toLocaleString('fa-IR')} تومان</span>
+                <span className="text-sm font-bold text-accent">{(c.price ?? 0).toLocaleString('fa-IR')} تومان</span>
                 <span className="text-[11px] text-[#7B7FB5]">{c.mode === 'both' ? 'حضوری و آنلاین' : c.mode === 'in_person' ? 'حضوری' : 'آنلاین'}</span>
               </div>
             </div>
