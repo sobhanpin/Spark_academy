@@ -182,7 +182,7 @@ export default function Home() {
                 )}
                 <p>{c.description}</p>
                 <div>
-                  <small>{c.price.toLocaleString('fa-IR')} تومان</small>
+                  <small>{(c.price ?? 0).toLocaleString('fa-IR')} تومان</small>
                   <i><Icon name="arrow" className="w-4 h-4" /></i>
                 </div>
               </div>
