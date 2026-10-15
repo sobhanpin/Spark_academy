@@ -26,6 +26,17 @@ export default function Enroll() {
   const submit = async () => {
     if (!session) { navigate('/login'); return }
     setLoading(true)
+        const { data: existing } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .eq('course_id', id)
+      .limit(1)
+    if (existing && existing.length > 0) {
+      showToast('شما قبلاً در این دوره ثبت‌نام کرده‌اید.', 'error')
+      setLoading(false)
+      return
+    }
 
     const { data: enrollment, error } = await supabase
       .from('enrollments')
