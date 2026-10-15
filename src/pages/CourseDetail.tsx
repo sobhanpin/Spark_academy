@@ -65,7 +65,7 @@ export default function CourseDetail() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
         <div className="glass-panel rounded-btn p-3.5 text-sm flex justify-between">
-          <span className="text-[#7B7FB5]">شهریه</span><span className="font-bold text-accent">{course.price.toLocaleString('fa-IR')} تومان</span>
+          <span className="font-bold text-accent">{(course.price ?? 0).toLocaleString('fa-IR')} تومان</span>
         </div>
         <div className="glass-panel rounded-btn p-3.5 text-sm flex justify-between">
           <span className="text-[#7B7FB5]">نوع کلاس</span><span>{course.mode === 'both' ? 'حضوری و آنلاین' : course.mode === 'in_person' ? 'حضوری' : 'آنلاین'}</span>
