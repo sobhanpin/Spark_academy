@@ -88,7 +88,7 @@ export default function Enroll() {
           <div className="w-14 h-14 mx-auto rounded-full bg-white/5 shadow-neumo-out grid place-items-center text-3xl mb-4">✅</div>
           <h1 className="text-xl font-black mb-2">ثبت‌نام اولیه انجام شد</h1>
           <p className="text-sm text-[#8B8FC0] mb-6 leading-relaxed">
-            برای نهایی‌شدن ثبت‌نام، شهریه‌ی <b className="text-accent">{course.price.toLocaleString('fa-IR')} تومان</b> رو حضوری در آموزشگاه پرداخت کن. بعد از پرداخت، وضعیتت در پنل به «پرداخت‌شده» تغییر می‌کنه.
+            برای نهایی‌شدن ثبت‌نام، شهریه‌ی <b className="text-accent">{(course.price ?? 0).toLocaleString('fa-IR')} تومان</b> رو حضوری در آموزشگاه پرداخت کن. بعد از پرداخت، وضعیتت در پنل به «پرداخت‌شده» تغییر می‌کنه.
           </p>
           <Link
             to="/dashboard"
@@ -175,7 +175,7 @@ export default function Enroll() {
 
         <div className="flex justify-between text-sm">
           <span className="text-[#7B7FB5]">شهریه</span>
-          <span className="font-bold text-accent">{course.price.toLocaleString('fa-IR')} تومان</span>
+          <span className="font-bold text-accent">{(course.price ?? 0).toLocaleString('fa-IR')} تومان</span>
         </div>
 
         <button
