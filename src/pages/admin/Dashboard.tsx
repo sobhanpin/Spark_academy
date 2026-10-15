@@ -133,7 +133,7 @@ function CoursesTab() {
         <div key={c.id} className="dash-card flex items-center justify-between">
           <div>
             <div className="font-bold text-sm">{c.title} {!c.is_active && <span className="text-[10px] text-[#FB7185]">(غیرفعال)</span>}</div>
-            <div className="text-xs text-[#7B7FB5]">{c.category} · {c.price.toLocaleString('fa-IR')} تومان {c.profiles && `· مدرس: ${c.profiles.name}`}</div>
+            <div className="text-xs text-[#7B7FB5]">{c.category} · {(c.price ?? 0).toLocaleString('fa-IR')} تومان {c.profiles && `· مدرس: ${c.profiles.name}`}</div>
           </div>
           <div className="flex gap-3 text-xs">
             <button onClick={() => setEditing(c)} className="text-accent hover:underline transition-colors duration-300">ویرایش</button>
